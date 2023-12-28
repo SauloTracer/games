@@ -28,6 +28,7 @@
                                         :highlight="highlightedCells.includes(cell)"
                                         :highlightValue="highlightValue"
                                         @click="selectCell(cell.coordinates.row, cell.coordinates.col)"
+                                        @updateCandidates="cell.candidates = $event"
                                     ></cell>
                                 </div>
                             </template>

@@ -10,6 +10,7 @@
                     :selected="props.selected"
                     :highlight="props.highlight"
                     :highlightValue="props.highlightValue"
+                    @updateCandidates="$emit('updateCandidates', $event)"
                 ></candidates>
             </div>
             <div
@@ -44,7 +45,7 @@ import { computed, onBeforeMount, ref, watch } from 'vue'
 import candidates from './candidates.vue';
 
 const props = defineProps<Cell>();
-const emits = defineEmits(['update:modelValue', 'click']);
+const emits = defineEmits(['update:modelValue', 'click', 'updateCandidates']);
 
 const selected = ref(false);
 const highlight = ref(false);

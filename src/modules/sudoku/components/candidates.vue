@@ -28,7 +28,7 @@ export interface CandidatesProps {
 import { computed, onBeforeMount, ref, watch } from 'vue'
 
 const props = defineProps<CandidatesProps>();
-const emits = defineEmits(['update:modelValue']);
+const emits = defineEmits(['updateCandidates']);
 const candidates = ref<number[]>([]);
 
 onBeforeMount(() => {
@@ -42,7 +42,7 @@ function toggle(value: number) {
     } else {
         candidates.value.push(value);
     }
-    emits('update:modelValue', candidates.value);
+    emits('updateCandidates', candidates.value);
 }
 
 function highlightCss(value: number) {

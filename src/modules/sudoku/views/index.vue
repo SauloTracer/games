@@ -37,7 +37,7 @@
             </template>
         </div>
         <div style="display: flex; justify-content: center; align-items: center;">
-            <button @click="sudokuStore.solve()">Solve</button>
+            <button @click="showSolution()">Solve</button>
             <button @click="reset()">Reset</button>
             <button @click="autoCandidate()">Auto Candidate</button>
             <button @click="promoteSingles()">Promote Singles</button>
@@ -272,6 +272,17 @@ function solve() {
         }
     }
     return true;
+}
+
+function showSolution() {
+    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(row =>
+        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(col => {
+            if (board.value[row][col].type != 'given') {
+                board.value[row][col].value = solution[row][col];
+                board.value[row][col].type = 'filled';
+            }
+        })
+    );
 }
 
 </script>

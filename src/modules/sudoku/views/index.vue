@@ -5,32 +5,29 @@
             id="board"
             class="grid"
             tabindex="0"
-            @keyup="handleKeyUp($event)"
+            @keyup.stop="handleKeyUp($event)"
             @keyup.escape="esc()"
         >
-            <template v-for="l in [1, 2, 3]">
-                <template v-for="c in [1, 2, 3]">
+            <template v-for="row in [1, 2, 3]">
+                <template v-for="col in [1, 2, 3]">
                     <div class="block">
-                        <template v-for="line, li in sudokuStore.board.slice((l - 1) * 3, l * 3)">
+                        <template v-for="line, lineIndex in board.slice((row - 1) * 3, row * 3)">
                             <template
-                                v-for="cellValue, ci in line.slice((c - 1) * 3, c * 3)"
-                                :key="`${li + (l - 1) * 3}-${ci + (c - 1) * 3}`"
+                                v-for="cell, colIndex in line.slice((col - 1) * 3, col * 3)"
+                                :key="`${lineIndex + (row - 1) * 3}-${colIndex + (col - 1) * 3}`"
                             >
                                 <div
                                     class="cell"
-                                    @click="selectedCell = board[ci + (c - 1) * 3][li + (l - 1) * 3]"
+                                    @click="selectedCell = cell"
                                 >
                                     <cell
-                                        :key="`cell${li + (l - 1) * 3}-${ci + (c - 1) * 3}`"
-                                        :coordinates="{ y: li + (l - 1) * 3, x: ci + (c - 1) * 3 }"
-                                        :type="board[li + (l - 1) * 3][ci + (c - 1) * 3].type"
-                                        :candidates="board[li + (l - 1) * 3][ci + (c - 1) * 3].candidates"
-                                        :value="board[li + (l - 1) * 3][ci + (c - 1) * 3].value"
-                                        :selected="board[li + (l - 1) * 3][ci + (c - 1) * 3].selected"
-                                        :highlight="highlightedCells.includes(board[li + (l - 1) * 3][ci + (c - 1) * 3])"
+                                        :type="cell.type"
+                                        :candidates="cell.candidates"
+                                        :value="cell.value"
+                                        :selected="cell.selected"
+                                        :highlight="highlightedCells.includes(cell)"
                                         :highlightValue="highlightValue"
-                                        style="height: 100%; width: 100%;"
-                                        @click="selectCell(ci + (c - 1) * 3, li + (l - 1) * 3)"
+                                        @click="selectCell(cell.coordinates.row, cell.coordinates.col)"
                                     ></cell>
                                 </div>
                             </template>
@@ -41,7 +38,7 @@
         </div>
         <div style="display: flex; justify-content: center; align-items: center;">
             <button @click="sudokuStore.solve()">Solve</button>
-            <!-- <button @click="sudokuStore.clear()">Clear</button> -->
+            <button @click="reset()">Reset</button>
             <button @click="autoCandidate()">Auto Candidate</button>
             <button @click="promoteSingles()">Promote Singles</button>
         </div>
@@ -55,7 +52,7 @@ export interface Cell {
     candidates: number[];
     selected: boolean;
     highlight: boolean;
-    coordinates: { x: number, y: number };
+    coordinates: { row: number, col: number };
 }
 
 import { ref, onBeforeMount, onMounted } from 'vue'
@@ -64,11 +61,10 @@ import { useSudokuStore } from '@/modules/sudoku/stores/SudokuStore';
 
 import Title from '@/components/Title.vue';
 import cell from '../components/cell.vue';
-import candidates from '../components/candidates.vue';
 
 const sudokuStore = useSudokuStore();
 
-const defaultCell = { selected: false, highlight: false, value: null, candidates: [1, 2, 3, 4, 5, 6, 7, 8, 9], type: "candidate", coordinates: { x: 0, y: 0 } } as Cell;
+const defaultCell = { selected: false, highlight: false, value: null, candidates: [1, 2, 3, 4, 5, 6, 7, 8, 9], type: "candidate", coordinates: { row: 0, col: 0 } } as Cell;
 const board = ref<Cell[][]>([
     [defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell,],
     [defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell,],
@@ -83,118 +79,154 @@ const board = ref<Cell[][]>([
 const selectedCell = ref<Cell | null>(null);
 const highlightedCells = ref<Cell[]>([]);
 const highlightValue = ref<number | null>(null);
+let solution: number[][] = [[]];
 
 onBeforeMount(() => {
-    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(x =>
-        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(y => {
-            board.value[y][x] = {
+    reset();
+    autoCandidate();
+    solution = board.value.map(line => line.map(cell => cell.value ?? 0)) as number[][];
+    solve();
+});
+
+function reset() {
+    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(col =>
+        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(row => {
+            board.value[row][col] = {
                 ...defaultCell,
-                value: sudokuStore.board[y][x],
-                coordinates: { x, y },
+                value: sudokuStore.board[row][col],
+                coordinates: { row, col },
+                candidates: [],
             };
-            if (sudokuStore.board[y][x]) {
-                board.value[y][x].type = 'given';
-                board.value[y][x].candidates = [];
-                board.value[y][x].value = sudokuStore.board[y][x];
+            if (sudokuStore.board[row][col]) {
+                board.value[row][col].type = 'given';
+                board.value[row][col].value = sudokuStore.board[row][col];
             }
         })
     );
-    autoCandidate();
-});
-
-function getBlock(x: number, y: number) {
-    y = Math.floor(y / 3);
-    x = Math.floor(x / 3);
-    return board.value.slice(y * 3, y * 3 + 3).map(line => line.slice(x * 3, x * 3 + 3));
+    highlightedCells.value = [];
+    highlightValue.value = null;
+    selectedCell.value = null;
 }
 
-function getBlockValues(x: number, y: number) {
-    return getBlock(x, y).flat().map(cell => cell.value);
+function getBlock(row: number, col: number) {
+    row = Math.floor(row / 3);
+    col = Math.floor(col / 3);
+    return board.value.slice(row * 3, row * 3 + 3).map(line => line.slice(col * 3, col * 3 + 3));
 }
 
-function getCellCandidates(x: number, y: number) {
+function getBlockValues(row: number, col: number) {
+    return getBlock(row, col).flat().map(cell => cell.value);
+}
+
+function getCellCandidates(row: number, col: number) {
     const possibleCandidates = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-    const block = getBlockValues(x, y);
-    const row = board.value[y].map(cell => cell.value);
-    const column = board.value.map(line => line[x].value);
+    const block = getBlockValues(row, col);
+    const boardRow = board.value[row].map(cell => cell.value);
+    const boardCol = board.value.map(line => line[col].value);
     const candidates = possibleCandidates.filter(candidate => {
-        return ![...column, ...row, ...block].includes(candidate);
+        return ![...boardCol, ...boardRow, ...block].includes(candidate);
     });
     return candidates;
 }
 
 function autoCandidate() {
-    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(x =>
-        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(y =>
-            board.value[y][x].candidates = getCellCandidates(x, y)
+    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(row =>
+        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(col =>
+            board.value[row][col].candidates = getCellCandidates(row, col)
         )
     );
 }
 
-function removeCandidateFromConnectedCells(value: number, x: number, y: number) {
-    const block = getBlock(x, y).flat();
-    const row = board.value[y];
-    const column = board.value.map(line => line[x]);
-    console.log([row, column, block].flat().filter(cell => cell.type == 'candidate').map(cell => cell.candidates));
-    [row, column, block].flat().map(cell => {
+function removeCandidateFromConnectedCells(value: number, row: number, col: number) {
+    const block = getBlock(row, col).flat();
+    const boardRow = board.value[row];
+    const boardColumn = board.value.map(line => line[col]);
+    [boardRow, boardColumn, block].flat().map(cell => {
         if (cell.type == 'candidate') {
             cell.candidates = cell.candidates.filter(candidate => candidate != value);
         }
     });
 }
 
-function highlightConnectedCells(x: number, y: number) {
+function highlightConnectedCells(row: number, col: number) {
     highlightedCells.value = [];
-    const block = getBlock(x, y).flat();
-    const row = board.value[y];
-    const column = board.value.map(line => line[x]);
-    highlightedCells.value = [...block, ...row, ...column];
+    const block = getBlock(row, col).flat();
+    const boardRow = board.value[row];
+    const boardColumn = board.value.map(line => line[col]);
+    highlightedCells.value = [...block, ...boardRow, ...boardColumn];
 }
 
-function selectCell(x: number, y: number) {
-    highlightValue.value = board.value[y][x].value;
-    selectedCell.value = board.value[y][x];
-    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(x =>
-        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(y => {
-            board.value[y][x].selected = false;
-            board.value[y][x].highlight = false;
+function selectCell(row: number, col: number) {
+    console.log("row", row, "col", col, board.value[row][col])
+    highlightValue.value = board.value[row][col].value;
+    selectedCell.value = board.value[row][col];
+    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(row =>
+        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(col => {
+            board.value[row][col].selected = false;
+            board.value[row][col].highlight = false;
         })
     );
-    board.value[y][x].selected = true;
-    highlightConnectedCells(x, y);
+    board.value[row][col].selected = true;
+    highlightConnectedCells(row, col);
+    console.log(board.value[row][col], selectedCell.value);
 }
 
 function promoteSingles() {
-    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(x =>
-        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(y => {
-            if (board.value[y][x].type == 'candidate' && board.value[y][x].candidates.length == 1) {
-                const value = board.value[y][x].candidates[0];
-                board.value[y][x].value = value;
-                board.value[y][x].type = 'filled';
-                removeCandidateFromConnectedCells(value, x, y);
+    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(row =>
+        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(col => {
+            const cell = board.value[row][col];
+            if (cell.type == 'candidate' && cell.candidates.length == 1) {
+                const value = cell.candidates[0];
+                cell.value = value;
+                cell.type = 'filled';
+                removeCandidateFromConnectedCells(value, row, col);
             }
         })
     );
 }
 
 function handleKeyUp(event: KeyboardEvent) {
-    if (!selectedCell.value || selectedCell.value.type == 'given') return;
-    if (!["1", "2", "3", "4", "5", "6", "7", "8", "9", "Backspace", "Delete"].includes(event.key)) return;
+    console.log(event.key, selectedCell.value, selectedCell.value?.coordinates);
+    if (!selectedCell.value) return;
 
-    const x = selectedCell.value.coordinates.x;
-    const y = selectedCell.value.coordinates.y;
+    let row = selectedCell.value.coordinates.row;
+    let col = selectedCell.value.coordinates.col;
 
-    if (["Backspace", "Delete"].includes(event.key)) {
-        board.value[x][y].value = null;
-        board.value[x][y].type = 'candidate';
-        board.value[x][y].candidates = getCellCandidates(x, y);
-        highlightValue.value = null;
-    } else {
-        board.value[x][y].value = parseInt(event.key);
-        board.value[x][y].type = 'filled';
-        highlightValue.value = parseInt(event.key);
-        removeCandidateFromConnectedCells(parseInt(event.key), y, x);
-        // autoCandidate();
+    if (event.key == 'ArrowUp') {
+        row = row > 0 ? row - 1 : 8;
+        selectCell(row, col);
+        return;
+    }
+    if (event.key == 'ArrowDown') {
+        row = row < 8 ? row + 1 : 0;
+        selectCell(row, col);
+        return;
+    }
+    if (event.key == 'ArrowLeft') {
+        col = col > 0 ? col - 1 : 8;
+        selectCell(row, col);
+        return;
+    }
+    if (event.key == 'ArrowRight') {
+        col = col < 8 ? col + 1 : 0;
+        selectCell(row, col);
+        return;
+    }
+
+    if (selectedCell.value.type != 'given') {
+        if (!["1", "2", "3", "4", "5", "6", "7", "8", "9", "Backspace", "Delete"].includes(event.key)) return;
+
+        if (["Backspace", "Delete"].includes(event.key)) {
+            board.value[row][col].value = null;
+            board.value[row][col].type = 'candidate';
+            board.value[row][col].candidates = getCellCandidates(row, col);
+            highlightValue.value = null;
+        } else {
+            board.value[row][col].value = parseInt(event.key);
+            board.value[row][col].type = 'filled';
+            highlightValue.value = parseInt(event.key);
+            removeCandidateFromConnectedCells(parseInt(event.key), row, col);
+        }
     }
 }
 
@@ -202,12 +234,46 @@ function esc() {
     selectedCell.value = null;
     highlightValue.value = null;
     highlightedCells.value = [];
-    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(x =>
-        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(y =>
-            board.value[y][x].selected = false
+    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(row =>
+        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(col =>
+            board.value[row][col].selected = false
         )
     );
 }
+
+function possible(row: number, col: number, k: number) {
+    for (let i = 0; i < 9; i++) {
+        const m = 3 * Math.floor(row / 3) + Math.floor(i / 3);
+        const n = 3 * Math.floor(col / 3) + i % 3;
+        if (solution[row][i] == k || solution[i][col] == k || solution[m][n] == k) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+function solve() {
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+            if (!solution[i][j]) {
+                for (let k = 1; k <= 9; k++) {
+                    if (possible(i, j, k)) {
+                        solution[i][j] = k;
+                        if (solve()) {
+                            return true;
+                        } else {
+                            solution[i][j] = 0;
+                        }
+                    }
+                }
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 </script>
 
 <style lang="css" scoped>

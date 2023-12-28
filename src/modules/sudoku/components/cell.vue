@@ -73,8 +73,8 @@ const cssClass = computed(() => {
 
 <style lang="css" scoped>
 .cell {
-    height: 100%;
-    aspect-ratio: 1;
+    height: 99%;
+    aspect-ratio: 1 / 1;
     z-index: 90;
 }
 

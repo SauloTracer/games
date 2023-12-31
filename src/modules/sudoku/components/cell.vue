@@ -20,6 +20,7 @@
                 <span
                     :class="[
                         props.highlightValue == value ? 'highlightValue' : '',
+                        props.type != 'given' && props.check ? value == props.answer ? 'correct' : 'wrong' : '',
                     ]"
                     style="aspect-ratio: 1 / 1; margin: 5px; padding: 0 10px;"
                 >
@@ -38,6 +39,8 @@ export interface Cell {
     selected: boolean;
     highlight: boolean;
     highlightValue?: number | null;
+    check: boolean;
+    answer: number;
 }
 
 import { computed, onBeforeMount, ref, watch } from 'vue'
@@ -110,9 +113,12 @@ const cssClass = computed(() => {
     color: red !important;
 }
 
-.answer {
-    font-weight: bold;
+.correct {
     color: blue;
+}
+
+.wrong {
+    color: red;
 }
 
 .outer {

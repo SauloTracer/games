@@ -33,7 +33,7 @@
     </a>
   </div>
 
-  <router-view style="height: 80vh;" />
+  <router-view />
 </template>
 
 <style scoped>

@@ -1,49 +1,105 @@
 <template>
-    <container>
-        <Title>Sudoku</Title>
-        <div
-            id="board"
-            class="grid"
-            tabindex="0"
-            @keyup.stop="handleKeyUp($event)"
-            @keyup.escape="esc()"
-        >
-            <template v-for="row in [1, 2, 3]">
-                <template v-for="col in [1, 2, 3]">
-                    <div class="block">
-                        <template v-for="line, lineIndex in board.slice((row - 1) * 3, row * 3)">
-                            <template
-                                v-for="cell, colIndex in line.slice((col - 1) * 3, col * 3)"
-                                :key="`${lineIndex + (row - 1) * 3}-${colIndex + (col - 1) * 3}`"
+    <Title>Sudoku</Title>
+
+    <button
+        @click="fillCandidates = true"
+        :class="[fillCandidates ? 'selected' : '']"
+    >Fill Candidates</button>
+    <button
+        @click="fillCandidates = false"
+        :class="[!fillCandidates ? 'selected' : '']"
+    >Answer</button>
+
+    <div
+        id="board"
+        class="grid"
+        tabindex="0"
+        @keyup.stop="handleKeyUp($event)"
+        @keyup.escape="esc()"
+    >
+        <template v-for="row in [1, 2, 3]">
+            <template v-for="col in [1, 2, 3]">
+                <div class="block">
+                    <template v-for="line, lineIndex in board.slice((row - 1) * 3, row * 3)">
+                        <template
+                            v-for="cell, colIndex in line.slice((col - 1) * 3, col * 3)"
+                            :key="`${lineIndex + (row - 1) * 3}-${colIndex + (col - 1) * 3}`"
+                        >
+                            <div
+                                class="cell"
+                                @click="selectedCell = cell"
                             >
-                                <div
-                                    class="cell"
-                                    @click="selectedCell = cell"
-                                >
-                                    <cell
-                                        :type="cell.type"
-                                        :candidates="cell.candidates"
-                                        :value="cell.value"
-                                        :selected="cell.selected"
-                                        :highlight="highlightedCells.includes(cell)"
-                                        :highlightValue="highlightValue"
-                                        @click="selectCell(cell.coordinates.row, cell.coordinates.col)"
-                                        @updateCandidates="cell.candidates = $event"
-                                    ></cell>
-                                </div>
-                            </template>
+                                <cell
+                                    :type="cell.type"
+                                    :candidates="cell.candidates"
+                                    :value="cell.value"
+                                    :selected="cell.selected"
+                                    :highlight="highlightedCells.includes(cell)"
+                                    :highlightValue="highlightValue"
+                                    :check="autoCheckCells || cell.check"
+                                    :answer="cell.answer"
+                                    @click="selectCell(cell.coordinates.row, cell.coordinates.col)"
+                                    @updateCandidates="cell.candidates = $event"
+                                ></cell>
+                            </div>
                         </template>
-                    </div>
-                </template>
+                    </template>
+                </div>
             </template>
-        </div>
-        <div style="display: flex; justify-content: center; align-items: center;">
-            <button @click="showSolution()">Solve</button>
-            <button @click="reset()">Reset</button>
-            <button @click="autoCandidate()">Auto Candidate</button>
-            <button @click="promoteSingles()">Promote Singles</button>
-        </div>
-    </container>
+        </template>
+    </div>
+    <nav>
+        <span style="padding: 0.6em 1.2em;">
+            <input
+                id="autoCheckCells"
+                type="checkbox"
+                v-model="autoCheckCells"
+                label="Auto Check"
+                @change="updateCheckCells()"
+            />
+            <label
+                for="autoCheckCells"
+                style="font-weight:500;"
+            > Auto Check</label>
+        </span>
+        <button
+            v-if="!autoCheckCells"
+            @click="checkCell()"
+        >Check Cell</button>
+        <button @click="revealCell()">Reveal Cell</button>
+        <button @click="showSolution()">Solve</button>
+        <button @click="reset()">Reset</button>
+        <button @click="autoCandidate()">Auto Candidate</button>
+        <button @click="promoteSingles()">Promote Singles</button>
+    </nav>
+    <div
+        id="numbers"
+        class="grid"
+    >
+        <template v-for="n in [1, 2, 3, 4, 5, 6, 7, 8, 9]">
+            <button
+                class="number"
+                :id="n.toString()"
+                @mouseover="highlightValue = n"
+                @mouseleave="highlightValue = selectedCell?.value ?? null"
+                @click="setCellValue(n)"
+            >
+                <div style="display: flex; flex-direction: column; aspect-ratio: 1;">
+                    <span>{{ n }}</span>
+                    <span style="font-size:x-small; color: rgb(100, 100, 100);">
+                        ({{ getCount(n) }} / 9)
+                    </span>
+                </div>
+            </button>
+        </template>
+        <button
+            class="number"
+            id="clearCellButton"
+            @click="clearCellValue()"
+        >
+            X
+        </button>
+    </div>
 </template>
 
 <script setup lang='ts'>
@@ -53,7 +109,9 @@ export interface Cell {
     candidates: number[];
     selected: boolean;
     highlight: boolean;
+    check: boolean;
     coordinates: { row: number, col: number };
+    answer: number;
 }
 
 import { ref, onBeforeMount, onMounted } from 'vue'
@@ -65,7 +123,8 @@ import cell from '../components/cell.vue';
 
 const sudokuStore = useSudokuStore();
 
-const defaultCell = { selected: false, highlight: false, value: null, candidates: [1, 2, 3, 4, 5, 6, 7, 8, 9], type: "candidate", coordinates: { row: 0, col: 0 } } as Cell;
+const autoCheckCells = ref(true);
+const defaultCell = { selected: false, highlight: false, check: autoCheckCells.value, value: null, candidates: [1, 2, 3, 4, 5, 6, 7, 8, 9], type: "candidate", coordinates: { row: 0, col: 0 }, answer: 0 } as Cell;
 const board = ref<Cell[][]>([
     [defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell,],
     [defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell,],
@@ -80,13 +139,12 @@ const board = ref<Cell[][]>([
 const selectedCell = ref<Cell | null>(null);
 const highlightedCells = ref<Cell[]>([]);
 const highlightValue = ref<number | null>(null);
+const fillCandidates = ref(true);
 let solution: number[][] = [[]];
 
 onBeforeMount(() => {
     reset();
     autoCandidate();
-    solution = board.value.map(line => line.map(cell => cell.value ?? 0)) as number[][];
-    solve();
 });
 
 function reset() {
@@ -107,6 +165,13 @@ function reset() {
     highlightedCells.value = [];
     highlightValue.value = null;
     selectedCell.value = null;
+    solution = board.value.map(line => line.map(cell => cell.value ?? 0)) as number[][];
+    solve();
+    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(row =>
+        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(col =>
+            board.value[row][col].answer = solution[row][col]
+        )
+    );
 }
 
 function getBlock(row: number, col: number) {
@@ -149,6 +214,10 @@ function removeCandidateFromConnectedCells(value: number, row: number, col: numb
     });
 }
 
+function getCount(value: number) {
+    return board.value.flat().filter(cell => cell.value == value).length;
+}
+
 function highlightConnectedCells(row: number, col: number) {
     highlightedCells.value = [];
     const block = getBlock(row, col).flat();
@@ -158,7 +227,6 @@ function highlightConnectedCells(row: number, col: number) {
 }
 
 function selectCell(row: number, col: number) {
-    console.log("row", row, "col", col, board.value[row][col])
     highlightValue.value = board.value[row][col].value;
     selectedCell.value = board.value[row][col];
     [0, 1, 2, 3, 4, 5, 6, 7, 8].map(row =>
@@ -169,7 +237,6 @@ function selectCell(row: number, col: number) {
     );
     board.value[row][col].selected = true;
     highlightConnectedCells(row, col);
-    console.log(board.value[row][col], selectedCell.value);
 }
 
 function promoteSingles() {
@@ -192,6 +259,11 @@ function handleKeyUp(event: KeyboardEvent) {
 
     let row = selectedCell.value.coordinates.row;
     let col = selectedCell.value.coordinates.col;
+
+    if (event.key == ' ') {
+        fillCandidates.value = !fillCandidates.value;
+        return;
+    }
 
     if (event.key == 'ArrowUp') {
         row = row > 0 ? row - 1 : 8;
@@ -218,17 +290,42 @@ function handleKeyUp(event: KeyboardEvent) {
         if (!["1", "2", "3", "4", "5", "6", "7", "8", "9", "Backspace", "Delete"].includes(event.key)) return;
 
         if (["Backspace", "Delete"].includes(event.key)) {
-            board.value[row][col].value = null;
-            board.value[row][col].type = 'candidate';
-            board.value[row][col].candidates = getCellCandidates(row, col);
-            highlightValue.value = null;
+            clearCellValue();
         } else {
-            board.value[row][col].value = parseInt(event.key);
-            board.value[row][col].type = 'filled';
-            highlightValue.value = parseInt(event.key);
-            removeCandidateFromConnectedCells(parseInt(event.key), row, col);
+            setCellValue(parseInt(event.key));
         }
     }
+}
+
+function setCellValue(value: number) {
+    if (!selectedCell.value) return;
+    if (selectedCell.value.type == 'given') return;
+
+    if (fillCandidates.value) {
+        if (!selectedCell.value.candidates.includes(value)) {
+            selectedCell.value.candidates.push(value);
+        } else {
+            selectedCell.value.candidates = selectedCell.value.candidates.filter(candidate => candidate != value);
+        }
+    } else {
+        selectedCell.value.value = selectedCell.value.answer;
+        selectedCell.value.type = 'filled';
+        removeCandidateFromConnectedCells(value, selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
+    }
+    highlightValue.value = value;
+}
+
+function clearCellValue() {
+    if (!selectedCell.value) return;
+    if (selectedCell.value.type == 'given') return;
+
+    if (!fillCandidates.value) {
+        selectedCell.value.value = null;
+        selectedCell.value.type = 'candidate';
+    }
+    selectedCell.value.candidates = getCellCandidates(selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
+
+    highlightValue.value = null;
 }
 
 function esc() {
@@ -286,6 +383,27 @@ function showSolution() {
     );
 }
 
+function revealCell() {
+    if (!selectedCell.value) return;
+    if (selectedCell.value.type == 'given') return;
+    selectedCell.value.value = selectedCell.value.answer;
+    selectedCell.value.type = 'filled';
+}
+
+function checkCell() {
+    if (!selectedCell.value) return;
+    if (selectedCell.value.type == 'given') return;
+    selectedCell.value.check = true;
+}
+
+function updateCheckCells() {
+    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(row =>
+        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(col => {
+            board.value[row][col].check = autoCheckCells.value;
+        })
+    );
+}
+
 </script>
 
 <style lang="css" scoped>
@@ -322,5 +440,28 @@ function showSolution() {
     border: solid 1px gray;
     margin: -1px;
     z-index: 99;
+}
+
+#numbers {
+    align-content: center;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+
+}
+
+.number {
+    margin: 5px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 5px;
+    border: solid 1px gray;
+    background-color: lightgray;
+}
+
+.selected {
+    border: 2px solid black
 }
 </style>

@@ -1,15 +1,15 @@
 <template>
     <Title>Sudoku</Title>
-
     <button
         @click="fillCandidates = true"
         :class="[fillCandidates ? 'selected' : '']"
+        style="margin: 5px"
     >Fill Candidates</button>
     <button
         @click="fillCandidates = false"
         :class="[!fillCandidates ? 'selected' : '']"
+        style="margin: 5px"
     >Answer</button>
-
     <div
         id="board"
         class="grid"
@@ -71,6 +71,7 @@
         <button @click="reset()">Reset</button>
         <button @click="autoCandidate()">Auto Candidate</button>
         <button @click="promoteSingles()">Promote Singles</button>
+        <button @click="newGame()">New Game</button>
     </nav>
     <div
         id="numbers"
@@ -116,7 +117,7 @@ export interface Cell {
 
 import { ref, onBeforeMount, onMounted } from 'vue'
 
-import { useSudokuStore } from '@/modules/sudoku/stores/SudokuStore';
+import { useSudokuStore, Difficulty } from '@/modules/sudoku/stores/SudokuStore';
 
 import Title from '@/components/Title.vue';
 import cell from '../components/cell.vue';
@@ -143,9 +144,16 @@ const fillCandidates = ref(true);
 let solution: number[][] = [[]];
 
 onBeforeMount(() => {
+    sudokuStore.getBoard();
     reset();
     autoCandidate();
 });
+
+function newGame() {
+    sudokuStore.getBoard();
+    reset();
+    autoCandidate();
+}
 
 function reset() {
     [0, 1, 2, 3, 4, 5, 6, 7, 8].map(col =>
@@ -308,7 +316,7 @@ function setCellValue(value: number) {
             selectedCell.value.candidates = selectedCell.value.candidates.filter(candidate => candidate != value);
         }
     } else {
-        selectedCell.value.value = selectedCell.value.answer;
+        selectedCell.value.value = value;
         selectedCell.value.type = 'filled';
         removeCandidateFromConnectedCells(value, selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
     }
@@ -428,6 +436,7 @@ function updateCheckCells() {
     align-content: center;
     width: 33.33%;
     height: 33.34%;
+    aspect-ratio: 1 / 1;
     border: solid 2px gray;
     margin: -2px;
     z-index: 100;

@@ -34,7 +34,6 @@ export const useSudokuStore = defineStore("sudoku", {
                 });
             }
 
-            console.log(subset[Math.floor(Math.random() * subset.length)]);
             const game = subset[Math.floor(Math.random() * subset.length)][0];
             // separate board into rows
             const rows = game.match(/.{1,9}/g);

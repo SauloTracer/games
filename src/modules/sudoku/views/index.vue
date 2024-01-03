@@ -115,11 +115,17 @@ export interface Cell {
     answer: number;
 }
 
+const Difficulty = {
+    EASY: "easy",
+    MEDIUM: "medium",
+    HARD: "hard",
+    EXPERT: "expert",
+}
+
 import { ref, onBeforeMount, onMounted } from 'vue'
+import { useSudokuStore } from '../stores/SudokuStore';
 
-import { useSudokuStore, Difficulty } from '@/modules/sudoku/stores/SudokuStore';
-
-import Title from '@/components/Title.vue';
+import Title from '../../../components/Title.vue';
 import cell from '../components/cell.vue';
 
 const sudokuStore = useSudokuStore();

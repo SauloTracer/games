@@ -275,21 +275,49 @@ function handleKeyUp(event: KeyboardEvent) {
 
     if (event.key == 'ArrowUp') {
         row = row > 0 ? row - 1 : 8;
+        if (event.ctrlKey) {
+            let count = 0;
+            while (board.value[row][col].type != 'candidate' && count <= 9) {
+                row = row > 0 ? row - 1 : 8;
+                count++;
+            }
+        }
         selectCell(row, col);
         return;
     }
     if (event.key == 'ArrowDown') {
         row = row < 8 ? row + 1 : 0;
+        if (event.ctrlKey) {
+            let count = 0;
+            while (board.value[row][col].type != 'candidate' && count <= 9) {
+                row = row < 8 ? row + 1 : 0;
+                count++;
+            }
+        }
         selectCell(row, col);
         return;
     }
     if (event.key == 'ArrowLeft') {
         col = col > 0 ? col - 1 : 8;
+        if (event.ctrlKey) {
+            let count = 0;
+            while (board.value[row][col].type != 'candidate' && count <= 9) {
+                col = col > 0 ? col - 1 : 8;
+                count++;
+            }
+        }
         selectCell(row, col);
         return;
     }
     if (event.key == 'ArrowRight') {
         col = col < 8 ? col + 1 : 0;
+        if (event.ctrlKey) {
+            let count = 0;
+            while (board.value[row][col].type != 'candidate' && count <= 9) {
+                col = col < 8 ? col + 1 : 0;
+                count++;
+            }
+        }
         selectCell(row, col);
         return;
     }
@@ -396,6 +424,7 @@ function revealCell() {
     if (selectedCell.value.type == 'given') return;
     selectedCell.value.value = selectedCell.value.answer;
     selectedCell.value.type = 'filled';
+    removeCandidateFromConnectedCells(selectedCell.value.answer, selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
 }
 
 function checkCell() {

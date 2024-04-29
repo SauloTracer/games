@@ -2,7 +2,6 @@
     <div :class="cssClass">
         <template v-for="n in [1, 2, 3, 4, 5, 6, 7, 8, 9]">
             <div
-                class="candidate"
                 :id="n.toString()"
                 @click="toggle(n)"
             >
@@ -74,13 +73,6 @@ watch(() => props.modelValue, (value) => {
     gap: 0px;
     grid-template-columns: repeat(3, auto);
     grid-template-rows: repeat(3, auto);
-}
-
-.candidate {
-    /* width: 33.33%;
-    height: 33.34%;
-    margin-top: 2px;
-    cursor: pointer; */
 }
 
 .selected {

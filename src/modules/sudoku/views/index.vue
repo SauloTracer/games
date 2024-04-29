@@ -1,106 +1,148 @@
 <template>
     <Title>Sudoku</Title>
-    <button
-        @click="fillCandidates = true"
-        :class="[fillCandidates ? 'selected' : '']"
-        style="margin: 5px"
-    >Fill Candidates</button>
-    <button
-        @click="fillCandidates = false"
-        :class="[!fillCandidates ? 'selected' : '']"
-        style="margin: 5px"
-    >Answer</button>
-    <div
-        id="board"
-        class="grid3"
-        tabindex="0"
-        @keyup.stop="handleKeyUp($event)"
-        @keyup.escape="esc()"
-    >
-        <template v-for="row in [1, 2, 3]">
-            <template v-for="col in [1, 2, 3]">
-                <div class="block grid3">
-                    <template v-for="line, lineIndex in board.slice((row - 1) * 3, row * 3)">
-                        <template
-                            v-for="cell, colIndex in line.slice((col - 1) * 3, col * 3)"
-                            :key="`${lineIndex + (row - 1) * 3}-${colIndex + (col - 1) * 3}`"
-                        >
-                            <div
-                                class="cell"
-                                @click="selectedCell = cell"
-                            >
-                                <Cell
-                                    :type="cell.type"
-                                    :candidates="cell.candidates"
-                                    :value="cell.value"
-                                    :selected="cell.selected"
-                                    :highlight="highlightedCells.includes(cell)"
-                                    :highlightValue="highlightValue"
-                                    :check="autoCheckCells || cell.check"
-                                    :answer="cell.answer"
-                                    @click="selectCell(cell.coordinates.row, cell.coordinates.col)"
-                                    @updateCandidates="cell.candidates = $event"
-                                ></Cell>
-                            </div>
-                        </template>
+    <v-row>
+        <v-col>
+
+            <div
+                id="board"
+                class="grid3"
+                tabindex="0"
+                @keyup.stop="handleKeyUp($event)"
+                @keyup.escape="esc()"
+            >
+                <template v-for="row in [1, 2, 3]">
+                    <template v-for="col in [1, 2, 3]">
+                        <div class="block grid3">
+                            <template v-for="line, lineIndex in board.slice((row - 1) * 3, row * 3)">
+                                <template
+                                    v-for="cell, colIndex in line.slice((col - 1) * 3, col * 3)"
+                                    :key="`${lineIndex + (row - 1) * 3}-${colIndex + (col - 1) * 3}`"
+                                >
+                                    <div
+                                        class="cell"
+                                        @click="selectedCell = cell"
+                                    >
+                                        <Cell
+                                            :type="cell.type"
+                                            :candidates="cell.candidates"
+                                            :value="cell.value"
+                                            :selected="cell.selected"
+                                            :highlight="highlightedCells.includes(cell)"
+                                            :highlightValue="highlightValue"
+                                            :check="autoCheckCells || cell.check"
+                                            :answer="cell.answer"
+                                            @click="selectCell(cell.coordinates.row, cell.coordinates.col)"
+                                            @updateCandidates="cell.candidates = $event"
+                                        ></Cell>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
                     </template>
-                </div>
-            </template>
-        </template>
-    </div>
-    <nav>
-        <span style="padding: 0.6em 1.2em;">
-            <input
-                id="autoCheckCells"
-                type="checkbox"
-                v-model="autoCheckCells"
-                label="Auto Check"
-                @change="updateCheckCells()"
-            />
-            <label
-                for="autoCheckCells"
-                style="font-weight:500;"
-            > Auto Check</label>
-        </span>
-        <button
-            v-if="!autoCheckCells"
-            @click="checkCell()"
-        >Check Cell</button>
-        <button @click="revealCell()">Reveal Cell</button>
-        <button @click="showSolution()">Solve</button>
-        <button @click="reset()">Reset</button>
-        <button @click="autoCandidate()">Auto Candidate</button>
-        <button @click="promoteSingles()">Promote Singles</button>
-        <button @click="newGame()">New Game</button>
-    </nav>
-    <div
-        id="numbers"
-        class="grid"
-    >
-        <template v-for="n in [1, 2, 3, 4, 5, 6, 7, 8, 9]">
+                </template>
+            </div>
+        </v-col>
+        <v-col>
+            <div id="actions">
+                <span
+                    style="padding: 0.6em 1.2em;"
+                    class="checkbox"
+                >
+                    <input
+                        id="autoCheckCells"
+                        type="checkbox"
+                        v-model="autoCheckCells"
+                        label="Auto Check"
+                        @change="updateCheckCells()"
+                    />
+                    <label
+                        for="autoCheckCells"
+                        style="font-weight:500;"
+                    > Auto Check</label>
+                </span>
+                <button
+                    class="button"
+                    @click="autoCandidate()"
+                >Auto Candidate</button>
+                <br />
+                <button
+                    class="button"
+                    v-if="!autoCheckCells"
+                    @click="checkCell()"
+                >Check Cell</button>
+                <button
+                    class="button"
+                    @click="revealCell()"
+                >Reveal Cell</button>
+                <button
+                    class="button"
+                    @click="promoteSingles()"
+                >Promote Singles</button>
+                <br />
+                <button
+                    class="button"
+                    @click="reset()"
+                >Reset</button>
+                <button
+                    class="button"
+                    @click="showSolution()"
+                >Solve</button>
+                <button
+                    class="button"
+                    @click="newGame()"
+                >New Game</button>
+            </div>
+            <br />
+
+            <hr
+                width="80%"
+                style="margin: 0 auto"
+            >
+            <br />
+
+            <button
+                @click="fillCandidates = true"
+                :class="[fillCandidates ? 'selected' : '']"
+                style="margin: 5px"
+            >Fill Candidates</button>
+            <button
+                @click="fillCandidates = false"
+                :class="[!fillCandidates ? 'selected' : '']"
+                style="margin: 5px"
+            >Answer</button>
+            <div
+                id="numbers"
+                class="grid3"
+            >
+                <template v-for="n in [1, 2, 3, 4, 5, 6, 7, 8, 9]">
+                    <button
+                        class="number"
+                        :id="n.toString()"
+                        @mouseover="highlightValue = n"
+                        @mouseleave="highlightValue = selectedCell?.value ?? null"
+                        @click="setCellValue(n)"
+                    >
+                        <div style="display: flex; flex-direction: column; aspect-ratio: 1;">
+                            <span>{{ n }}</span>
+                            <span style="font-size:x-small; color: rgb(100, 100, 100);">
+                                ({{ getCount(n) }} / 9)
+                            </span>
+                        </div>
+                    </button>
+                </template>
+
+            </div>
             <button
                 class="number"
-                :id="n.toString()"
-                @mouseover="highlightValue = n"
-                @mouseleave="highlightValue = selectedCell?.value ?? null"
-                @click="setCellValue(n)"
+                id="clearCellButton"
+                @click="clearCellValue()"
             >
-                <div style="display: flex; flex-direction: column; aspect-ratio: 1;">
-                    <span>{{ n }}</span>
-                    <span style="font-size:x-small; color: rgb(100, 100, 100);">
-                        ({{ getCount(n) }} / 9)
-                    </span>
-                </div>
+                X
             </button>
-        </template>
-        <button
-            class="number"
-            id="clearCellButton"
-            @click="clearCellValue()"
-        >
-            X
-        </button>
-    </div>
+        </v-col>
+    </v-row>
+
+
 </template>
 
 <script
@@ -133,7 +175,7 @@ import Cell from '../components/Cell.vue';
 
 const sudokuStore = useSudokuStore();
 
-const autoCheckCells = ref(true);
+const autoCheckCells = ref(false);
 const defaultCell = { selected: false, highlight: false, check: autoCheckCells.value, value: null, candidates: [1, 2, 3, 4, 5, 6, 7, 8, 9], type: "candidate", coordinates: { row: 0, col: 0 }, answer: 0 } as Cell;
 const board = ref<Cell[][]>([
     [defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell,],
@@ -155,13 +197,13 @@ let solution: number[][] = [[]];
 onBeforeMount(() => {
     sudokuStore.getBoard();
     reset();
-    autoCandidate();
+    // autoCandidate();
 });
 
 function newGame() {
     sudokuStore.getBoard();
     reset();
-    autoCandidate();
+    // autoCandidate();
 }
 
 function reset() {
@@ -368,7 +410,7 @@ function clearCellValue() {
         selectedCell.value.value = null;
         selectedCell.value.type = 'candidate';
     }
-    selectedCell.value.candidates = getCellCandidates(selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
+    // selectedCell.value.candidates = getCellCandidates(selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
 
     highlightValue.value = null;
 }
@@ -483,11 +525,7 @@ function updateCheckCells() {
 #numbers {
     align-content: center;
     margin: 0 auto;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-content: center;
-
+    width: 8cm;
 }
 
 .number {
@@ -501,5 +539,63 @@ function updateCheckCells() {
 
 .selected {
     border: 2px solid black
+}
+
+.button {
+    appearance: none;
+    background-color: #FAFBFC;
+    border: 1px solid rgba(27, 31, 35, 0.15);
+    border-radius: 6px;
+    box-shadow: rgba(27, 31, 35, 0.04) 0 1px 0, rgba(255, 255, 255, 0.25) 0 1px 0 inset;
+    box-sizing: border-box;
+    color: #24292E;
+    cursor: pointer;
+    display: inline-block;
+    font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    list-style: none;
+    padding: 6px 10px;
+    margin: 4px;
+    position: relative;
+    transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: middle;
+    white-space: nowrap;
+    word-wrap: break-word;
+}
+
+.button:hover {
+    background-color: #F3F4F6;
+    text-decoration: none;
+    transition-duration: 0.1s;
+}
+
+.button:disabled {
+    background-color: #FAFBFC;
+    border-color: rgba(27, 31, 35, 0.15);
+    color: #959DA5;
+    cursor: default;
+}
+
+.button:active {
+    background-color: #EDEFF2;
+    box-shadow: rgba(225, 228, 232, 0.2) 0 1px 0 inset;
+    transition: none 0s;
+}
+
+.button:focus {
+    outline: 1px transparent;
+}
+
+.button:before {
+    display: none;
+}
+
+.button:-webkit-details-marker {
+    display: none;
 }
 </style>

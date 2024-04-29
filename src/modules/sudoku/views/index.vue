@@ -518,7 +518,7 @@ function updateCheckCells() {
 }
 
 .block {
-    border: solid 1px black;
+    border: solid 2px black;
     z-index: 3
 }
 

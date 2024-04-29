@@ -29,7 +29,7 @@
                                 class="cell"
                                 @click="selectedCell = cell"
                             >
-                                <cell
+                                <Cell
                                     :type="cell.type"
                                     :candidates="cell.candidates"
                                     :value="cell.value"
@@ -40,7 +40,7 @@
                                     :answer="cell.answer"
                                     @click="selectCell(cell.coordinates.row, cell.coordinates.col)"
                                     @updateCandidates="cell.candidates = $event"
-                                ></cell>
+                                ></Cell>
                             </div>
                         </template>
                     </template>
@@ -129,7 +129,7 @@ import { ref, onBeforeMount, onMounted } from 'vue'
 import { useSudokuStore } from '../stores/SudokuStore';
 
 import Title from '../../../components/Title.vue';
-import cell from '../components/cell.vue';
+import Cell from '../components/Cell.vue';
 
 const sudokuStore = useSudokuStore();
 
@@ -271,7 +271,7 @@ function promoteSingles() {
 }
 
 function handleKeyUp(event: KeyboardEvent) {
-    console.log(event.key, selectedCell.value, selectedCell.value?.coordinates);
+    // console.log(event.key, selectedCell.value, selectedCell.value?.coordinates);
     if (!selectedCell.value) return;
 
     let row = selectedCell.value.coordinates.row;

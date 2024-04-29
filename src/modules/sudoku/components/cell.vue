@@ -5,13 +5,13 @@
             @click="handleClick()"
         >
             <div v-if="props.type == 'candidate'">
-                <candidates
+                <Candidates
                     v-model="(props.candidates as number[])"
                     :selected="props.selected"
                     :highlight="props.highlight"
                     :highlightValue="props.highlightValue"
                     @updateCandidates="$emit('updateCandidates', $event)"
-                ></candidates>
+                ></Candidates>
             </div>
             <div
                 v-else
@@ -35,7 +35,7 @@
     setup
     lang='ts'
 >
-export interface Cell {
+export interface CellProps {
     value: number | null;
     type: 'given' | 'filled' | 'candidate';
     candidates?: number[];
@@ -48,9 +48,9 @@ export interface Cell {
 
 import { computed, onBeforeMount, ref, watch } from 'vue'
 
-import candidates from './candidates.vue';
+import Candidates from './Candidates.vue';
 
-const props = defineProps<Cell>();
+const props = defineProps<CellProps>();
 const emits = defineEmits(['update:modelValue', 'click', 'updateCandidates']);
 
 const selected = ref(false);

@@ -5,10 +5,16 @@
     </div>
 </template>
 
-<script setup lang='ts'>
+<script
+    setup
+    lang='ts'
+>
 import { ref } from 'vue'
 
 const ex4 = ref(['red', 'indigo', 'orange'])
 </script>
 
-<style lang="scss" scoped></style>
+<style
+    lang="css"
+    scoped
+></style>

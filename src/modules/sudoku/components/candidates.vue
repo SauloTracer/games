@@ -17,7 +17,10 @@
     </div>
 </template>
 
-<script setup lang='ts'>
+<script
+    setup
+    lang='ts'
+>
 export interface CandidatesProps {
     modelValue: number[];
     selected: boolean;
@@ -62,19 +65,22 @@ watch(() => props.modelValue, (value) => {
 });
 </script>
 
-<style lang="css" scoped>
+<style
+    lang="css"
+    scoped
+>
 .grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    align-content: center;
+    display: grid;
+    gap: 0px;
+    grid-template-columns: repeat(3, auto);
+    grid-template-rows: repeat(3, auto);
 }
 
 .candidate {
-    width: 33.33%;
+    /* width: 33.33%;
     height: 33.34%;
     margin-top: 2px;
-    cursor: pointer;
+    cursor: pointer; */
 }
 
 .selected {

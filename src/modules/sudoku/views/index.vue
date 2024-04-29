@@ -12,14 +12,14 @@
     >Answer</button>
     <div
         id="board"
-        class="grid"
+        class="grid3"
         tabindex="0"
         @keyup.stop="handleKeyUp($event)"
         @keyup.escape="esc()"
     >
         <template v-for="row in [1, 2, 3]">
             <template v-for="col in [1, 2, 3]">
-                <div class="block">
+                <div class="block grid3">
                     <template v-for="line, lineIndex in board.slice((row - 1) * 3, row * 3)">
                         <template
                             v-for="cell, colIndex in line.slice((col - 1) * 3, col * 3)"
@@ -103,7 +103,10 @@
     </div>
 </template>
 
-<script setup lang='ts'>
+<script
+    setup
+    lang='ts'
+>
 export interface Cell {
     value: number | null;
     type: 'given' | 'filled' | 'candidate';
@@ -449,41 +452,32 @@ function updateCheckCells() {
 
 </script>
 
-<style lang="css" scoped>
-#board {
-    height: 80vh;
-    aspect-ratio: 1 / 1;
-    margin: 0 auto;
-    border: solid 3px black;
+<style
+    lang="css"
+    scoped
+>
+.grid3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
 }
 
-.grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+#board {
+    width: 18cm;
+    margin: 0 auto;
+}
+
+.cell {
+    border: solid 1px gray;
+    border-collapse: collapse;
+    z-index: 2;
+    width: 2cm;
+    height: 2cm;
     align-content: center;
 }
 
 .block {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    align-content: center;
-    width: 33.33%;
-    height: 33.34%;
-    aspect-ratio: 1 / 1;
-    border: solid 2px gray;
-    margin: -2px;
-    z-index: 100;
-}
-
-.cell {
-    display: inline-block;
-    width: 33.33%;
-    height: 33.33%;
-    border: solid 1px gray;
-    margin: -1px;
-    z-index: 99;
+    border: solid 1px black;
+    z-index: 3
 }
 
 #numbers {

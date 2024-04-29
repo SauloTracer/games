@@ -19,9 +19,9 @@
             >
                 <span
                     :class="[
-                        props.highlightValue == value ? 'highlightValue' : '',
-                        props.type != 'given' && props.check ? value == props.answer ? 'correct' : 'wrong' : '',
-                    ]"
+                props.highlightValue == value ? 'highlightValue' : '',
+                props.type != 'given' && props.check ? value == props.answer ? 'correct' : 'wrong' : '',
+            ]"
                     style="aspect-ratio: 1 / 1; margin: 5px; padding: 0 10px;"
                 >
                     {{ value }}
@@ -31,7 +31,10 @@
     </slot>
 </template>
 
-<script setup lang='ts'>
+<script
+    setup
+    lang='ts'
+>
 export interface Cell {
     value: number | null;
     type: 'given' | 'filled' | 'candidate';
@@ -75,17 +78,24 @@ const cssClass = computed(() => {
 
 </script>
 
-<style lang="css" scoped>
+<style
+    lang="css"
+    scoped
+>
 .cell {
-    height: 99%;
-    aspect-ratio: 1 / 1;
     z-index: 90;
+    border-collapse: collapse;
+    width: 1.8cm;
+    height: 1.8cm;
+    align-content: center;
+    margin: 2px;
 }
 
 .given {
     font-weight: bold;
     font-size: xx-large;
     display: flex;
+    margin: -1px;
     align-items: center;
     justify-content: center;
     background-color: lightgray;
@@ -95,6 +105,7 @@ const cssClass = computed(() => {
     font-weight: bold;
     font-size: xx-large;
     display: flex;
+    margin: -1px;
     align-items: center;
     justify-content: center;
     color: gray;

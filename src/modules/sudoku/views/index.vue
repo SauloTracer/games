@@ -121,6 +121,7 @@
                         @mouseover="highlightValue = n"
                         @mouseleave="highlightValue = selectedCell?.value ?? null"
                         @click="setCellValue(n)"
+                        :disabled="getCount(n) >= 9"
                     >
                         <div style="display: flex; flex-direction: column; aspect-ratio: 1;">
                             <span>{{ n }}</span>
@@ -586,6 +587,11 @@ function handleFinish() {
     border-radius: 5px;
     border: solid 1px gray;
     background-color: lightgray;
+}
+
+.number:disabled {
+    background-color: gray;
+    cursor: not-allowed;
 }
 
 .selected {

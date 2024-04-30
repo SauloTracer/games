@@ -98,7 +98,7 @@ const cssClass = computed(() => {
     margin: -1px;
     align-items: center;
     justify-content: center;
-    background-color: lightgray;
+    /* background-color: lightgray; */
 }
 
 .filled {

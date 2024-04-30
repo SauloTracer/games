@@ -142,7 +142,33 @@
         </v-col>
     </v-row>
 
+    <v-dialog
+        max-width="500"
+        v-model="finished"
+    >
+        <v-card :title="finishedTitle">
+            <v-card-text>
+                {{ finishedMessage }}
+            </v-card-text>
 
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    text="New Game"
+                    @click="() => { newGame(); finished = false; }"
+                ></v-btn>
+                <v-btn
+                    text="Review"
+                    @click="finished = false"
+                ></v-btn>
+                <v-btn
+                    v-if="!finishedStatus"
+                    text="Retry"
+                    @click="() => { reset(); finished = false;}"
+                ></v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 </template>
 
 <script
@@ -192,6 +218,11 @@ const selectedCell = ref<Cell | null>(null);
 const highlightedCells = ref<Cell[]>([]);
 const highlightValue = ref<number | null>(null);
 const fillCandidates = ref(true);
+const finished = ref(false);
+const finishedStatus = ref(false);
+const finishedTitle = ref('');
+const finishedMessage = ref('');
+
 let solution: number[][] = [[]];
 
 onBeforeMount(() => {
@@ -310,6 +341,7 @@ function promoteSingles() {
             }
         })
     );
+    handleFinish();
 }
 
 function handleKeyUp(event: KeyboardEvent) {
@@ -400,6 +432,7 @@ function setCellValue(value: number) {
         removeCandidateFromConnectedCells(value, selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
     }
     highlightValue.value = value;
+    handleFinish();
 }
 
 function clearCellValue() {
@@ -436,7 +469,6 @@ function possible(row: number, col: number, k: number) {
     }
     return true;
 }
-
 
 function solve() {
     for (let i = 0; i < 9; i++) {
@@ -490,6 +522,21 @@ function updateCheckCells() {
             board.value[row][col].check = autoCheckCells.value;
         })
     );
+}
+
+function isFinished() {
+    return board.value.flat().filter(cell => cell.value == null).length == 0;
+}
+
+function handleFinish() {
+    if (isFinished()) {
+        if (autoCheckCells.value) {
+            finishedStatus.value = board.value.flat().filter(cell => cell.value == cell.answer).length == 81;
+            finishedTitle.value = finishedStatus.value ? 'Congratulations!' : 'Oops!';
+            finishedMessage.value = finishedStatus.value ? 'Congratulations! You have successfully solved this Sudoku puzzle!' : 'It seems you have some mistakes in your solution! Try Again!';
+        }
+        finished.value = true;
+    }
 }
 
 </script>

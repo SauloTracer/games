@@ -155,7 +155,7 @@
                 <v-spacer></v-spacer>
                 <v-btn
                     text="New Game"
-                    @click="() => { newGame(); finished = false; }"
+                    @click="newGame();"
                 ></v-btn>
                 <v-btn
                     text="Review"
@@ -164,7 +164,7 @@
                 <v-btn
                     v-if="!finishedStatus"
                     text="Retry"
-                    @click="() => { reset(); finished = false;}"
+                    @click="reset();"
                 ></v-btn>
             </v-card-actions>
         </v-card>
@@ -262,6 +262,10 @@ function reset() {
             board.value[row][col].answer = solution[row][col]
         )
     );
+    finished.value = false;
+    finishedStatus.value = false;
+    finishedTitle.value = '';
+    finishedMessage.value = '';
 }
 
 function getBlock(row: number, col: number) {
@@ -439,10 +443,9 @@ function clearCellValue() {
     if (!selectedCell.value) return;
     if (selectedCell.value.type == 'given') return;
 
-    if (!fillCandidates.value) {
-        selectedCell.value.value = null;
-        selectedCell.value.type = 'candidate';
-    }
+    selectedCell.value.value = null;
+    selectedCell.value.type = 'candidate';
+
     // selectedCell.value.candidates = getCellCandidates(selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
 
     highlightValue.value = null;
@@ -525,11 +528,12 @@ function updateCheckCells() {
 }
 
 function isFinished() {
-    return board.value.flat().filter(cell => cell.value == null).length == 0;
+    return board.value.flat().filter(cell => [null, NaN, 0].includes(cell.value)).length == 0;
 }
 
 function handleFinish() {
-    if (isFinished()) {
+    const allFilled = isFinished();
+    if (allFilled) {
         if (autoCheckCells.value) {
             finishedStatus.value = board.value.flat().filter(cell => cell.value == cell.answer).length == 81;
             finishedTitle.value = finishedStatus.value ? 'Congratulations!' : 'Oops!';

@@ -597,7 +597,7 @@ function handleFinish() {
 function handleStrikes() {
     if (errors.value >= 3) {
         finishedStatus.value = false;
-        finishedTitle.value = "Ooops! [3 STIKES! YOU'RE OUT!]";
+        finishedTitle.value = "Ooops! [3 STRIKES! YOU'RE OUT!]";
         finishedMessage.value = 'You have made 3 mistakes! Game Over!';
         finished.value = true;
     }

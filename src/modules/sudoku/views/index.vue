@@ -43,6 +43,37 @@
             </div>
         </v-col>
         <v-col>
+            <div id="gameMode">
+                <v-radio-group
+                    v-model="gameMode"
+                    @update:modelValue="changeMode($event)"
+                    inline
+                >
+                    <v-radio
+                        label="Zen"
+                        :value="GameMode.Zen"
+                    ></v-radio>
+                    <v-radio
+                        label="3 Strikes"
+                        :value="GameMode.ThreeStrikes"
+                    ></v-radio>
+                </v-radio-group>
+                <div
+                    id="hearts"
+                    v-if="gameMode == GameMode.ThreeStrikes"
+                >
+                    <template v-for="i in [3, 2, 1]">
+                        <v-icon :color="i > errors ? 'red' : 'lightgray'">mdi-heart-circle-outline</v-icon>
+                    </template>
+                    <br />
+                    <br />
+                </div>
+            </div>
+            <hr
+                width="80%"
+                style="margin: 0 auto"
+            >
+            <br />
             <div id="actions">
                 <span
                     style="padding: 0.6em 1.2em;"
@@ -54,6 +85,7 @@
                         v-model="autoCheckCells"
                         label="Auto Check"
                         @change="updateCheckCells()"
+                        :disabled="gameMode == GameMode.ThreeStrikes"
                     />
                     <label
                         for="autoCheckCells"
@@ -194,6 +226,11 @@ const Difficulty = {
     EXPERT: "expert",
 }
 
+enum GameMode {
+    Zen = "zen",
+    ThreeStrikes = "threeStrikes",
+}
+
 import { ref, onBeforeMount, onMounted } from 'vue'
 import { useSudokuStore } from '../stores/SudokuStore';
 
@@ -219,10 +256,12 @@ const selectedCell = ref<Cell | null>(null);
 const highlightedCells = ref<Cell[]>([]);
 const highlightValue = ref<number | null>(null);
 const fillCandidates = ref(true);
+const gameMode = ref(GameMode.Zen);
 const finished = ref(false);
 const finishedStatus = ref(false);
 const finishedTitle = ref('');
 const finishedMessage = ref('');
+const errors = ref(0);
 
 let solution: number[][] = [[]];
 
@@ -231,6 +270,12 @@ onBeforeMount(() => {
     reset();
     // autoCandidate();
 });
+
+function changeMode(mode: GameMode) {
+    if (mode == GameMode.ThreeStrikes) {
+        autoCheckCells.value = true;
+    }
+}
 
 function newGame() {
     sudokuStore.getBoard();
@@ -267,6 +312,7 @@ function reset() {
     finishedStatus.value = false;
     finishedTitle.value = '';
     finishedMessage.value = '';
+    errors.value = 0;
 }
 
 function getBlock(row: number, col: number) {
@@ -434,6 +480,10 @@ function setCellValue(value: number) {
     } else {
         selectedCell.value.value = value;
         selectedCell.value.type = 'filled';
+        if (gameMode.value == GameMode.ThreeStrikes && selectedCell.value.value != selectedCell.value.answer) {
+            errors.value++;
+            handleStrikes();
+        }
         removeCandidateFromConnectedCells(value, selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
     }
     highlightValue.value = value;
@@ -544,6 +594,15 @@ function handleFinish() {
     }
 }
 
+function handleStrikes() {
+    if (errors.value >= 3) {
+        finishedStatus.value = false;
+        finishedTitle.value = "Ooops! [3 STIKES! YOU'RE OUT!]";
+        finishedMessage.value = 'You have made 3 mistakes! Game Over!';
+        finished.value = true;
+    }
+}
+
 </script>
 
 <style
@@ -558,6 +617,12 @@ function handleFinish() {
 #board {
     width: 18cm;
     margin: 0 auto;
+}
+
+#gameMode {
+    align-items: center;
+    margin: 0 auto;
+    width: fit-content;
 }
 
 .cell {

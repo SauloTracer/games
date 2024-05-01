@@ -277,6 +277,7 @@ const showNewGameDialog = ref(false);
 let solution: number[][] = [[]];
 
 onBeforeMount(() => {
+    loadConfig();
     if (hasSavedGame()) {
         loadSave();
     } else {
@@ -625,26 +626,38 @@ function hasSavedGame() {
     return localStorage.getItem('sudoku-currentGame') != null;
 }
 
+function hasSavedConfig() {
+    return localStorage.getItem('sudoku-config') != null;
+}
+
 function save() {
     let localSave: any = {
         board: board.value,
         errors: errors.value,
-        autoCheckCells: autoCheckCells.value,
-        gameMode: gameMode.value
     };
     localStorage.setItem('sudoku-currentGame', btoa(JSON.stringify(localSave)));
+    let sudokuConfig = {
+        autoCheckCells: autoCheckCells.value,
+        gameMode: gameMode.value,
+    };
+    localStorage.setItem('sudoku-config', JSON.stringify(sudokuConfig));
 }
 
 function loadSave() {
     let localSave: any = JSON.parse(atob(localStorage.getItem('sudoku-currentGame') ?? ''));
     errors.value = localSave.errors;
     board.value = localSave.board;
-    autoCheckCells.value = localSave.autoCheckCells;
-    gameMode.value = localSave.gameMode;
 }
 
 function deleteSave() {
     localStorage.removeItem('sudoku-currentGame');
+}
+
+function loadConfig() {
+    if (!hasSavedConfig()) return;
+    let sudokuConfig = JSON.parse(localStorage.getItem('sudoku-config') ?? '{}');
+    autoCheckCells.value = sudokuConfig.autoCheckCells;
+    gameMode.value = sudokuConfig.gameMode;
 }
 
 </script>

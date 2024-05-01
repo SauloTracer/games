@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import sudokuDatabase from "@/assets/sudoku.json";
 
-const Difficulty = {
+export const Difficulty = {
     EASY: "easy",
     MEDIUM: "medium",
     HARD: "hard",
@@ -13,21 +13,20 @@ export const useSudokuStore = defineStore("sudoku", {
         board: [[], [], [], [], [], [], [], [], []],
     }),
     actions: {
-        getBoard() {
+        getBoard(difficulty) {
             // console.log(sudokuDatabase.length);
             // console.log("Easy", sudokuDatabase.filter((game) => parseFloat(game[1]) >= 0 && parseFloat(game[1]) <= 2).length);
-            // console.log("Medium", sudokuDatabase.filter((game) => parseFloat(game[1]) >= 2.1 && parseFloat(game[1]) <= 4).length);
+            // console.log("Medium", sudokuDatabase.filter((game) => parseFloat(game[1]) >= 2.1 && parseFloat(game[1]) <= 3).length);
             // console.log("Hard", sudokuDatabase.filter((game) => parseFloat(game[1]) >= 4.1 && parseFloat(game[1]) <= 6).length);
             // console.log("Harder", sudokuDatabase.filter((game) => parseFloat(game[1]) >= 6.1 && parseFloat(game[1]) <= 99999).length);
 
             let subset = sudokuDatabase;
-            const difficulty = "expert";
             if(difficulty) {
                 let limit = [0,0];
-                if (difficulty === Difficulty.EASY) limit = [0,2];
-                if (difficulty === Difficulty.MEDIUM) limit = [2.1, 4];
-                if (difficulty === Difficulty.HARD) limit = [4.1, 6];
-                if (difficulty === Difficulty.EXPERT) limit = [6.1, 99999];
+                if (difficulty === Difficulty.EASY) limit = [0,3];
+                if (difficulty === Difficulty.MEDIUM) limit = [3.1, 5];
+                if (difficulty === Difficulty.HARD) limit = [5.1, 7];
+                if (difficulty === Difficulty.EXPERT) limit = [7.1, 99999];
                 subset = sudokuDatabase.filter((game) => {
                     const rating = parseFloat(game[1]);
                     return rating >= limit[0] && rating <= limit[1];

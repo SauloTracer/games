@@ -121,7 +121,7 @@
                 >Solve</button>
                 <button
                     class="button"
-                    @click="newGame()"
+                    @click="showNewGameDialog = true"
                 >New Game</button>
             </div>
             <br />
@@ -188,7 +188,7 @@
                 <v-spacer></v-spacer>
                 <v-btn
                     text="New Game"
-                    @click="newGame();"
+                    @click="showNewGameDialog = true"
                 ></v-btn>
                 <v-btn
                     text="Review"
@@ -200,6 +200,23 @@
                     @click="reset();"
                 ></v-btn>
             </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+    <v-dialog
+        max-width="200"
+        v-model="showNewGameDialog"
+    >
+        <v-card title="Select difficulty">
+            <v-card-text class="d-flex flex-column">
+                <template v-for="[k, v] of Object.entries(Difficulty)">
+                    <v-btn
+                        class="button difficulty-button justify-center align-center"
+                        text
+                        @click="newGame(v)"
+                    >{{ k }}</v-btn>
+                </template>
+            </v-card-text>
         </v-card>
     </v-dialog>
 </template>
@@ -219,20 +236,13 @@ export interface Cell {
     answer: number;
 }
 
-const Difficulty = {
-    EASY: "easy",
-    MEDIUM: "medium",
-    HARD: "hard",
-    EXPERT: "expert",
-}
-
 enum GameMode {
     Zen = "zen",
     ThreeStrikes = "threeStrikes",
 }
 
 import { ref, onBeforeMount, onMounted } from 'vue'
-import { useSudokuStore } from '../stores/SudokuStore';
+import { useSudokuStore, Difficulty } from '../stores/SudokuStore';
 
 import Title from '../../../components/Title.vue';
 import Cell from '../components/Cell.vue';
@@ -262,6 +272,7 @@ const finishedStatus = ref(false);
 const finishedTitle = ref('');
 const finishedMessage = ref('');
 const errors = ref(0);
+const showNewGameDialog = ref(false);
 
 let solution: number[][] = [[]];
 
@@ -277,8 +288,8 @@ function changeMode(mode: GameMode) {
     }
 }
 
-function newGame() {
-    sudokuStore.getBoard();
+function newGame(difficulty: string = Difficulty.EASY) {
+    sudokuStore.getBoard(difficulty);
     reset();
     // autoCandidate();
 }
@@ -313,6 +324,7 @@ function reset() {
     finishedTitle.value = '';
     finishedMessage.value = '';
     errors.value = 0;
+    showNewGameDialog.value = false;
 }
 
 function getBlock(row: number, col: number) {
@@ -719,5 +731,11 @@ function handleStrikes() {
 
 .button:-webkit-details-marker {
     display: none;
+}
+
+.difficulty-button {
+    width: 80%;
+    margin: 0 auto;
+    margin-bottom: 10px;
 }
 </style>

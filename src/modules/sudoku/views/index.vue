@@ -277,9 +277,12 @@ const showNewGameDialog = ref(false);
 let solution: number[][] = [[]];
 
 onBeforeMount(() => {
-    sudokuStore.getBoard();
-    reset();
-    // autoCandidate();
+    if (hasSavedGame()) {
+        loadSave();
+    } else {
+        sudokuStore.getBoard();
+        reset();
+    }
 });
 
 function changeMode(mode: GameMode) {
@@ -325,6 +328,7 @@ function reset() {
     finishedMessage.value = '';
     errors.value = 0;
     showNewGameDialog.value = false;
+    deleteSave();
 }
 
 function getBlock(row: number, col: number) {
@@ -405,6 +409,7 @@ function promoteSingles() {
         })
     );
     handleFinish();
+    save();
 }
 
 function handleKeyUp(event: KeyboardEvent) {
@@ -500,6 +505,7 @@ function setCellValue(value: number) {
     }
     highlightValue.value = value;
     handleFinish();
+    save();
 }
 
 function clearCellValue() {
@@ -613,6 +619,32 @@ function handleStrikes() {
         finishedMessage.value = 'You have made 3 mistakes! Game Over!';
         finished.value = true;
     }
+}
+
+function hasSavedGame() {
+    return localStorage.getItem('sudoku-currentGame') != null;
+}
+
+function save() {
+    let localSave: any = {
+        board: board.value,
+        errors: errors.value,
+        autoCheckCells: autoCheckCells.value,
+        gameMode: gameMode.value
+    };
+    localStorage.setItem('sudoku-currentGame', btoa(JSON.stringify(localSave)));
+}
+
+function loadSave() {
+    let localSave: any = JSON.parse(atob(localStorage.getItem('sudoku-currentGame') ?? ''));
+    errors.value = localSave.errors;
+    board.value = localSave.board;
+    autoCheckCells.value = localSave.autoCheckCells;
+    gameMode.value = localSave.gameMode;
+}
+
+function deleteSave() {
+    localStorage.removeItem('sudoku-currentGame');
 }
 
 </script>

@@ -192,7 +192,7 @@
                 ></v-btn>
                 <v-btn
                     text="Review"
-                    @click="finished = false"
+                    @click="() => { finished = false; gameMode = GameMode.Zen; }"
                 ></v-btn>
                 <v-btn
                     v-if="!finishedStatus"
@@ -294,6 +294,7 @@ function changeMode(mode: GameMode) {
 
 function newGame(difficulty: string = Difficulty.EASY) {
     sudokuStore.getBoard(difficulty);
+    deleteSave();
     reset();
     // autoCandidate();
 }
@@ -301,13 +302,14 @@ function newGame(difficulty: string = Difficulty.EASY) {
 function reset() {
     [0, 1, 2, 3, 4, 5, 6, 7, 8].map(col =>
         [0, 1, 2, 3, 4, 5, 6, 7, 8].map(row => {
+            if (hasSavedGame() && board.value[row][col].type == 'given') return;
             board.value[row][col] = {
                 ...defaultCell,
                 value: sudokuStore.board[row][col],
                 coordinates: { row, col },
                 candidates: [],
             };
-            if (sudokuStore.board[row][col]) {
+            if (!hasSavedGame() && sudokuStore.board[row][col]) {
                 board.value[row][col].type = 'given';
                 board.value[row][col].value = sudokuStore.board[row][col];
             }
@@ -405,7 +407,10 @@ function promoteSingles() {
                 const value = cell.candidates[0];
                 cell.value = value;
                 cell.type = 'filled';
-                removeCandidateFromConnectedCells(value, row, col);
+                let removeCandidates = true;
+                if (autoCheckCells.value && cell.value != cell.answer) removeCandidates = false;
+                if (removeCandidates) removeCandidateFromConnectedCells(value, row, col);
+                handleStrikes(cell);
             }
         })
     );
@@ -498,10 +503,7 @@ function setCellValue(value: number) {
     } else {
         selectedCell.value.value = value;
         selectedCell.value.type = 'filled';
-        if (gameMode.value == GameMode.ThreeStrikes && selectedCell.value.value != selectedCell.value.answer) {
-            errors.value++;
-            handleStrikes();
-        }
+        handleStrikes(selectedCell.value);
         removeCandidateFromConnectedCells(value, selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
     }
     highlightValue.value = value;
@@ -602,6 +604,7 @@ function isFinished() {
 }
 
 function handleFinish() {
+    if (finished.value) return; // already finished (probably from handleStrikes())
     const allFilled = isFinished();
     if (allFilled) {
         if (autoCheckCells.value) {
@@ -613,7 +616,9 @@ function handleFinish() {
     }
 }
 
-function handleStrikes() {
+function handleStrikes(cell: Cell) {
+    if (gameMode.value != GameMode.ThreeStrikes) return;
+    if (cell.value != cell.answer) errors.value++;
     if (errors.value >= 3) {
         finishedStatus.value = false;
         finishedTitle.value = "Ooops! [3 STRIKES! YOU'RE OUT!]";

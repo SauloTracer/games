@@ -31,7 +31,8 @@
                                             :highlightValue="highlightValue"
                                             :check="autoCheckCells || cell.check"
                                             :answer="cell.answer"
-                                            @click="selectCell(cell.coordinates.row, cell.coordinates.col)"
+                                            :color="cell.color"
+                                            @click="selectCell(cell.coordinates.row, cell.coordinates.col, true)"
                                             @updateCandidates="cell.candidates = $event"
                                         ></Cell>
                                     </div>
@@ -75,6 +76,16 @@
             >
             <br />
             <div id="actions">
+                <v-row>
+                    <v-col cols="11">
+                        <button
+                            class="button new-game"
+                            @click="showNewGameDialog = true"
+                        >New Game</button>
+                    </v-col>
+                </v-row>
+
+                <br />
                 <span
                     style="padding: 0.6em 1.2em;"
                     class="checkbox"
@@ -104,8 +115,8 @@
                 >Check Cell</button>
                 <button
                     class="button"
-                    @click="revealCell()"
-                >Reveal Cell</button>
+                    @click="markCells()"
+                >{{ markCellsText }}</button>
                 <button
                     class="button"
                     @click="promoteSingles()"
@@ -113,16 +124,16 @@
                 <br />
                 <button
                     class="button"
-                    @click="reset()"
-                >Reset</button>
+                    @click="revealCell()"
+                >Reveal Cell</button>
                 <button
                     class="button"
                     @click="showSolution()"
                 >Solve</button>
                 <button
                     class="button"
-                    @click="showNewGameDialog = true"
-                >New Game</button>
+                    @click="reset()"
+                >Reset</button>
             </div>
             <br />
 
@@ -136,7 +147,8 @@
                 @click="fillCandidates = true"
                 :class="[fillCandidates ? 'selected' : '']"
                 style="margin: 5px"
-            >Fill Candidates</button>
+            >Fill
+                Candidates</button>
             <button
                 @click="fillCandidates = false"
                 :class="[!fillCandidates ? 'selected' : '']"
@@ -219,12 +231,34 @@
             </v-card-text>
         </v-card>
     </v-dialog>
+
+    <v-dialog
+        max-width="350"
+        v-model="showMarkCellsDialog"
+    >
+        <v-card>
+            <v-card-title>
+                <v-row>
+                    <v-col cols="5">Choose Color</v-col>
+                    <v-col cols="7">
+                        <v-btn @click="showMarkCellsDialog = false">
+                            Confirm choice
+                        </v-btn>
+                    </v-col>
+                </v-row>
+            </v-card-title>
+            <v-card-text class="d-flex flex-column">
+                <v-color-picker
+                    show-swatches
+                    v-model="markColor"
+                ></v-color-picker>
+
+            </v-card-text>
+        </v-card>
+    </v-dialog>
 </template>
 
-<script
-    setup
-    lang='ts'
->
+<script setup lang='ts'>
 export interface Cell {
     value: number | null;
     type: 'given' | 'filled' | 'candidate';
@@ -241,7 +275,7 @@ enum GameMode {
     ThreeStrikes = "threeStrikes",
 }
 
-import { ref, onBeforeMount, onMounted } from 'vue'
+import { ref, onBeforeMount, computed } from 'vue'
 import { useSudokuStore, Difficulty } from '../stores/SudokuStore';
 
 import Title from '../../../components/Title.vue';
@@ -250,7 +284,7 @@ import Cell from '../components/Cell.vue';
 const sudokuStore = useSudokuStore();
 
 const autoCheckCells = ref(false);
-const defaultCell = { selected: false, highlight: false, check: autoCheckCells.value, value: null, candidates: [1, 2, 3, 4, 5, 6, 7, 8, 9], type: "candidate", coordinates: { row: 0, col: 0 }, answer: 0 } as Cell;
+const defaultCell = { selected: false, highlight: false, check: autoCheckCells.value, value: null, candidates: [1, 2, 3, 4, 5, 6, 7, 8, 9], type: "candidate", coordinates: { row: 0, col: 0 }, answer: 0, color: "#FFFFFF" } as Cell;
 const board = ref<Cell[][]>([
     [defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell,],
     [defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell,],
@@ -273,6 +307,9 @@ const finishedTitle = ref('');
 const finishedMessage = ref('');
 const errors = ref(0);
 const showNewGameDialog = ref(false);
+const isMarkingCells = ref(false);
+const showMarkCellsDialog = ref(false)
+const markColor = ref()
 
 let solution: number[][] = [[]];
 
@@ -285,6 +322,19 @@ onBeforeMount(() => {
         reset();
     }
 });
+
+const markCellsText = computed(() => {
+    return isMarkingCells.value ? 'Finish Marking' : 'Mark Cells';
+})
+
+function markCells() {
+    isMarkingCells.value = !isMarkingCells.value;
+    if (!isMarkingCells.value) {
+        showMarkCellsDialog.value = false;
+        return
+    }
+    showMarkCellsDialog.value = true;
+}
 
 function changeMode(mode: GameMode) {
     if (mode == GameMode.ThreeStrikes) {
@@ -331,6 +381,8 @@ function reset() {
     finishedMessage.value = '';
     errors.value = 0;
     showNewGameDialog.value = false;
+    showMarkCellsDialog.value = false;
+    isMarkingCells.value = false;
     deleteSave();
 }
 
@@ -386,7 +438,12 @@ function highlightConnectedCells(row: number, col: number) {
     highlightedCells.value = [...block, ...boardRow, ...boardColumn];
 }
 
-function selectCell(row: number, col: number) {
+function selectCell(row: number, col: number, fromClick: boolean = false) {
+    if (fromClick) {
+        if (isMarkingCells.value) {
+            board.value[row][col].color = markColor.value
+        }
+    }
     highlightValue.value = board.value[row][col].value;
     selectedCell.value = board.value[row][col];
     [0, 1, 2, 3, 4, 5, 6, 7, 8].map(row =>
@@ -667,10 +724,7 @@ function loadConfig() {
 
 </script>
 
-<style
-    lang="css"
-    scoped
->
+<style lang="css" scoped>
 .grid3 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -750,6 +804,11 @@ function loadConfig() {
     vertical-align: middle;
     white-space: nowrap;
     word-wrap: break-word;
+}
+
+.new-game {
+    width: 100%;
+    margin: 0 10px 0 10px;
 }
 
 .button:hover {

@@ -4,6 +4,10 @@
             class="outer"
             @click="handleClick()"
         >
+            <div
+                class="overlay"
+                :style="backgroundColor"
+            ></div>
             <div v-if="props.type == 'candidate'">
                 <Candidates
                     v-model="(props.candidates as number[])"
@@ -19,9 +23,9 @@
             >
                 <span
                     :class="[
-                props.highlightValue == value ? 'highlightValue' : '',
-                props.type != 'given' && props.check ? value == props.answer ? 'correct' : 'wrong' : '',
-            ]"
+                        props.highlightValue == value ? 'highlightValue' : '',
+                        props.type != 'given' && props.check ? value == props.answer ? 'correct' : 'wrong' : '',
+                    ]"
                     style="aspect-ratio: 1 / 1; margin: 5px; padding: 0 10px;"
                 >
                     {{ value }}
@@ -31,10 +35,7 @@
     </slot>
 </template>
 
-<script
-    setup
-    lang='ts'
->
+<script setup lang='ts'>
 export interface CellProps {
     value: number | null;
     type: 'given' | 'filled' | 'candidate';
@@ -44,9 +45,10 @@ export interface CellProps {
     highlightValue?: number | null;
     check: boolean;
     answer: number;
+    color: string;
 }
 
-import { computed, onBeforeMount, ref, watch } from 'vue'
+import { computed, onBeforeMount, ref } from 'vue'
 
 import Candidates from './Candidates.vue';
 
@@ -59,6 +61,10 @@ const highlight = ref(false);
 onBeforeMount(() => {
     selected.value = props.selected ?? false;
     highlight.value = props.highlight ?? false;
+});
+
+const backgroundColor = computed(() => {
+    return props.color == "#FFFFFF" ? "" : "opacity: .5 !important; background-color: " + props.color.substring(0, 7) + " !important;";
 });
 
 function handleClick() {
@@ -78,10 +84,7 @@ const cssClass = computed(() => {
 
 </script>
 
-<style
-    lang="css"
-    scoped
->
+<style lang="css" scoped>
 .cell {
     z-index: 90;
     border-collapse: collapse;
@@ -134,6 +137,20 @@ const cssClass = computed(() => {
 
 .outer {
     margin: 3px;
+    position: relative;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    /* Inicialmente invisível */
+    background-color: rgba(255, 255, 255, 0.5);
+    /* Cor de exemplo */
+    pointer-events: none;
 }
 
 .highlightValue {

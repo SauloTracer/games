@@ -2,7 +2,6 @@
     <Title>Sudoku</Title>
     <v-row>
         <v-col>
-
             <div
                 id="board"
                 class="grid3"
@@ -252,8 +251,21 @@
                     show-swatches
                     v-model="markColor"
                 ></v-color-picker>
-
             </v-card-text>
+            <v-card-actions>
+                <v-row>
+                    <v-col>
+                        <v-btn @click="clearMarks()">
+                            Clear marks
+                        </v-btn>
+                    </v-col>
+                    <v-col>
+                        <v-btn @click="clearAllMarks()">
+                            Clear all marks
+                        </v-btn>
+                    </v-col>
+                </v-row>
+            </v-card-actions>
         </v-card>
     </v-dialog>
 </template>
@@ -334,6 +346,21 @@ function markCells() {
         return
     }
     showMarkCellsDialog.value = true;
+}
+
+function clearMarks() {
+    markColor.value = '#FFFFFF';
+    showMarkCellsDialog.value = false;
+}
+
+function clearAllMarks() {
+    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(col =>
+        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(row =>
+            board.value[row][col].color = '#FFFFFF'
+        )
+    );
+    showMarkCellsDialog.value = false;
+    isMarkingCells.value = false;
 }
 
 function changeMode(mode: GameMode) {
@@ -589,6 +616,7 @@ function esc() {
             board.value[row][col].selected = false
         )
     );
+    isMarkingCells.value = false;
 }
 
 function possible(row: number, col: number, k: number) {
@@ -846,5 +874,16 @@ function loadConfig() {
     width: 80%;
     margin: 0 auto;
     margin-bottom: 10px;
+}
+
+.no-select {
+    -webkit-user-select: none;
+    /* Safari */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* IE/Edge */
+    user-select: none;
+    /* Standard */
 }
 </style>

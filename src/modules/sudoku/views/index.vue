@@ -248,6 +248,7 @@
             </v-card-title>
             <v-card-text class="d-flex flex-column">
                 <v-color-picker
+                    :swatches="swatches"
                     show-swatches
                     v-model="markColor"
                 ></v-color-picker>
@@ -322,6 +323,13 @@ const showNewGameDialog = ref(false);
 const isMarkingCells = ref(false);
 const showMarkCellsDialog = ref(false)
 const markColor = ref()
+const swatches = [
+    ['#FF0000', '#AA0000', '#550000'],
+    ['#FFFF00', '#AAAA00', '#555500'],
+    ['#00FF00', '#00AA00', '#005500'],
+    ['#00FFFF', '#00AAAA', '#005555'],
+    ['#0000FF', '#0000AA', '#000055'],
+];
 
 let solution: number[][] = [[]];
 

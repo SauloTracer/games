@@ -524,11 +524,15 @@ function handleKeyUp(event: KeyboardEvent) {
 
     if (event.key == 'ArrowUp') {
         row = row > 0 ? row - 1 : 8;
-        if (event.ctrlKey) {
+        if (event.shiftKey) {
             let count = 0;
             while (board.value[row][col].type != 'candidate' && count <= 9) {
                 row = row > 0 ? row - 1 : 8;
                 count++;
+            }
+        } else {
+            if (event.ctrlKey) {
+                row = row == 0 ? 8 : 0;
             }
         }
         selectCell(row, col);
@@ -536,11 +540,15 @@ function handleKeyUp(event: KeyboardEvent) {
     }
     if (event.key == 'ArrowDown') {
         row = row < 8 ? row + 1 : 0;
-        if (event.ctrlKey) {
+        if (event.shiftKey) {
             let count = 0;
-            while (board.value[row][col].type != 'candidate' && count <= 9) {
+            while (board.value[row][col].type != 'candidate' && count < 9) {
                 row = row < 8 ? row + 1 : 0;
                 count++;
+            }
+        } else {
+            if (event.ctrlKey) {
+                row = row == 8 ? 0 : 8;
             }
         }
         selectCell(row, col);
@@ -548,11 +556,15 @@ function handleKeyUp(event: KeyboardEvent) {
     }
     if (event.key == 'ArrowLeft') {
         col = col > 0 ? col - 1 : 8;
-        if (event.ctrlKey) {
+        if (event.shiftKey) {
             let count = 0;
             while (board.value[row][col].type != 'candidate' && count <= 9) {
                 col = col > 0 ? col - 1 : 8;
                 count++;
+            }
+        } else {
+            if (event.ctrlKey) {
+                col = col == 0 ? 8 : 0;
             }
         }
         selectCell(row, col);
@@ -560,13 +572,18 @@ function handleKeyUp(event: KeyboardEvent) {
     }
     if (event.key == 'ArrowRight') {
         col = col < 8 ? col + 1 : 0;
-        if (event.ctrlKey) {
+        if (event.shiftKey) {
             let count = 0;
             while (board.value[row][col].type != 'candidate' && count <= 9) {
                 col = col < 8 ? col + 1 : 0;
                 count++;
             }
+        } else {
+            if (event.ctrlKey) {
+                col = col == 8 ? 0 : 8;
+            }
         }
+
         selectCell(row, col);
         return;
     }

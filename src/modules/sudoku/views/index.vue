@@ -17,10 +17,7 @@
                                     v-for="cell, colIndex in line.slice((col - 1) * 3, col * 3)"
                                     :key="`${lineIndex + (row - 1) * 3}-${colIndex + (col - 1) * 3}`"
                                 >
-                                    <div
-                                        class="cell"
-                                        @click="selectedCell = cell"
-                                    >
+                                    <div class="cell">
                                         <Cell
                                             :type="cell.type"
                                             :candidates="cell.candidates"
@@ -31,7 +28,7 @@
                                             :check="autoCheckCells || cell.check"
                                             :answer="cell.answer"
                                             :color="cell.color"
-                                            @click="selectCell(cell.coordinates.row, cell.coordinates.col, true)"
+                                            @click="selectCell(cell.coordinates.row, cell.coordinates.col, true, $event)"
                                             @updateCandidates="cell.candidates = $event"
                                         ></Cell>
                                     </div>
@@ -309,7 +306,7 @@ const board = ref<Cell[][]>([
     [defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell,],
     [defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell, defaultCell,]
 ]);
-const selectedCell = ref<Cell | null>(null);
+const selectedCell = ref<Cell | Cell[] | null>(null);
 const highlightedCells = ref<Cell[]>([]);
 const highlightValue = ref<number | null>(null);
 const fillCandidates = ref(true);
@@ -473,11 +470,17 @@ function highlightConnectedCells(row: number, col: number) {
     highlightedCells.value = [...block, ...boardRow, ...boardColumn];
 }
 
-function selectCell(row: number, col: number, fromClick: boolean = false) {
+function selectCell(row: number, col: number, fromClick: boolean = false, event: Event = null) {
     if (fromClick) {
+        // console.log("CLICK", event)
         if (isMarkingCells.value) {
             board.value[row][col].color = markColor.value
         }
+        // if (event?.ctrlKey) {
+        //     if (selectedCell.value) {
+        //         alert(typeof (selectedCell.value))
+        //     }
+        // }
     }
     highlightValue.value = board.value[row][col].value;
     selectedCell.value = board.value[row][col];
@@ -512,6 +515,12 @@ function promoteSingles() {
 
 function handleKeyUp(event: KeyboardEvent) {
     // console.log(event.key, selectedCell.value, selectedCell.value?.coordinates);
+    // Ctrl + C => Auto candidates
+    // if (event.ctrlKey && event.altlKey) {
+    //     console.log(event.key, event)
+    //     event.preventDefault()
+    // }
+
     if (!selectedCell.value) return;
 
     let row = selectedCell.value.coordinates.row;
@@ -526,7 +535,7 @@ function handleKeyUp(event: KeyboardEvent) {
         row = row > 0 ? row - 1 : 8;
         if (event.shiftKey) {
             let count = 0;
-            while (board.value[row][col].type != 'candidate' && count <= 9) {
+            while (board.value[row][col].type != 'candidate' && count < 9) {
                 row = row > 0 ? row - 1 : 8;
                 count++;
             }
@@ -558,7 +567,7 @@ function handleKeyUp(event: KeyboardEvent) {
         col = col > 0 ? col - 1 : 8;
         if (event.shiftKey) {
             let count = 0;
-            while (board.value[row][col].type != 'candidate' && count <= 9) {
+            while (board.value[row][col].type != 'candidate' && count < 9) {
                 col = col > 0 ? col - 1 : 8;
                 count++;
             }
@@ -574,7 +583,7 @@ function handleKeyUp(event: KeyboardEvent) {
         col = col < 8 ? col + 1 : 0;
         if (event.shiftKey) {
             let count = 0;
-            while (board.value[row][col].type != 'candidate' && count <= 9) {
+            while (board.value[row][col].type != 'candidate' && count < 9) {
                 col = col < 8 ? col + 1 : 0;
                 count++;
             }

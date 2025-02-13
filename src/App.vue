@@ -1,39 +1,58 @@
 <script setup>
+import { ref } from 'vue'
+import AdSense from './components/AdSense.vue';
+import { useIsMobileStore } from './stores/isMobile';
+
+const drawer = ref(false);
+const isMobileStore = useIsMobileStore();
+
+const handleResize = () => {
+  isMobileStore.setIsMobile(window.innerWidth < 768); // Ajuste o valor conforme necessário
+};
+
+window.addEventListener('resize', handleResize);
+handleResize(); // Chame a função inicialmente para definir o valor correto
+
 </script>
 
 <template>
-  <div>
-    <a
-      href="https://vitejs.dev"
-      target="_blank"
-    >
-      <img
-        src="
-      /vite.svg"
-        class="logo"
-        alt="Vite logo"
-      />
-    </a>
-    <div style="display: inline; vertical-align: super;">
-      <nav id="menu">
-        <router-link to="/">Home</router-link> |
-        <router-link to="/sudoku">Sudoku</router-link>
-      </nav>
-    </div>
-    <a
-      href="https://vuejs.org/"
-      target="_blank"
-    >
-      <img
-        src="
-    ./assets/vue.svg"
-        class="logo vue"
-        alt="Vue logo"
-      />
-    </a>
-  </div>
+  <v-app>
+    <!-- <v-app-bar app>
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-title>Meu Aplicativo</v-app-bar-title>
+    </v-app-bar> -->
+    <v-icon @click="drawer = !drawer">mdi-menu</v-icon>
 
-  <router-view />
+    <v-navigation-drawer
+      v-model="drawer"
+      app
+    >
+      <v-list dense>
+        <v-list-item>
+          <v-list-item-title>
+            <router-link to="/">Home</router-link>
+          </v-list-item-title>
+        </v-list-item>
+
+        <v-list-item>
+          <v-list-item-title>
+            <router-link to="/sudoku">Sudoku</router-link>
+          </v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <div>
+      <AdSense adUnit="top" />
+      <div style="display: flex;">
+        <AdSense adUnit="left" />
+        <div>
+          <router-view />
+        </div>
+        <AdSense adUnit="right" />
+      </div>
+    </div>
+  </v-app>
 </template>
 
 <style scoped>

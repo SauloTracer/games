@@ -21,8 +21,8 @@
                 <ins
                     class="adsbygoogle"
                     :style="{ display: 'block', width: '300px', height: '250px', margin: '0 auto' }"
-                    data-ad-client="ca-pub-SEU_ID_DO_ANUNCIANTE"
-                    data-ad-slot="SEU_ID_DO_SLOT_MOBILE"
+                    data-ad-client="ca-pub-8041117169271031"
+                    data-ad-slot="6664202035"
                     data-ad-format="horizontal"
                     data-full-width-responsive="true"
                 ></ins>
@@ -52,10 +52,10 @@ export default {
         return {
             adClient: 'ca-pub-8041117169271031',
             adSlot: {
-                top: 'SEU_ID_DO_SLOT_TOPO',
-                left: 'SEU_ID_DO_SLOT_ESQUERDA',
-                right: 'SEU_ID_DO_SLOT_DIREITA',
-                mobile: 'SEU_ID_DO_SLOT_MOBILE'
+                top: '8535116081',
+                left: '9523171803',
+                right: '5351120363',
+                mobile: '6664202035'
             },
             displayStyle: {},
             showMobileAd: false

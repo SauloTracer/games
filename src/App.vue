@@ -16,13 +16,11 @@ handleResize(); // Chame a função inicialmente para definir o valor correto
 </script>
 
 <template>
+  <v-icon
+    @click="drawer = !drawer"
+    class="burguer-menu"
+  >mdi-menu</v-icon>
   <v-app>
-    <!-- <v-app-bar app>
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-app-bar-title>Meu Aplicativo</v-app-bar-title>
-    </v-app-bar> -->
-    <v-icon @click="drawer = !drawer">mdi-menu</v-icon>
-
     <v-navigation-drawer
       v-model="drawer"
       app
@@ -43,7 +41,6 @@ handleResize(); // Chame a função inicialmente para definir o valor correto
     </v-navigation-drawer>
 
     <div>
-      <AdSense adUnit="top" />
       <div style="display: flex;">
         <AdSense adUnit="left" />
         <div>
@@ -51,6 +48,7 @@ handleResize(); // Chame a função inicialmente para definir o valor correto
         </div>
         <AdSense adUnit="right" />
       </div>
+      <AdSense adUnit="top" />
     </div>
   </v-app>
 </template>

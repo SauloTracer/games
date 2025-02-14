@@ -1,5 +1,5 @@
 <template>
-    <Title>Sudoku</Title>
+    <br />
     <v-row>
         <v-col>
             <div
@@ -40,6 +40,15 @@
             </div>
         </v-col>
         <v-col>
+            <Title>
+                Sudoku
+                <button
+                    class="button"
+                    @click="showNewGameDialog = true"
+                >
+                    <v-icon>mdi-play</v-icon>
+                </button>
+            </Title>
             <div id="gameMode">
                 <v-radio-group
                     v-model="gameMode"
@@ -62,8 +71,6 @@
                     <template v-for="i in [3, 2, 1]">
                         <v-icon :color="i > errors ? 'red' : 'lightgray'">mdi-heart-circle-outline</v-icon>
                     </template>
-                    <br />
-                    <br />
                 </div>
             </div>
             <hr
@@ -72,16 +79,6 @@
             >
             <br />
             <div id="actions">
-                <v-row>
-                    <v-col cols="11">
-                        <button
-                            class="button new-game"
-                            @click="showNewGameDialog = true"
-                        >New Game</button>
-                    </v-col>
-                </v-row>
-
-                <br />
                 <span
                     style="padding: 0.6em 1.2em;"
                     class="checkbox"
@@ -115,13 +112,13 @@
                 >{{ markCellsText }}</button>
                 <button
                     class="button"
+                    @click="revealCell()"
+                >Reveal Cell</button>
+                <button
+                    class="button"
                     @click="promoteSingles()"
                 >Promote Singles</button>
                 <br />
-                <button
-                    class="button"
-                    @click="revealCell()"
-                >Reveal Cell</button>
                 <button
                     class="button"
                     @click="showSolution()"
@@ -130,6 +127,10 @@
                     class="button"
                     @click="reset()"
                 >Reset</button>
+                <button
+                    class="button"
+                    @click="showNewGameDialog = true"
+                >New Game</button>
             </div>
             <br />
 
@@ -215,7 +216,10 @@
         max-width="200"
         v-model="showNewGameDialog"
     >
-        <v-card title="Select difficulty">
+        <v-card>
+            <v-card-title style="text-align: center;">
+                New Game
+            </v-card-title>
             <v-card-text class="d-flex flex-column">
                 <template v-for="[k, v] of Object.entries(Difficulty)">
                     <v-btn

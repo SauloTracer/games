@@ -27,7 +27,6 @@ body {
   display: flex;
   place-items: center;
   min-width: 320px;
-  min-height: 100vh;
 }
 
 h1 {
@@ -59,14 +58,20 @@ button:focus-visible {
 }
 
 #app {
-  max-width: 80%;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
 }
 
 .about {
   padding-top: -50px;
+}
+
+.burguer-menu {
+  position:fixed !important;
+  top: 5px; 
+  left: 5px;
+  z-index: 9999;
 }
 
 @media (prefers-color-scheme: light) {

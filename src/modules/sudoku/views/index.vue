@@ -71,6 +71,8 @@
                     <template v-for="i in [3, 2, 1]">
                         <v-icon :color="i > errors ? 'red' : 'lightgray'">mdi-heart-circle-outline</v-icon>
                     </template>
+                    <br />
+                    <br />
                 </div>
             </div>
             <hr
@@ -98,14 +100,14 @@
                 </span>
                 <button
                     class="button"
-                    @click="autoCandidate()"
-                >Auto Candidate</button>
-                <br />
-                <button
-                    class="button"
                     v-if="!autoCheckCells"
                     @click="checkCell()"
                 >Check Cell</button>
+                <button
+                    class="button"
+                    @click="autoCandidate()"
+                >Auto Candidate</button>
+                <br />
                 <button
                     class="button"
                     @click="markCells()"

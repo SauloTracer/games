@@ -425,7 +425,7 @@ function reset() {
     showMarkCellsDialog.value = false;
     isMarkingCells.value = false;
     deleteSave();
-    localStorage.setItem('sudoku-changes', JSON.stringify([]));
+    saveChanges();
 }
 
 function getBlock(row: number, col: number) {

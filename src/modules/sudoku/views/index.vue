@@ -131,6 +131,10 @@
                 >Reset</button>
                 <button
                     class="button"
+                    @click="undo()"
+                >Undo</button>
+                <button
+                    class="button"
                     @click="showNewGameDialog = true"
                 >New Game</button>
             </div>
@@ -382,7 +386,6 @@ function changeMode(mode: GameMode) {
 
 function newGame(difficulty: string = Difficulty.EASY) {
     sudokuStore.getBoard(difficulty);
-    deleteSave();
     reset();
     // autoCandidate();
 }
@@ -422,6 +425,7 @@ function reset() {
     showMarkCellsDialog.value = false;
     isMarkingCells.value = false;
     deleteSave();
+    localStorage.setItem('sudoku-changes', JSON.stringify([]));
 }
 
 function getBlock(row: number, col: number) {
@@ -451,6 +455,7 @@ function autoCandidate() {
             board.value[row][col].candidates = getCellCandidates(row, col)
         )
     );
+    saveChanges();
 }
 
 function removeCandidateFromConnectedCells(value: number, row: number, col: number) {
@@ -517,6 +522,7 @@ function promoteSingles() {
     );
     handleFinish();
     save();
+    saveChanges();
 }
 
 function handleKeyUp(event: KeyboardEvent) {
@@ -534,6 +540,11 @@ function handleKeyUp(event: KeyboardEvent) {
 
     if (event.key == ' ') {
         fillCandidates.value = !fillCandidates.value;
+        return;
+    }
+
+    if (event.ctrlKey && event.key == 'z') {
+        undo();
         return;
     }
 
@@ -632,6 +643,7 @@ function setCellValue(value: number) {
     }
     highlightValue.value = value;
     handleFinish();
+    saveChanges();
     save();
 }
 
@@ -645,6 +657,7 @@ function clearCellValue() {
     // selectedCell.value.candidates = getCellCandidates(selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
 
     highlightValue.value = null;
+    saveChanges();
 }
 
 function esc() {
@@ -700,6 +713,7 @@ function showSolution() {
             }
         })
     );
+    saveChanges();
 }
 
 function revealCell() {
@@ -708,6 +722,7 @@ function revealCell() {
     selectedCell.value.value = selectedCell.value.answer;
     selectedCell.value.type = 'filled';
     removeCandidateFromConnectedCells(selectedCell.value.answer, selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
+    saveChanges();
 }
 
 function checkCell() {
@@ -781,6 +796,7 @@ function loadSave() {
 
 function deleteSave() {
     localStorage.removeItem('sudoku-currentGame');
+    localStorage.removeItem('sudoku-changes');
 }
 
 function loadConfig() {
@@ -788,6 +804,21 @@ function loadConfig() {
     let sudokuConfig = JSON.parse(localStorage.getItem('sudoku-config') ?? '{}');
     autoCheckCells.value = sudokuConfig.autoCheckCells;
     gameMode.value = sudokuConfig.gameMode;
+}
+
+function saveChanges() {
+    let changes = JSON.parse(localStorage.getItem('sudoku-changes') ?? JSON.stringify([{ board: board.value, selectedCell: selectedCell.value }]));
+    changes.push({ board: board.value, selectedCell: selectedCell.value });
+    localStorage.setItem('sudoku-changes', JSON.stringify(changes));
+}
+
+function undo() {
+    let changes = JSON.parse(localStorage.getItem('sudoku-changes') ?? JSON.stringify([board.value]));
+    let state = changes.pop();
+    board.value = state.board;
+    if (state.selectedCell) selectCell(state.selectedCell.coordinates.row, state.selectedCell.coordinates.col);
+    if (changes.length == 0) changes.push({ board: board.value, selectedCell: selectedCell.value });
+    localStorage.setItem('sudoku-changes', JSON.stringify(changes));
 }
 
 </script>

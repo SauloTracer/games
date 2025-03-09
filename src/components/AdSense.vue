@@ -84,7 +84,7 @@ export default {
         if (this.isMobile) {
             setTimeout(() => {
                 this.showMobileAd = true;
-            }, 2000);
+            }, 5000);
         }
     }
 };

@@ -42,13 +42,25 @@ handleResize(); // Chame a função inicialmente para definir o valor correto
 
     <div>
       <div style="display: flex;">
-        <AdSense adUnit="left" />
+        <AdSense
+          adUnit="left"
+          width="160"
+          height="600"
+        />
         <div>
           <router-view />
         </div>
-        <AdSense adUnit="right" />
+        <AdSense
+          adUnit="right"
+          width="160"
+          height="600"
+        />
       </div>
-      <AdSense adUnit="top" />
+      <AdSense
+        adUnit="top"
+        width="728"
+        height="90"
+      />
     </div>
   </v-app>
 </template>

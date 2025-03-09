@@ -83,12 +83,10 @@ export default {
         }
 
         if (!adsShowed) {
-            (adsbygoogle = window.adsbygoogle || []).push({});
-            if (this.isMobile) {
-                setTimeout(() => {
-                    this.showMobileAd = true;
-                }, 5000);
-            }
+            setTimeout(() => {
+                (adsbygoogle = window.adsbygoogle || []).push({});
+                if (this.isMobile) this.showMobileAd = true;
+            }, 5000);
             adsShowed = true;
         }
     }

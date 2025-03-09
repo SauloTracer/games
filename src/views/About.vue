@@ -19,7 +19,7 @@
             Sudoku
             <button
                 class="button"
-                @click="this.$router.push('/sudoku')"
+                @click="router.push('/sudoku')"
             >
                 <v-icon>mdi-play</v-icon>
             </button>
@@ -30,8 +30,11 @@
 <script setup lang='ts'>
 import { computed } from 'vue'
 import { useIsMobileStore } from '@/stores/isMobile';
+import { useRouter } from 'vue-router'
+
 import Title from '../components/Title.vue';
 
+const router = useRouter()
 const isMobileStore = useIsMobileStore();
 const isMobile = computed(() => isMobileStore.isMobile);
 </script>

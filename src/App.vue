@@ -19,6 +19,8 @@ handleResize(); // Chame a função inicialmente para definir o valor correto
   <v-icon
     @click="drawer = !drawer"
     class="burguer-menu"
+    color="black"
+    style="z-index: 9999;"
   >mdi-menu</v-icon>
   <v-app>
     <v-navigation-drawer

@@ -40,6 +40,9 @@
 
 <script>
 import { useIsMobileStore } from '@/stores/isMobile'; // Importe o store Pinia
+import { ref } from 'vue';
+
+const adsShowed = ref(false);
 
 export default {
     props: {
@@ -79,14 +82,14 @@ export default {
             this.displayStyle = { display: 'block', width: '160px', height: '600px', float: 'right', marginLeft: '20px' };
         }
 
-        setTimeout(() => {
+        if (!adsShowed) {
             (adsbygoogle = window.adsbygoogle || []).push({});
-        }, 5000);
-
-        if (this.isMobile) {
-            setTimeout(() => {
-                this.showMobileAd = true;
-            }, 5000);
+            if (this.isMobile) {
+                setTimeout(() => {
+                    this.showMobileAd = true;
+                }, 5000);
+            }
+            adsShowed = true;
         }
     }
 };

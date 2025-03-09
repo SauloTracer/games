@@ -79,7 +79,9 @@ export default {
             this.displayStyle = { display: 'block', width: '160px', height: '600px', float: 'right', marginLeft: '20px' };
         }
 
-        (adsbygoogle = window.adsbygoogle || []).push({});
+        setTimeout(() => {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        }, 5000);
 
         if (this.isMobile) {
             setTimeout(() => {

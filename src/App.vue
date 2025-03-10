@@ -58,11 +58,11 @@ handleResize(); // Chame a função inicialmente para definir o valor correto
           height="600"
         />
       </div>
-      <AdSense
+      <!-- <AdSense
         adUnit="top"
         width="728"
         height="90"
-      />
+      /> -->
     </div>
   </v-app>
 </template>

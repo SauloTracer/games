@@ -16,7 +16,6 @@
         width="auto"
     >
         <v-card>
-            <v-card-title>Anúncio</v-card-title>
             <v-card-text>
                 <ins
                     class="adsbygoogle"
@@ -80,8 +79,8 @@ export default {
         }
 
         setTimeout(() => {
-            (adsbygoogle = window.adsbygoogle || []).push({});
             if (this.isMobile) this.showMobileAd = true;
+            (adsbygoogle = window.adsbygoogle || []).push({});
         }, 5000);
     }
 };

@@ -53,6 +53,7 @@ handleResize(); // Chame a função inicialmente para definir o valor correto
           <router-view />
         </div>
         <AdSense
+          v-if="!isMobileStore.isMobile"
           adUnit="right"
           width="160"
           height="600"

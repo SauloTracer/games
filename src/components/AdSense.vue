@@ -22,7 +22,7 @@
                     :style="{ display: 'block', width: '300px', height: '250px', margin: '0 auto' }"
                     data-ad-client="ca-pub-8041117169271031"
                     data-ad-slot="6664202035"
-                    data-ad-format="horizontal"
+                    data-ad-format="auto"
                     data-full-width-responsive="true"
                 ></ins>
             </v-card-text>

@@ -46,8 +46,8 @@ handleResize(); // Chame a função inicialmente para definir o valor correto
       <div style="display: flex;">
         <AdSense
           adUnit="left"
-          width="160"
-          height="600"
+          :width="isMobileStore.isMobile ? 300 : 160"
+          :height="isMobileStore.isMobile ? 250 : 600"
         />
         <div>
           <router-view />

@@ -425,6 +425,7 @@ function reset() {
     showMarkCellsDialog.value = false;
     isMarkingCells.value = false;
     deleteSave();
+    save();
     saveChanges();
 }
 

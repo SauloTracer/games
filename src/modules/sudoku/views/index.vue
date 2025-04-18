@@ -387,10 +387,10 @@ function changeMode(mode: GameMode) {
 function newGame(difficulty: string = Difficulty.EASY) {
     sudokuStore.getBoard(difficulty);
     reset();
-    // autoCandidate();
 }
 
 function reset() {
+    deleteSave();
     [0, 1, 2, 3, 4, 5, 6, 7, 8].map(col =>
         [0, 1, 2, 3, 4, 5, 6, 7, 8].map(row => {
             if (hasSavedGame() && board.value[row][col].type == 'given') return;
@@ -424,7 +424,7 @@ function reset() {
     showNewGameDialog.value = false;
     showMarkCellsDialog.value = false;
     isMarkingCells.value = false;
-    deleteSave();
+
     save();
     saveChanges();
 }

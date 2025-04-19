@@ -323,7 +323,7 @@ export interface Cell {
     coordinates: { row: number, col: number };
     answer: number;
     color: string; // Para marcação manual com cor
-    highlightedCandidates?: number[]; // Array de números candidatos a serem destacados nesta célula
+    candidateColors?: Map<number, string>;
 }
 
 enum GameMode {
@@ -977,34 +977,36 @@ function findUniqueCandidates(board: Cell[][], universe: { rows: number[]; cols:
 }
 
 /**
- * Encontra Pares Nus (Naked Pairs) no tabuleiro dentro das unidades especificadas pelo universo.
+ * Encontra Pares Nus (Naked Pairs) no tabuleiro dentro das unidades especificadas pelo universo, retornando instâncias.
  * @param board O tabuleiro Sudoku.
  * @param universe O objeto universo contendo as restrições de linhas, colunas e blocos.
- * @returns Uma lista de objetos contendo as células que formam Pares Nus e os candidatos relevantes.
+ * @returns Uma lista de objetos, onde cada objeto representa uma instância de Naked Pair com suas células e candidatos.
  */
-function findNakedPairs(board: Cell[][], universe: { rows: number[]; cols: number[]; blocks: number[] }): Array<{ cell: Cell, candidates: number[] }> {
-    // Lista para armazenar as informações de células e candidatos dos Pares Nus encontrados
-    const nakedPairInfo: Array<{ cell: Cell, candidates: number[] }> = [];
-    // Usamos um Set para evitar adicionar o mesmo objeto Cell mais de uma vez na lista de resultado
-    // (embora uma célula só deva fazer parte de um Naked Pair com os mesmos candidatos por unidade em um estado válido)
-    const addedCells = new Set<Cell>();
+function findNakedPairs(board: Cell[][], universe: { rows: number[]; cols: number[]; blocks: number[] }): Array<{ cells: Cell[], candidates: number[] }> {
+    // Lista para armazenar as instâncias de Pares Nus encontradas.
+    // Cada item será um objeto { cells: [cell1, cell2], candidates: [cand1, cand2] }
+    const nakedPairInstances: Array<{ cells: Cell[], candidates: number[] }> = [];
+    // Usamos um Set para rastrear pares de células (instâncias) já adicionados, para evitar adicionar a mesma instância de Naked Pair mais de uma vez (por exemplo, se for encontrada em uma linha e em um bloco simultaneamente - embora raro com Naked Pairs).
+    // Criamos uma chave única para cada par de células e candidatos para garantir a unicidade da instância.
+    const addedInstances = new Set<string>();
+
 
     // Função auxiliar para verificar uma única unidade (linha, coluna ou bloco) por Pares Nus
     const checkUnitForNakedPairs = (unitCells: Cell[]) => {
         // Filtra apenas as células que são vazias (valor null ou 0), têm candidatos
-        // e, crucialmente para Naked Pairs, têm EXATAMENTE 2 candidatos.
+        // e cujo número de candidatos é EXATAMENTE 2 (requisito para Naked Pairs).
         const candidateCellsInUnit = unitCells.filter(cell =>
             (cell.value === null || cell.value === 0) &&
             cell.candidates &&
-            cell.candidates.length === 2 // Células em um Naked Pair *devem* ter apenas 2 candidatos
+            cell.candidates.length === 2
         );
 
-        // Precisamos de pelo menos 2 células candidatas na unidade para que um Naked Pair possa existir
+        // Precisamos de pelo menos 2 células candidatas com 2 candidatos nesta unidade
         if (candidateCellsInUnit.length < 2) {
             return;
         }
 
-        // Itera por todos os pares distintos de células candidatas com 2 candidatos nesta unidade
+        // Itera por todos os pares distintos de células candidatas com 2 candidatos na unidade
         for (let i = 0; i < candidateCellsInUnit.length; i++) {
             const cell1 = candidateCellsInUnit[i];
 
@@ -1012,80 +1014,85 @@ function findNakedPairs(board: Cell[][], universe: { rows: number[]; cols: numbe
                 const cell2 = candidateCellsInUnit[j];
 
                 // Verifica se as duas células têm EXATAMENTE o mesmo par de candidatos.
-                // Usamos slice() antes de sort() para não modificar o array original de candidatos na célula.
-                // Comparar a representação string de arrays ordenados é uma forma simples de verificar igualdade de conteúdo.
+                // Usamos slice() antes de sort() para não modificar o array original.
+                // Comparar a representação string de arrays ordenados verifica se os conjuntos de candidatos são iguais.
                 if (cell1.candidates.slice().sort().toString() === cell2.candidates.slice().sort().toString()) {
-                    // Encontramos um Naked Pair! As células são cell1 e cell2, e os candidatos são cell1.candidates (ou cell2.candidates).
-                    const nakedCandidates = cell1.candidates.slice().sort(); // Pega o par de candidatos (ordenado)
+                    // Encontramos uma instância de Naked Pair!
+                    const nakedCandidates = cell1.candidates.slice().sort(); // O par de candidatos (ordenado)
+                    // Ordenamos as células por coordenadas para criar uma chave de instância consistente
+                    const pairCells = [cell1, cell2].sort((a, b) => {
+                        if (a.coordinates.row !== b.coordinates.row) return a.coordinates.row - b.coordinates.row;
+                        return a.coordinates.col - b.coordinates.col;
+                    });
 
-                    // Adiciona a informação da célula e dos candidatos do par nu à lista de resultado.
-                    // Verifica se a célula já foi adicionada para evitar duplicatas na lista de saída.
-                    if (!addedCells.has(cell1)) {
-                        nakedPairInfo.push({ cell: cell1, candidates: nakedCandidates });
-                        addedCells.add(cell1); // Marca a célula como adicionada
-                    }
-                    if (!addedCells.has(cell2)) {
-                        nakedPairInfo.push({ cell: cell2, candidates: nakedCandidates });
-                        addedCells.add(cell2); // Marca a célula como adicionada
+                    // Cria uma chave única para esta instância do par de células com esses candidatos
+                    const instanceKey = `${pairCells[0].coordinates.row}-${pairCells[0].coordinates.col}-${pairCells[1].coordinates.row}-${pairCells[1].coordinates.col}-${nakedCandidates.join(',')}`;
+
+                    // Adiciona a instância à lista se ainda não foi adicionada
+                    if (!addedInstances.has(instanceKey)) {
+                        nakedPairInstances.push({ cells: pairCells, candidates: nakedCandidates });
+                        addedInstances.add(instanceKey); // Marca a instância como adicionada
                     }
                 }
             }
         }
     };
 
-    // Verifica as Linhas que estão dentro do universo especificado (ou todas se o universo de linhas for vazio)
+    // Verifica as Linhas dentro do universo especificado
     for (let r = 0; r < 9; r++) {
         if (universe.rows.length === 0 || universe.rows.includes(r + 1)) {
-            // Usa a função auxiliar getUnitCells para obter as células da linha
             checkUnitForNakedPairs(getUnitCells(board, 'row', r));
         }
     }
 
-    // Verifica as Colunas que estão dentro do universo especificado (ou todas se o universo de colunas for vazio)
+    // Verifica as Colunas dentro do universo especificado
     for (let c = 0; c < 9; c++) {
         if (universe.cols.length === 0 || universe.cols.includes(c + 1)) {
-            // Usa a função auxiliar getUnitCells para obter as células da coluna
             checkUnitForNakedPairs(getUnitCells(board, 'col', c));
         }
     }
 
-    // Verifica os Blocos que estão dentro do universo especificado (ou todos se o universo de blocos for vazio)
+    // Verifica os Blocos dentro do universo especificado
     for (let blockIndex = 0; blockIndex < 9; blockIndex++) { // Índices de bloco 0-8
-        // O universo usa números de bloco de 1 a 9, então mapeamos o índice do loop (0-8) para o número do bloco (1-9)
-        if (universe.blocks.length === 0 || universe.blocks.includes(blockIndex + 1)) {
-            // Usa a função auxiliar getUnitCells para obter as células do bloco
+        if (universe.blocks.length === 0 || universe.blocks.includes(blockIndex + 1)) { // Universo usa números de bloco 1-9
             checkUnitForNakedPairs(getUnitCells(board, 'block', blockIndex));
         }
     }
 
-    // Retorna a lista de objetos, onde cada objeto contém uma célula que faz parte de um Par Nu e o par de candidatos.
-    // A função filterCandidates usará esta informação para destacar os candidatos.
-    return nakedPairInfo;
+    // Retorna a lista de instâncias distintas de Naked Pairs encontradas
+    return nakedPairInstances;
 }
 
+// Assume que as funções auxiliares getUnitCells e getBlockNumber estão definidas em outro lugar
+// function getUnitCells(board: Cell[][], type: 'row' | 'col' | 'block', index: number): Cell[] { ... }
+// function getBlockNumber(row: number, col: number): number { ... }
+
 /**
- * Encontra Trios Nus (Naked Triples) no tabuleiro dentro das unidades especificadas pelo universo.
+ * Encontra Trios Nus (Naked Triples) no tabuleiro dentro das unidades especificadas pelo universo, retornando instâncias.
  * @param board O tabuleiro Sudoku.
  * @param universe O objeto universo contendo as restrições de linhas, colunas e blocos.
- * @returns Uma lista de objetos contendo as células que formam Trios Nus e os candidatos relevantes.
+ * @returns Uma lista de objetos, onde cada objeto representa uma instância de Trio Nu com suas células e candidatos.
  */
-function findNakedTriples(board: Cell[][], universe: { rows: number[]; cols: number[]; blocks: number[] }): Array<{ cell: Cell, candidates: number[] }> {
-    // Lista para armazenar as informações de células e candidatos dos Trios Nus encontrados
-    const nakedTripleInfo: Array<{ cell: Cell, candidates: number[] }> = [];
-    // Usamos um Set para evitar adicionar o mesmo objeto Cell mais de uma vez na lista de resultado
-    const addedCells = new Set<Cell>();
+function findNakedTriples(board: Cell[][], universe: { rows: number[]; cols: number[]; blocks: number[] }): Array<{ cells: Cell[], candidates: number[] }> {
+    // Lista para armazenar as instâncias de Trios Nus encontradas.
+    // Cada item será um objeto { cells: [cell1, cell2, cell3], candidates: [cand1, cand2, cand3] }
+    const nakedTripleInstances: Array<{ cells: Cell[], candidates: number[] }> = [];
+    // Usamos um Set para rastrear trios de células (instâncias) já adicionados, para evitar adicionar a mesma instância mais de uma vez.
+    // Criamos uma chave única para cada trio de células e candidatos para garantir a unicidade da instância.
+    const addedInstances = new Set<string>();
+
 
     // Função auxiliar para verificar uma única unidade (linha, coluna ou bloco) por Trios Nus
     const checkUnitForNakedTriples = (unitCells: Cell[]) => {
         // Filtra apenas as células que são vazias (valor null ou 0), têm candidatos
-        // e cujo número de candidatos é <= 3 (células em um Naked Triple têm 2 ou 3 candidatos)
+        // e cujo número de candidatos é <= 3 (células em um Naked Triple têm 2 ou 3 candidatos).
         const candidateCellsInUnit = unitCells.filter(cell =>
             (cell.value === null || cell.value === 0) &&
             cell.candidates &&
             cell.candidates.length >= 2 && cell.candidates.length <= 3 // Células em um Naked Triple têm 2 ou 3 candidatos
         );
 
-        // Precisamos de pelo menos 3 células candidatas na unidade para que um Trio Nu possa existir
+        // Precisamos de pelo menos 3 células candidatas com 2 ou 3 candidatos nesta unidade
         if (candidateCellsInUnit.length < 3) {
             return;
         }
@@ -1106,24 +1113,23 @@ function findNakedTriples(board: Cell[][], universe: { rows: number[]; cols: num
                     cell2.candidates.forEach(c => combinedCandidatesSet.add(c));
                     cell3.candidates.forEach(c => combinedCandidatesSet.add(c));
 
-                    // Se o tamanho da união for exatamente 3, encontramos um Trio Nu
+                    // Se o tamanho da união for EXATAMENTE 3, encontramos uma instância de Trio Nu!
                     if (combinedCandidatesSet.size === 3) {
-                        // Os candidatos do Trio Nu são os elementos do conjunto combinado.
-                        const nakedCandidates = Array.from(combinedCandidatesSet).sort((a, b) => a - b);
+                        const nakedCandidates = Array.from(combinedCandidatesSet).sort((a, b) => a - b); // Os 3 candidatos do trio (ordenados)
+                        // Ordenamos as células por coordenadas para criar uma chave de instância consistente
+                        const tripleCells = [cell1, cell2, cell3].sort((a, b) => {
+                            if (a.coordinates.row !== b.coordinates.row) return a.coordinates.row - b.coordinates.row;
+                            return a.coordinates.col - b.coordinates.col;
+                        });
 
-                        // Adiciona a informação da célula e dos candidatos do trio nu à lista de resultado.
-                        // Verifica se a célula já foi adicionada para evitar duplicatas.
-                        if (!addedCells.has(cell1)) {
-                            nakedTripleInfo.push({ cell: cell1, candidates: nakedCandidates });
-                            addedCells.add(cell1); // Marca a célula como adicionada
-                        }
-                        if (!addedCells.has(cell2)) {
-                            nakedTripleInfo.push({ cell: cell2, candidates: nakedCandidates });
-                            addedCells.add(cell2); // Marca a célula como adicionada
-                        }
-                        if (!addedCells.has(cell3)) {
-                            nakedTripleInfo.push({ cell: cell3, candidates: nakedCandidates });
-                            addedCells.add(cell3); // Marca a célula como adicionada
+                        // Cria uma chave única para esta instância do trio de células com esses candidatos
+                        const instanceKey = `${tripleCells[0].coordinates.row}-${tripleCells[0].coordinates.col}-${tripleCells[1].coordinates.row}-${tripleCells[1].coordinates.col}-${tripleCells[2].coordinates.row}-${tripleCells[2].coordinates.col}-${nakedCandidates.join(',')}`;
+
+
+                        // Adiciona a instância à lista se ainda não foi adicionada
+                        if (!addedInstances.has(instanceKey)) {
+                            nakedTripleInstances.push({ cells: tripleCells, candidates: nakedCandidates });
+                            addedInstances.add(instanceKey); // Marca a instância como adicionada
                         }
                     }
                 }
@@ -1131,31 +1137,30 @@ function findNakedTriples(board: Cell[][], universe: { rows: number[]; cols: num
         }
     };
 
-    // Verifica as Linhas que estão dentro do universo especificado (ou todas se o universo de linhas for vazio)
+    // Verifica as Linhas dentro do universo especificado (ou todas se o universo de linhas for vazio)
     for (let r = 0; r < 9; r++) {
         if (universe.rows.length === 0 || universe.rows.includes(r + 1)) {
             checkUnitForNakedTriples(getUnitCells(board, 'row', r));
         }
     }
 
-    // Verifica as Colunas que estão dentro do universo especificado (ou todas se o universo de colunas for vazio)
+    // Verifica as Colunas dentro do universo especificado (ou todas se o universo de colunas for vazio)
     for (let c = 0; c < 9; c++) {
         if (universe.cols.length === 0 || universe.cols.includes(c + 1)) {
             checkUnitForNakedTriples(getUnitCells(board, 'col', c));
         }
     }
 
-    // Verifica os Blocos que estão dentro do universo especificado (ou todos se o universo de blocos for vazio)
+    // Verifica os Blocos dentro do universo especificado (ou todos se o universo de blocos for vazio)
     for (let blockIndex = 0; blockIndex < 9; blockIndex++) { // Índices de bloco 0-8
         if (universe.blocks.length === 0 || universe.blocks.includes(blockIndex + 1)) { // Universo usa números de bloco 1-9
             checkUnitForNakedTriples(getUnitCells(board, 'block', blockIndex));
         }
     }
 
-    // Retorna a lista de objetos, onde cada objeto contém uma célula que faz parte de um Trio Nu e os candidatos relevantes.
-    return nakedTripleInfo;
+    // Retorna a lista de instâncias distintas de Naked Triples encontradas
+    return nakedTripleInstances;
 }
-
 
 // Helper function to get cells in a specific row, column, or block
 function getUnitCells(board: Cell[][], type: 'row' | 'col' | 'block', index: number): Cell[] {
@@ -1178,16 +1183,19 @@ function getUnitCells(board: Cell[][], type: 'row' | 'col' | 'block', index: num
 }
 
 /**
- * Encontra Pares Ocultos (Hidden Pairs) no tabuleiro dentro das unidades especificadas pelo universo.
+ * Encontra Pares Ocultos (Hidden Pairs) no tabuleiro dentro das unidades especificadas pelo universo, retornando instâncias.
  * @param board O tabuleiro Sudoku.
  * @param universe O objeto universo contendo as restrições de linhas, colunas e blocos.
- * @returns Uma lista de objetos contendo as células que formam Pares Ocultos e os candidatos relevantes (os candidatos ocultos).
+ * @returns Uma lista de objetos, onde cada objeto representa uma instância de Par Oculto com suas células e candidatos.
  */
-function findHiddenPairs(board: Cell[][], universe: { rows: number[]; cols: number[]; blocks: number[] }): Array<{ cell: Cell, candidates: number[] }> {
-    // Lista para armazenar as informações de células e candidatos dos Pares Ocultos encontrados
-    const hiddenPairInfo: Array<{ cell: Cell, candidates: number[] }> = [];
-    // Usamos um Set para evitar adicionar o mesmo objeto Cell mais de uma vez na lista de resultado
-    const addedCells = new Set<Cell>();
+function findHiddenPairs(board: Cell[][], universe: { rows: number[]; cols: number[]; blocks: number[] }): Array<{ cells: Cell[], candidates: number[] }> {
+    // Lista para armazenar as instâncias de Pares Ocultos encontradas.
+    // Cada item será um objeto { cells: [cell1, cell2], candidates: [cand1, cand2] }
+    const hiddenPairInstances: Array<{ cells: Cell[], candidates: number[] }> = [];
+    // Usamos um Set para rastrear pares de células (instâncias) já adicionados, para evitar adicionar a mesma instância mais de uma vez.
+    // Criamos uma chave única para cada par de células e candidatos para garantir a unicidade da instância.
+    const addedInstances = new Set<string>();
+
 
     // Função auxiliar para verificar uma única unidade (linha, coluna ou bloco) por Pares Ocultos
     const checkUnitForHiddenPairs = (unitCells: Cell[]) => {
@@ -1216,25 +1224,25 @@ function findHiddenPairs(board: Cell[][], universe: { rows: number[]; cols: numb
 
                 if (cellsWithCand1.length === 2 && cellsWithCand2.length === 2) {
                     // Verifica se o conjunto de células que contém cand1 é idêntico ao conjunto de células que contém cand2.
-                    // Compara se ambas as células de cellsWithCand1 estão em cellsWithCand2, e vice-versa.
                     const areSetsEqual = cellsWithCand1.every(cell => cellsWithCand2.includes(cell)) &&
                         cellsWithCand2.every(cell => cellsWithCand1.includes(cell));
 
                     if (areSetsEqual) {
-                        // Encontramos um Hidden Pair para os candidatos (cand1, cand2) nessas duas células!
-                        const cellA = cellsWithCand1[0]; // A primeira célula do par
-                        const cellB = cellsWithCand1[1]; // A segunda célula do par
-                        const hiddenCandidates = [cand1, cand2].sort((a, b) => a - b); // Os candidatos ocultos a serem destacados
+                        // Encontramos uma instância de Hidden Pair para os candidatos (cand1, cand2) nessas duas células!
+                        const pairCells = cellsWithCand1.sort((a, b) => { // Ordenamos as células por coordenadas para uma chave consistente
+                            if (a.coordinates.row !== b.coordinates.row) return a.coordinates.row - b.coordinates.row;
+                            return a.coordinates.col - b.coordinates.col;
+                        });
+                        const hiddenCandidates = [cand1, cand2].sort((a, b) => a - b); // Os candidatos ocultos (ordenados)
 
-                        // Adiciona a informação da célula e dos candidatos ocultos à lista de resultado.
-                        // Verifica se a célula já foi adicionada para evitar duplicatas.
-                        if (!addedCells.has(cellA)) {
-                            hiddenPairInfo.push({ cell: cellA, candidates: hiddenCandidates });
-                            addedCells.add(cellA); // Marca a célula como adicionada
-                        }
-                        if (!addedCells.has(cellB)) {
-                            hiddenPairInfo.push({ cell: cellB, candidates: hiddenCandidates });
-                            addedCells.add(cellB); // Marca a célula como adicionada
+                        // Cria uma chave única para esta instância do par de células com esses candidatos
+                        const instanceKey = `${pairCells[0].coordinates.row}-${pairCells[0].coordinates.col}-${pairCells[1].coordinates.row}-${pairCells[1].coordinates.col}-${hiddenCandidates.join(',')}`;
+
+
+                        // Adiciona a instância à lista se ainda não foi adicionada
+                        if (!addedInstances.has(instanceKey)) {
+                            hiddenPairInstances.push({ cells: pairCells, candidates: hiddenCandidates });
+                            addedInstances.add(instanceKey); // Marca a instância como adicionada
                         }
                     }
                 }
@@ -1242,42 +1250,45 @@ function findHiddenPairs(board: Cell[][], universe: { rows: number[]; cols: numb
         }
     };
 
-    // Verifica as Linhas que estão dentro do universo especificado (ou todas se o universo de linhas for vazio)
+    // Check Rows within the universe
     for (let r = 0; r < 9; r++) {
         if (universe.rows.length === 0 || universe.rows.includes(r + 1)) {
             checkUnitForHiddenPairs(getUnitCells(board, 'row', r));
         }
     }
 
-    // Verifica as Colunas que estão dentro do universo especificado (ou todas se o universo de colunas for vazio)
+    // Check Columns within the universe
     for (let c = 0; c < 9; c++) {
         if (universe.cols.length === 0 || universe.cols.includes(c + 1)) {
             checkUnitForHiddenPairs(getUnitCells(board, 'col', c));
         }
     }
 
-    // Verifica os Blocos que estão dentro do universo especificado (ou todos se o universo de blocos for vazio)
-    for (let blockIndex = 0; blockIndex < 9; blockIndex++) { // Índices de bloco 0-8
-        if (universe.blocks.length === 0 || universe.blocks.includes(blockIndex + 1)) { // Universo usa números de bloco 1-9
+    // Check Blocks within the universe
+    for (let blockIndex = 0; blockIndex < 9; blockIndex++) { // Block index 0-8
+        if (universe.blocks.length === 0 || universe.blocks.includes(blockIndex + 1)) { // Universe blocks are 1-9
             checkUnitForHiddenPairs(getUnitCells(board, 'block', blockIndex));
         }
     }
 
-    // Retorna a lista de objetos, onde cada objeto contém uma célula que faz parte de um Par Oculto e os candidatos ocultos a serem destacados.
-    return hiddenPairInfo;
+    // Retorna a lista de instâncias distintas de Pares Ocultos encontradas
+    return hiddenPairInstances;
 }
 
 /**
- * Encontra Trios Ocultos (Hidden Triples) no tabuleiro dentro das unidades especificadas pelo universo.
+ * Encontra Trios Ocultos (Hidden Triples) no tabuleiro dentro das unidades especificadas pelo universo, retornando instâncias.
  * @param board O tabuleiro Sudoku.
  * @param universe O objeto universo contendo as restrições de linhas, colunas e blocos.
- * @returns Uma lista de objetos contendo as células que formam Trios Ocultos e os candidatos relevantes (os candidatos ocultos).
+ * @returns Uma lista de objetos, onde cada objeto representa uma instância de Trio Oculto com suas células e candidatos.
  */
-function findHiddenTriples(board: Cell[][], universe: { rows: number[]; cols: number[]; blocks: number[] }): Array<{ cell: Cell, candidates: number[] }> {
-    // Lista para armazenar as informações de células e candidatos dos Trios Ocultos encontrados
-    const hiddenTripleInfo: Array<{ cell: Cell, candidates: number[] }> = [];
-    // Usamos um Set para evitar adicionar o mesmo objeto Cell mais de uma vez na lista de resultado
-    const addedCells = new Set<Cell>();
+function findHiddenTriples(board: Cell[][], universe: { rows: number[]; cols: number[]; blocks: number[] }): Array<{ cells: Cell[], candidates: number[] }> {
+    // Lista para armazenar as instâncias de Trios Ocultos encontradas.
+    // Cada item será um objeto { cells: [cell1, cell2, cell3], candidates: [cand1, cand2, cand3] }
+    const hiddenTripleInstances: Array<{ cells: Cell[], candidates: number[] }> = [];
+    // Usamos um Set para rastrear trios de células (instâncias) já adicionados, para evitar adicionar a mesma instância mais de uma vez.
+    // Criamos uma chave única para cada trio de células e candidatos para garantir a unicidade da instância.
+    const addedInstances = new Set<string>();
+
 
     // Função auxiliar para verificar uma única unidade (linha, coluna ou bloco) por Trios Ocultos
     const checkUnitForHiddenTriples = (unitCells: Cell[]) => {
@@ -1302,31 +1313,26 @@ function findHiddenTriples(board: Cell[][], universe: { rows: number[]; cols: nu
                     // Para ser um Hidden Triple (cand1, cand2, cand3):
                     // Exatamente 3 células candidatas na unidade devem conter pelo menos um desses três candidatos.
                     // E esses três candidatos não devem aparecer como candidatos em NENHUMA outra célula na unidade.
-                    // A segunda parte ("não devem aparecer em NENHUMA outra célula") é implicitamente verificada
-                    // pelo fato de cellsWithAnyCandidate conter APENAS as células que têm pelo menos um dos candidatos.
-                    // Se cellsWithAnyCandidate.length === 3, isso significa que cand1, cand2 e cand3 só aparecem
-                    // (individualmente ou em combinação) dentro dessas 3 células.
+                    // A segunda parte é implicitamente verificada pelo fato de cellsWithAnyCandidate conter APENAS as células
+                    // que têm pelo menos um dos candidatos. Se cellsWithAnyCandidate.length === 3, isso significa que
+                    // cand1, cand2 e cand3 só aparecem (individualmente ou em combinação) dentro dessas 3 células.
 
                     if (cellsWithAnyCandidate.length === 3) {
-                        // Encontramos um Hidden Triple para os candidatos (cand1, cand2, cand3) nessas três células!
-                        const cellA = cellsWithAnyCandidate[0]; // A primeira célula do trio
-                        const cellB = cellsWithAnyCandidate[1]; // A segunda célula do trio
-                        const cellC = cellsWithAnyCandidate[2]; // A terceira célula do trio
-                        const hiddenCandidates = [cand1, cand2, cand3].sort((a, b) => a - b); // Os candidatos ocultos a serem destacados
+                        // Encontramos uma instância de Hidden Triple para os candidatos (cand1, cand2, cand3) nessas três células!
+                        const tripleCells = cellsWithAnyCandidate.sort((a, b) => { // Ordenamos as células por coordenadas para uma chave consistente
+                            if (a.coordinates.row !== b.coordinates.row) return a.coordinates.row - b.coordinates.row;
+                            return a.coordinates.col - b.coordinates.col;
+                        });
+                        const hiddenCandidates = [cand1, cand2, cand3].sort((a, b) => a - b); // Os candidatos ocultos (ordenados)
 
-                        // Adiciona a informação da célula e dos candidatos ocultos à lista de resultado.
-                        // Verifica se a célula já foi adicionada para evitar duplicatas.
-                        if (!addedCells.has(cellA)) {
-                            hiddenTripleInfo.push({ cell: cellA, candidates: hiddenCandidates });
-                            addedCells.add(cellA); // Marca a célula como adicionada
-                        }
-                        if (!addedCells.has(cellB)) {
-                            hiddenTripleInfo.push({ cell: cellB, candidates: hiddenCandidates });
-                            addedCells.add(cellB); // Marca a célula como adicionada
-                        }
-                        if (!addedCells.has(cellC)) {
-                            hiddenTripleInfo.push({ cell: cellC, candidates: hiddenCandidates });
-                            addedCells.add(cellC); // Marca a célula como adicionada
+                        // Cria uma chave única para esta instância do trio de células com esses candidatos
+                        const instanceKey = `${tripleCells[0].coordinates.row}-${tripleCells[0].coordinates.col}-${tripleCells[1].coordinates.row}-${tripleCells[1].coordinates.col}-${tripleCells[2].coordinates.row}-${tripleCells[2].coordinates.col}-${hiddenCandidates.join(',')}`;
+
+
+                        // Adiciona a instância à lista se ainda não foi adicionada
+                        if (!addedInstances.has(instanceKey)) {
+                            hiddenTripleInstances.push({ cells: tripleCells, candidates: hiddenCandidates });
+                            addedInstances.add(instanceKey); // Marca a instância como adicionada
                         }
                     }
                 }
@@ -1334,50 +1340,49 @@ function findHiddenTriples(board: Cell[][], universe: { rows: number[]; cols: nu
         }
     };
 
-    // Verifica as Linhas que estão dentro do universo especificado (ou todas se o universo de linhas for vazio)
+    // Check Rows within the universe
     for (let r = 0; r < 9; r++) {
         if (universe.rows.length === 0 || universe.rows.includes(r + 1)) {
             checkUnitForHiddenTriples(getUnitCells(board, 'row', r));
         }
     }
 
-    // Verifica as Colunas que estão dentro do universo especificado (ou todas se o universo de colunas for vazio)
+    // Check Columns within the universe
     for (let c = 0; c < 9; c++) {
         if (universe.cols.length === 0 || universe.cols.includes(c + 1)) {
             checkUnitForHiddenTriples(getUnitCells(board, 'col', c));
         }
     }
 
-    // Verifica os Blocos que estão dentro do universo especificado (ou todos se o universo de blocos for vazio)
-    for (let blockIndex = 0; blockIndex < 9; blockIndex++) { // Índices de bloco 0-8
-        if (universe.blocks.length === 0 || universe.blocks.includes(blockIndex + 1)) { // Universo usa números de bloco 1-9
+    // Check Blocks within the universe
+    for (let blockIndex = 0; blockIndex < 9; blockIndex++) { // Block index 0-8
+        if (universe.blocks.length === 0 || universe.blocks.includes(blockIndex + 1)) { // Universe blocks are 1-9
             checkUnitForHiddenTriples(getUnitCells(board, 'block', blockIndex));
         }
     }
 
-    // Retorna a lista de objetos, onde cada objeto contém uma célula que faz parte de um Trio Oculto e os candidatos ocultos a serem destacados.
-    return hiddenTripleInfo;
+    // Retorna a lista de instâncias distintas de Trios Ocultos encontradas
+    return hiddenTripleInstances;
 }
 
 /**
- * Encontra X-Wings no tabuleiro dentro das unidades relevantes especificadas pelo universo.
+ * Encontra X-Wings no tabuleiro dentro das unidades relevantes especificadas pelo universo, agrupados por candidato.
  * @param board O tabuleiro Sudoku.
  * @param universe O objeto universo contendo as restrições de linhas, colunas e blocos.
- * @returns Uma lista de objetos contendo as células que formam os X-Wings e o candidato relevante.
+ * @returns Um Map onde a chave é o candidato do X-Wing e o valor é uma lista de células que formam X-Wings para esse candidato.
  */
-function findXWing(board: Cell[][], universe: { rows: number[]; cols: number[]; blocks: number[] }): Array<{ cell: Cell, candidates: number[] }> {
-    // Lista para armazenar as informações de células e o candidato do X-Wing encontrados
-    const xWingInfo: Array<{ cell: Cell, candidates: number[] }> = [];
-    // Usamos um Set para evitar adicionar o mesmo objeto Cell mais de uma vez na lista de resultado
-    const addedCells = new Set<Cell>();
+function findXWing(board: Cell[][], universe: { rows: number[]; cols: number[]; blocks: number[] }): Map<number, Cell[]> {
+    // Usamos um Map para agrupar as células dos X-Wings pelo candidato que forma o X-Wing.
+    // A chave é o candidato (number) e o valor é uma lista das células (Cell[]) que contêm esse candidato e fazem parte de um X-Wing para ele.
+    const xWingsByCandidate: Map<number, Cell[]> = new Map();
 
     // Contagem de candidatos por linha e coluna, considerando apenas células candidatas
     const candidateCountsByRow: { [key: number]: { [key: number]: number[] } } = {}; // { row: { candidate: [col1, col2, ...] } }
     const candidateCountsByCol: { [key: number]: { [key: number]: number[] } } = {}; // { col: { candidate: [row1, row2, ...] } }
 
-    // Analisa candidatos por linha para linhas dentro do universo
+    // Analisa candidatos por linha para linhas dentro do universo especificado
     board.forEach((row, rowIndex) => {
-        // Considera apenas linhas dentro do universo especificado ou se nenhum universo de linha for especificado
+        // Considera apenas linhas dentro do universo ou se nenhum universo de linha for especificado
         if (universe.rows.length === 0 || universe.rows.includes(rowIndex + 1)) {
             row.forEach((cell, colIndex) => {
                 // Considera apenas células candidatas (valor é null ou 0)
@@ -1396,30 +1401,30 @@ function findXWing(board: Cell[][], universe: { rows: number[]; cols: number[]; 
         }
     });
 
-    // Identifica X-Wings baseados nas linhas
+    // Identifica X-Wings baseados nas linhas e agrupa as células por candidato
     for (const row1 in candidateCountsByRow) {
-        for (const candidate in candidateCountsByRow[row1]) {
+        for (const candidateStr in candidateCountsByRow[row1]) {
+            const candidate = parseInt(candidateStr); // O candidato que forma o X-Wing
             // Procura por candidatos que aparecem em exatamente 2 posições na linha row1
-            if (candidateCountsByRow[row1][candidate].length === 2) {
-                const cols1 = candidateCountsByRow[row1][candidate]; // As duas colunas na linha row1
+            if (candidateCountsByRow[row1][candidateStr].length === 2) {
+                const cols1 = candidateCountsByRow[row1][candidateStr]; // As duas colunas na linha row1
 
                 // Procura por outra linha (row2) que também está no universo (ou sem universo de linha)
                 // e tem o mesmo candidato nas mesmas duas colunas.
                 for (const row2 in candidateCountsByRow) {
                     // Garante que row2 é diferente de row1 e está dentro do universo (se especificado)
-                    if (parseInt(row2) > parseInt(row1) && (universe.rows.length === 0 || universe.rows.includes(parseInt(row2) + 1)) && candidateCountsByRow[row2] && candidateCountsByRow[row2][candidate]?.length === 2) {
-                        const cols2 = candidateCountsByRow[row2][candidate]; // As duas colunas na linha row2
+                    if (parseInt(row2) > parseInt(row1) && (universe.rows.length === 0 || universe.rows.includes(parseInt(row2) + 1)) && candidateCountsByRow[row2] && candidateCountsByRow[row2][candidateStr]?.length === 2) {
+                        const cols2 = candidateCountsByRow[row2][candidateStr]; // As duas colunas na linha row2
 
                         // Verifica se os índices das colunas são os mesmos para ambas as linhas
                         if (cols1[0] === cols2[0] && cols1[1] === cols2[1]) {
                             // Encontramos um X-Wing baseado em linha para este candidato!
-                            const xWingCandidate = parseInt(candidate); // O candidato do X-Wing
                             const row1Index = parseInt(row1);
                             const row2Index = parseInt(row2);
                             const col1Index = cols1[0];
                             const col2Index = cols1[1];
 
-                            // As 4 células que formam o X-Wing
+                            // As 4 células que formam esta instância de X-Wing
                             const xWingCells = [
                                 board[row1Index][col1Index],
                                 board[row1Index][col2Index],
@@ -1427,14 +1432,17 @@ function findXWing(board: Cell[][], universe: { rows: number[]; cols: number[]; 
                                 board[row2Index][col2Index],
                             ];
 
-                            // Adiciona a informação (célula e candidato do X-Wing) à lista de resultado.
-                            // Usamos addedCells para evitar adicionar a mesma célula mais de uma vez.
+                            // Adiciona estas células ao mapa, agrupadas pelo candidato do X-Wing.
+                            // Se o candidato ainda não estiver no mapa, cria uma nova entrada com uma lista vazia.
+                            if (!xWingsByCandidate.has(candidate)) {
+                                xWingsByCandidate.set(candidate, []);
+                            }
+                            const cellsForThisCandidate = xWingsByCandidate.get(candidate)!;
+
+                            // Adiciona cada célula do X-Wing à lista para este candidato, evitando duplicatas DENTRO desta lista.
                             xWingCells.forEach(cell => {
-                                // Verifica se a célula já foi adicionada à lista de resultado principal
-                                if (!addedCells.has(cell)) {
-                                    // Adiciona um objeto contendo a célula e o candidato do X-Wing a ser destacado
-                                    xWingInfo.push({ cell: cell, candidates: [xWingCandidate] });
-                                    addedCells.add(cell); // Marca a célula como adicionada
+                                if (!cellsForThisCandidate.includes(cell)) {
+                                    cellsForThisCandidate.push(cell);
                                 }
                             });
                         }
@@ -1445,10 +1453,10 @@ function findXWing(board: Cell[][], universe: { rows: number[]; cols: number[]; 
     }
 
 
-    // Analisa candidatos por coluna para colunas dentro do universo (simétrico à verificação de linha)
+    // Analisa candidatos por coluna para colunas dentro do universo especificado (simétrico à verificação de linha)
     board.forEach((row, rowIndex) => {
         row.forEach((cell, colIndex) => {
-            // Considera apenas colunas dentro do universo especificado ou se nenhum universo de coluna for especificado
+            // Considera apenas colunas dentro do universo ou se nenhum universo de coluna for especificado
             if (universe.cols.length === 0 || universe.cols.includes(colIndex + 1)) {
                 // Considera apenas células candidatas (valor é null ou 0)
                 if ((cell.value === null || cell.value === 0) && cell.candidates && cell.candidates.length > 0) {
@@ -1467,30 +1475,30 @@ function findXWing(board: Cell[][], universe: { rows: number[]; cols: number[]; 
     });
 
 
-    // Identifica X-Wings baseados nas colunas
+    // Identifica X-Wings baseados nas colunas e agrupa as células por candidato
     for (const col1 in candidateCountsByCol) {
-        for (const candidate in candidateCountsByCol[col1]) {
+        for (const candidateStr in candidateCountsByCol[col1]) {
+            const candidate = parseInt(candidateStr); // O candidato que forma o X-Wing
             // Procura por candidatos que aparecem em exatamente 2 posições na coluna col1
-            if (candidateCountsByCol[col1][candidate].length === 2) {
-                const rows1 = candidateCountsByCol[col1][candidate]; // As duas linhas na coluna col1
+            if (candidateCountsByCol[col1][candidateStr].length === 2) {
+                const rows1 = candidateCountsByCol[col1][candidateStr]; // As duas linhas na coluna col1
 
                 // Procura por outra coluna (col2) que também está no universo (ou sem universo de coluna)
                 // e tem o mesmo candidato nas mesmas duas linhas.
                 for (const col2 in candidateCountsByCol) {
                     // Garante que col2 é diferente de col1 e está dentro do universo (se especificado)
-                    if (parseInt(col2) > parseInt(col1) && (universe.cols.length === 0 || universe.cols.includes(parseInt(col2) + 1)) && candidateCountsByCol[col2] && candidateCountsByCol[col2][candidate]?.length === 2) {
-                        const rows2 = candidateCountsByCol[col2][candidate]; // As duas linhas na coluna col2
+                    if (parseInt(col2) > parseInt(col1) && (universe.cols.length === 0 || universe.cols.includes(parseInt(col2) + 1)) && candidateCountsByCol[col2] && candidateCountsByCol[col2][candidateStr]?.length === 2) {
+                        const rows2 = candidateCountsByCol[col2][candidateStr]; // As duas linhas na coluna col2
 
                         // Verifica se os índices das linhas são os mesmos para ambas as colunas
                         if (rows1[0] === rows2[0] && rows1[1] === rows2[1]) {
                             // Encontramos um X-Wing baseado em coluna para este candidato!
-                            const xWingCandidate = parseInt(candidate); // O candidato do X-Wing
                             const col1Index = parseInt(col1);
                             const col2Index = parseInt(col2);
                             const row1Index = rows1[0];
                             const row2Index = rows1[1];
 
-                            // As 4 células que formam o X-Wing
+                            // As 4 células que formam esta instância de X-Wing
                             const xWingCells = [
                                 board[row1Index][col1Index],
                                 board[row2Index][col1Index],
@@ -1498,13 +1506,17 @@ function findXWing(board: Cell[][], universe: { rows: number[]; cols: number[]; 
                                 board[row2Index][col2Index],
                             ];
 
-                            // Adiciona a informação (célula e candidato do X-Wing) à lista de resultado.
+                            // Adiciona estas células ao mapa, agrupadas pelo candidato do X-Wing.
+                            // Se o candidato ainda não estiver no mapa, cria uma nova entrada com uma lista vazia.
+                            if (!xWingsByCandidate.has(candidate)) {
+                                xWingsByCandidate.set(candidate, []);
+                            }
+                            const cellsForThisCandidate = xWingsByCandidate.get(candidate)!;
+
+                            // Adiciona cada célula do X-Wing à lista para este candidato, evitando duplicatas DENTRO desta lista.
                             xWingCells.forEach(cell => {
-                                // Verifica se a célula já foi adicionada à lista de resultado principal
-                                if (!addedCells.has(cell)) {
-                                    // Adiciona um objeto contendo a célula e o candidato do X-Wing a ser destacado
-                                    xWingInfo.push({ cell: cell, candidates: [xWingCandidate] });
-                                    addedCells.add(cell); // Marca a célula como adicionada
+                                if (!cellsForThisCandidate.includes(cell)) {
+                                    cellsForThisCandidate.push(cell);
                                 }
                             });
                         }
@@ -1514,41 +1526,37 @@ function findXWing(board: Cell[][], universe: { rows: number[]; cols: number[]; 
         }
     }
 
-    // Retorna a lista de objetos, onde cada objeto contém uma célula que faz parte de um X-Wing e o candidato do X-Wing a ser destacado.
-    return xWingInfo;
+    // Retorna o Map onde as chaves são os candidatos do X-Wing e os valores são arrays de células envolvidas para CADA candidato.
+    // Note que se houver múltiplos X-Wings para o mesmo candidato, todas as células envolvidas estarão na mesma lista para aquele candidato.
+    return xWingsByCandidate;
 }
 
 /**
- * Encontra Swordfish no tabuleiro dentro das unidades relevantes especificadas pelo universo.
+ * Encontra Swordfish no tabuleiro dentro das unidades relevantes especificadas pelo universo, agrupados por candidato.
  * @param board O tabuleiro Sudoku.
  * @param universe O objeto universo contendo as restrições de linhas, colunas e blocos.
- * @returns Uma lista de objetos contendo as células que formam os Swordfish e o candidato relevante.
+ * @returns Um Map onde a chave é o candidato do Swordfish e o valor é uma lista de células que formam Swordfish para esse candidato.
  */
-function findSwordfish(board: Cell[][], universe: { rows: number[]; cols: number[]; blocks: number[] }): Array<{ cell: Cell, candidates: number[] }> {
-    // Lista para armazenar as informações de células e o candidato do Swordfish encontrados
-    const swordfishInfo: Array<{ cell: Cell, candidates: number[] }> = [];
-    // Usamos um Set para evitar adicionar o mesmo objeto Cell mais de uma vez na lista de resultado
-    const addedCells = new Set<Cell>();
+function findSwordfish(board: Cell[][], universe: { rows: number[]; cols: number[]; blocks: number[] }): Map<number, Cell[]> {
+    // Usamos um Map para agrupar as células do Swordfish pelo candidato que forma o Swordfish.
+    const swordfishByCandidate: Map<number, Cell[]> = new Map();
 
     // Itera por cada número candidato (de 1 a 9) para procurar Swordfish para este candidato
     for (let candidate = 1; candidate <= 9; candidate++) {
 
         // --- Verifica por Swordfish baseado em Linha ---
         // Encontra as linhas onde o candidato aparece em exatamente 2 ou 3 células candidatas,
-        // considerando apenas as linhas dentro do universo especificado (ou todas as linhas se não houver restrição de universo para linhas).
+        // considerando apenas as linhas dentro do universo especificado.
         const rowsWithCandidateIn2or3Positions: { rowIndex: number; cols: number[] }[] = [];
         for (let r = 0; r < 9; r++) {
-            // Verifica se a linha atual está dentro do universo ou se não há restrição de universo para linhas
             if (universe.rows.length === 0 || universe.rows.includes(r + 1)) {
-                // Filtra apenas as células candidatas (valor é null ou 0) nesta linha que contêm o candidato atual
                 const cellsWithCandidateInRow = board[r].filter(cell =>
                     (cell.value === null || cell.value === 0) && cell.candidates && cell.candidates.includes(candidate)
                 );
-                // Uma linha pode ser uma 'barbatana' (fin) de um Swordfish se o candidato aparecer 2 ou 3 vezes nela.
                 if (cellsWithCandidateInRow.length >= 2 && cellsWithCandidateInRow.length <= 3) {
                     rowsWithCandidateIn2or3Positions.push({
                         rowIndex: r,
-                        cols: cellsWithCandidateInRow.map(cell => cell.coordinates.col) // Armazena as colunas onde o candidato aparece nesta linha
+                        cols: cellsWithCandidateInRow.map(cell => cell.coordinates.col)
                     });
                 }
             }
@@ -1571,27 +1579,26 @@ function findSwordfish(board: Cell[][], universe: { rows: number[]; cols: number
                         rowInfo3.cols.forEach(col => uniqueCols.add(col));
 
                         // Se o número de colunas únicas for EXATAMENTE 3, encontramos um Swordfish baseado em linha!
-                        // As linhas 'base' são rowInfo1.rowIndex, rowInfo2.rowIndex, rowInfo3.rowIndex.
-                        // As colunas de 'cobertura' são as que estão em uniqueCols.
                         if (uniqueCols.size === 3) {
                             const swordfishCandidate = candidate; // O candidato do Swordfish
                             const swordfishRows = [rowInfo1.rowIndex, rowInfo2.rowIndex, rowInfo3.rowIndex]; // As linhas base
                             const swordfishCols = Array.from(uniqueCols).sort((a, b) => a - b); // As colunas de cobertura (ordenadas)
 
-                            // Adiciona as células que formam o Swordfish à lista de resultado.
-                            // Estas são as células na interseção das linhas base e colunas de cobertura
-                            // que contêm o candidato do Swordfish.
+                            // Adiciona as células que formam o Swordfish ao mapa, agrupadas pelo candidato do Swordfish.
+                            // Se o candidato ainda não estiver no mapa, cria uma nova entrada.
+                            if (!swordfishByCandidate.has(swordfishCandidate)) {
+                                swordfishByCandidate.set(swordfishCandidate, []);
+                            }
+                            const cellsForThisCandidate = swordfishByCandidate.get(swordfishCandidate)!;
+
+                            // Adiciona cada célula do Swordfish à lista para este candidato, evitando duplicatas.
                             swordfishRows.forEach(rIndex => {
                                 swordfishCols.forEach(cIndex => {
                                     const cell = board[rIndex][cIndex];
-                                    // Garante que a célula é uma célula candidata e realmente contém o candidato do Swordfish
-                                    // Esta verificação é importante.
+                                    // Garante que a célula é uma célula candidata e contém o candidato do Swordfish
                                     if ((cell.value === null || cell.value === 0) && cell.candidates && cell.candidates.includes(swordfishCandidate)) {
-                                        // Verifica se a célula já foi adicionada à lista de resultado principal para evitar duplicatas.
-                                        if (!addedCells.has(cell)) {
-                                            // Adiciona um objeto contendo a célula e o candidato do Swordfish a ser destacado
-                                            swordfishInfo.push({ cell: cell, candidates: [swordfishCandidate] });
-                                            addedCells.add(cell); // Marca a célula como adicionada ao resultado
+                                        if (!cellsForThisCandidate.includes(cell)) {
+                                            cellsForThisCandidate.push(cell);
                                         }
                                     }
                                 });
@@ -1603,30 +1610,23 @@ function findSwordfish(board: Cell[][], universe: { rows: number[]; cols: number
         }
 
 
-        // --- Verifica por Swordfish baseado em Coluna (simétrico à verificação de linha) ---
-        // Encontra as colunas onde o candidato aparece em exatamente 2 ou 3 células candidatas,
-        // considerando apenas as colunas dentro do universo especificado (ou todas as colunas se não houver restrição de universo).
+        // --- Verifica por Swordfish baseado em Coluna (simétrico) ---
         const colsWithCandidateIn2or3Positions: { colIndex: number; rows: number[] }[] = [];
         for (let c = 0; c < 9; c++) {
-            // Verifica se a coluna atual está dentro do universo ou se não há restrição de universo para colunas
             if (universe.cols.length === 0 || universe.cols.includes(c + 1)) {
-                // Filtra apenas as células candidatas (valor é null ou 0) nesta coluna que contêm o candidato atual
                 const cellsWithCandidateInCol = board.map(row => row[c]).filter(cell =>
                     (cell.value === null || cell.value === 0) && cell.candidates && cell.candidates.includes(candidate)
                 );
-                // Uma coluna pode ser uma 'barbatana' (fin) de um Swordfish se o candidato aparecer 2 ou 3 vezes nela.
                 if (cellsWithCandidateInCol.length >= 2 && cellsWithCandidateInCol.length <= 3) {
                     colsWithCandidateIn2or3Positions.push({
                         colIndex: c,
-                        rows: cellsWithCandidateInCol.map(cell => cell.coordinates.row) // Armazena as linhas onde o candidato aparece nesta coluna
+                        rows: cellsWithCandidateInCol.map(cell => cell.coordinates.row)
                     });
                 }
             }
         }
 
-        // Precisamos de pelo menos 3 dessas colunas para potencialmente formar um Swordfish
         if (colsWithCandidateIn2or3Positions.length >= 3) {
-            // Procura por combinações de 3 dessas colunas
             for (let i = 0; i < colsWithCandidateIn2or3Positions.length; i++) {
                 const colInfo1 = colsWithCandidateIn2or3Positions[i];
                 for (let j = i + 1; j < colsWithCandidateIn2or3Positions.length; j++) {
@@ -1634,33 +1634,29 @@ function findSwordfish(board: Cell[][], universe: { rows: number[]; cols: number
                     for (let k = j + 1; k < colsWithCandidateIn2or3Positions.length; k++) {
                         const colInfo3 = colsWithCandidateIn2or3Positions[k];
 
-                        // Coleta todos os índices de linha únicos dessas três colunas onde o candidato aparece
                         const uniqueRows = new Set<number>();
                         colInfo1.rows.forEach(row => uniqueRows.add(row));
                         colInfo2.rows.forEach(row => uniqueRows.add(row));
                         colInfo3.rows.forEach(row => uniqueRows.add(row));
 
-                        // Se o número de linhas únicas for EXATAMENTE 3, encontramos um Swordfish baseado em coluna!
-                        // As colunas 'base' são colInfo1.colIndex, colInfo2.colIndex, colInfo3.colIndex.
-                        // As linhas de 'cobertura' são as que estão em uniqueRows.
                         if (uniqueRows.size === 3) {
-                            const swordfishCandidate = candidate; // O candidato do Swordfish
-                            const swordfishCols = [colInfo1.colIndex, colInfo2.colIndex, colInfo3.colIndex]; // As colunas base
-                            const swordfishRows = Array.from(uniqueRows).sort((a, b) => a - b); // As linhas de cobertura (ordenadas)
+                            // Encontramos um Swordfish baseado em coluna para 'candidate'
+                            const swordfishCandidate = candidate;
+                            const swordfishCols = [colInfo1.colIndex, colInfo2.colIndex, colInfo3.colIndex];
+                            const swordfishRows = Array.from(uniqueRows).sort((a, b) => a - b);
 
-                            // Adiciona as células que formam o Swordfish à lista de resultado.
-                            // Estas são as células na interseção das colunas base e linhas de cobertura
-                            // que contêm o candidato do Swordfish.
+                            // Adiciona as células que formam o Swordfish ao mapa, agrupadas pelo candidato.
+                            if (!swordfishByCandidate.has(swordfishCandidate)) {
+                                swordfishByCandidate.set(swordfishCandidate, []);
+                            }
+                            const cellsForThisCandidate = swordfishByCandidate.get(swordfishCandidate)!;
+
                             swordfishRows.forEach(rIndex => {
                                 swordfishCols.forEach(cIndex => {
                                     const cell = board[rIndex][cIndex];
-                                    // Garante que a célula é uma célula candidata e realmente contém o candidato do Swordfish
                                     if ((cell.value === null || cell.value === 0) && cell.candidates && cell.candidates.includes(swordfishCandidate)) {
-                                        // Verifica se a célula já foi adicionada à lista de resultado principal para evitar duplicatas.
-                                        if (!addedCells.has(cell)) {
-                                            // Adiciona um objeto contendo a célula e o candidato do Swordfish a ser destacado
-                                            swordfishInfo.push({ cell: cell, candidates: [swordfishCandidate] });
-                                            addedCells.add(cell); // Marca a célula como adicionada
+                                        if (!cellsForThisCandidate.includes(cell)) {
+                                            cellsForThisCandidate.push(cell);
                                         }
                                     }
                                 });
@@ -1672,8 +1668,8 @@ function findSwordfish(board: Cell[][], universe: { rows: number[]; cols: number
         }
     }
 
-    // Retorna a lista de objetos, onde cada objeto contém uma célula que faz parte de um Swordfish e o candidato do Swordfish a ser destacado.
-    return swordfishInfo;
+    // Retorna o Map onde as chaves são os candidatos do Swordfish e os valores são arrays de células envolvidas para CADA candidato.
+    return swordfishByCandidate;
 }
 
 function countCandidates(cell: any, count: number): boolean {
@@ -1688,18 +1684,17 @@ function getBlockNumber(row: number, col: number): number {
 }
 
 // function filterCandidates() {
-//     // Limpa todos os destaques anteriores (tanto da célula quanto dos candidatos)
+//     // Clear all previous highlights
 //     board.value.forEach(row => {
 //         row.forEach(cell => {
-//             cell.highlight = false; // Limpa destaque geral da célula
-//             cell.highlightedCandidates = undefined; // Limpa destaque de candidatos específicos
+//             cell.highlight = false;
+//             cell.candidateColors = undefined; // Clear the new candidate colors map
 //         });
 //     });
 
 //     const query = searchQuery.value.trim();
 //     if (!query) {
-//         // Se a query estiver vazia, limpa os destaques e sai
-//         highlightedCells.value = []; // Limpa o ref que a interface pode estar observando
+//         highlightedCells.value = [];
 //         return;
 //     }
 
@@ -1717,13 +1712,18 @@ function getBlockNumber(row: number, col: number): number {
 //         else if (['block', 'blocks', 'b'].includes(universeType)) universe.blocks = universeArgs;
 //     }
 
-//     // Usamos um Map para armazenar as células e um Set de candidatos a serem destacados para cada célula.
-//     // O Set garante que não teremos candidatos duplicados para destacar na mesma célula se múltiplos filtros se aplicarem a ele.
-//     const cellsWithHighlightedCandidates: Map<Cell, Set<number>> = new Map();
+//     // Collection for general cell highlighting
+//     const cellsForGeneralHighlight: Set<Cell> = new Set();
+
+//     // Map to store candidate colors for each cell: Cell -> (Candidate -> Color)
+//     const cellCandidateColors: Map<Cell, Map<number, string>> = new Map();
+
+//     // Predefined list of highlight colors
+//     const highlightColors = ['#FF0000', '#0000FF', '#00FF00', '#A020F0', '#FFA500']; // Red, Blue, Green, Purple, Orange
+//     let colorIndex = 0; // Index to cycle through colors
 
 //     const commands = filterCommands.split('&&').map(cmd => cmd.trim());
 
-//     // Itera por cada comando de filtro
 //     commands.forEach(command => {
 //         const match = command.match(/(\w+)\((.*?)\)/i);
 //         if (match) {
@@ -1731,160 +1731,172 @@ function getBlockNumber(row: number, col: number): number {
 //             const argsString = match[2];
 //             const args = argsString.split(',').map(arg => parseInt(arg.trim())).filter(arg => !isNaN(arg));
 
-//             // Variável para armazenar os resultados dos filtros baseados em unidade (que retornam células e candidatos)
-//             let results: Array<{ cell: Cell, candidates: number[] }> = [];
+//             // Get the color for this command's highlights
+//             const currentHighlightColor = highlightColors[colorIndex % highlightColors.length];
+//             colorIndex++; // Move to the next color for the next command
 
-//             switch (operation) {
-//                 case 'contains':
-//                 case 'only':
-//                     // Filtros célula a célula que podem destacar candidatos.
-//                     // Iteramos por todas as células e aplicamos o filtro.
+//             // --- Handle filters that result in CANDIDATE highlighting ---
+//             if (['contains', 'only', 'unique', 'nakedpairs', 'nakedtriples', 'hiddenpairs', 'hiddentriples', 'xwing', 'swordfish'].includes(operation)) {
+//                 let results: Array<{ cell: Cell, candidates: number[] }> = []; // Results still in old format
+
+//                 // Cell-by-cell filters need custom logic to find candidates and populate results
+//                 if (['contains', 'only'].includes(operation)) {
 //                     board.value.forEach(row => {
 //                         row.forEach(cell => {
-//                             // Verifica se a célula está dentro do universo para filtros célula a célula
-//                             const isCellInUniverse =
+//                             const isCellInUniverse = // Check if the cell is in the universe
 //                                 (universe.rows.length === 0 || universe.rows.includes(cell.coordinates.row + 1)) &&
 //                                 (universe.cols.length === 0 || universe.cols.includes(cell.coordinates.col + 1)) &&
-//                                 (universe.blocks.length === 0 || universe.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col))); // Assume getBlockNumber está definida
+//                                 (universe.blocks.length === 0 || universe.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col)));
 
-//                             // Aplica o filtro apenas a células candidatas dentro do universo
 //                             if (isCellInUniverse && (cell.value === null || cell.value === 0) && cell.candidates) {
 //                                 let candidatesToHighlight: number[] = [];
 //                                 switch (operation) {
 //                                     case 'contains':
-//                                         // Destaca os candidatos da célula que estão na lista de argumentos
 //                                         candidatesToHighlight = cell.candidates.filter(cand => args.includes(cand));
 //                                         break;
 //                                     case 'only':
-//                                         // Se a célula contém *apenas* os candidatos dos argumentos, destaca todos os seus candidatos
-//                                         // Reutilizamos a lógica existente de 'only' para verificar a condição.
-//                                         if (only(cell, args)) { // Assume only está definida
-//                                             candidatesToHighlight = cell.candidates; // Destaca todos os seus candidatos
+//                                         if (only(cell, args)) {
+//                                             candidatesToHighlight = cell.candidates;
 //                                         }
 //                                         break;
 //                                 }
-
-//                                 // Adiciona a célula e seus candidatos encontrados ao mapa
 //                                 if (candidatesToHighlight.length > 0) {
-//                                     if (!cellsWithHighlightedCandidates.has(cell)) {
-//                                         cellsWithHighlightedCandidates.set(cell, new Set());
-//                                     }
-//                                     candidatesToHighlight.forEach(cand => cellsWithHighlightedCandidates.get(cell)!.add(cand));
+//                                     results.push({ cell: cell, candidates: candidatesToHighlight });
 //                                 }
 //                             }
-//                             // Note: Filtros 'notcontains' e 'count' não foram incluídos aqui para destaque de candidatos
-//                             // pois o que destacar não é direto (candidatos que *não* estão, ou todos por causa de uma contagem).
-//                             // Se precisar destacar a célula inteira para esses filtros, a lógica seria diferente.
 //                         });
 //                     });
-//                     break;
-
-//                 // Filtros baseados em unidade (e unique, que agora retorna info de candidato)
-//                 // Essas funções devem retornar Array<{ cell: Cell, candidates: number[] }>
-//                 case 'unique': // Renomeado de unique para findUniqueCandidates e alterado retorno
-//                     results = findUniqueCandidates(board.value, universe); // Assume findUniqueCandidates está definida e com novo retorno
-//                     break;
-//                 case 'nakedpairs':
-//                     // findNakedPairs precisa ser atualizada para retornar Array<{ cell: Cell, candidates: number[] }>
-//                     // com as células do par e seus 2 candidatos
-//                     results = findNakedPairs(board.value, universe); // Assume findNakedPairs está definida e com novo retorno
-//                     break;
-//                 case 'nakedtriples':
-//                     // findNakedTriples precisa ser atualizada para retornar Array<{ cell: Cell, candidates: number[] }>
-//                     // com as células do trio e seus 3 candidatos (a união)
-//                     results = findNakedTriples(board.value, universe); // Assume findNakedTriples está definida e com novo retorno
-//                     break;
-//                 case 'hiddenpairs':
-//                     // findHiddenPairs precisa ser atualizada para retornar Array<{ cell: Cell, candidates: number[] }>
-//                     // com as 2 células do par e seus 2 candidatos ocultos
-//                     results = findHiddenPairs(board.value, universe); // Assume findHiddenPairs está definida e com novo retorno
-//                     break;
-//                 case 'hiddentriples':
-//                     // findHiddenTriples precisa ser atualizada para retornar Array<{ cell: Cell, candidates: number[] }>
-//                     // com as 3 células do trio e seus 3 candidatos ocultos (a união)
-//                     results = findHiddenTriples(board.value, universe); // Assume findHiddenTriples está definida e com novo retorno
-//                     break;
-//                 case 'xwing':
-//                     // findXWing precisa ser atualizada para retornar Array<{ cell: Cell, candidates: number[] }>
-//                     // com as 4 células da asa e o candidato do X-Wing
-//                     results = findXWing(board.value, universe); // Assume findXWing está definida e com novo retorno
-//                     break;
-//                 case 'swordfish':
-//                     // findSwordfish precisa ser atualizada para retornar Array<{ cell: Cell, candidates: number[] }>
-//                     // com as células do peixe-espada e o candidato do Swordfish
-//                     results = findSwordfish(board.value, universe); // Assume findSwordfish está definida e com novo retorno
-//                     break;
-//                 // Adicione outros casos para novos filtros baseados em unidade aqui
-//             }
-
-//             // Adiciona os resultados (célula e candidatos) dos filtros baseados em unidade ao mapa
-//             results.forEach(item => {
-//                 if (!cellsWithHighlightedCandidates.has(item.cell)) {
-//                     cellsWithHighlightedCandidates.set(item.cell, new Set());
+//                 } else {
+//                     // Unit-scanning filters (find... functions) that return Array<{ cell: Cell, candidates: number[] }>
+//                     switch (operation) {
+//                         case 'unique': results = findUniqueCandidates(board.value, universe); break;
+//                         case 'nakedpairs': results = findNakedPairs(board.value, universe); break;
+//                         case 'nakedtriples': results = findNakedTriples(board.value, universe); break;
+//                         case 'hiddenpairs': results = findHiddenPairs(board.value, universe); break;
+//                         case 'hiddentriples': results = findHiddenTriples(board.value, universe); break;
+//                         case 'xwing': results = findXWing(board.value, universe); break;
+//                         case 'swordfish': results = findSwordfish(board.value, universe); break;
+//                     }
 //                 }
-//                 item.candidates.forEach(cand => cellsWithHighlightedCandidates.get(item.cell)!.add(cand));
-//             });
 
+
+//                 // Apply the collected candidate highlights with the current color
+//                 results.forEach(item => {
+//                     if (!cellCandidateColors.has(item.cell)) {
+//                         cellCandidateColors.set(item.cell, new Map());
+//                     }
+//                     const candidateMap = cellCandidateColors.get(item.cell)!;
+//                     item.candidates.forEach(cand => {
+//                         // Assign the current color to this candidate in this cell.
+//                         // If a candidate is highlighted by multiple filters, the last color assigned wins.
+//                         candidateMap.set(cand, currentHighlightColor);
+//                     });
+//                 });
+
+//             }
+//             // --- Lida com filtros que resultam em DESTAQUE GERAL DA CÉLULA ---
+//             else if (['notcontains', 'count'].includes(operation)) {
+//                 board.value.forEach(row => {
+//                     row.forEach(cell => {
+//                         const isCellInUniverse = // Check if the cell is in the universe
+//                             (universe.rows.length === 0 || universe.rows.includes(cell.coordinates.row + 1)) &&
+//                             (universe.cols.length === 0 || universe.cols.includes(cell.coordinates.col + 1)) &&
+//                             (universe.blocks.length === 0 || universe.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col)));
+
+//                         if (isCellInUniverse) {
+//                             let shouldHighlightCell = false;
+//                             switch (operation) {
+//                                 case 'notcontains':
+//                                     if ((cell.value === null || cell.value === 0) && cell.candidates) {
+//                                         shouldHighlightCell = !cell.candidates.some(cand => args.includes(cand));
+//                                     } else if (cell.value !== null && cell.value !== 0) {
+//                                         shouldHighlightCell = !args.includes(cell.value);
+//                                     }
+//                                     break;
+//                                 case 'count':
+//                                     if (args.length === 1 && (cell.value === null || cell.value === 0) && cell.candidates) {
+//                                         shouldHighlightCell = cell.candidates.length === args[0];
+//                                     }
+//                                     break;
+//                             }
+//                             // If the cell should be highlighted generally, add to the set
+//                             if (shouldHighlightCell && !cellsForGeneralHighlight.has(cell)) {
+//                                 cellsForGeneralHighlight.add(cell);
+//                             }
+//                         }
+//                     });
+//                 });
+//             }
+//             // Add other operation types that might highlight the cell generally here
 //         } else if (!isNaN(parseInt(command.trim()))) {
-//             // Caso especial: o comando é apenas um número (e.g., "5").
-//             // Destaca células que contêm esse número como valor fixo ou candidato.
+//             // Single number filter (e.g., "5")
 //             const number = parseInt(command.trim());
+//             // Get the color for this command's highlights
+//             const currentHighlightColor = highlightColors[colorIndex % highlightColors.length];
+//             colorIndex++; // Move to the next color
+
 //             board.value.forEach(row => {
 //                 row.forEach(cell => {
-//                     // Verifica se a célula está no universo para este filtro de número
-//                     const isCellInUniverse =
+//                     const isCellInUniverse = // Check if the cell is in the universe
 //                         (universe.rows.length === 0 || universe.rows.includes(cell.coordinates.row + 1)) &&
 //                         (universe.cols.length === 0 || universe.cols.includes(cell.coordinates.col + 1)) &&
-//                         (universe.blocks.length === 0 || universe.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col))); // Assume getBlockNumber está definida
+//                         (universe.blocks.length === 0 || universe.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col)));
 
 //                     if (isCellInUniverse) {
-//                         // Se for uma célula candidata e contiver o número, destaca o candidato
+//                         // If cell contains the number as a candidate, highlight that candidate with the current color
 //                         if ((cell.value === null || cell.value === 0) && cell.candidates && cell.candidates.includes(number)) {
-//                             if (!cellsWithHighlightedCandidates.has(cell)) {
-//                                 cellsWithHighlightedCandidates.set(cell, new Set());
+//                             if (!cellCandidateColors.has(cell)) {
+//                                 cellCandidateColors.set(cell, new Map());
 //                             }
-//                             cellsWithHighlightedCandidates.get(cell)!.add(number);
+//                             cellCandidateColors.get(cell)!.set(number, currentHighlightColor);
 //                         } else if (cell.value !== null && cell.value !== 0 && cell.value === number) {
-//                             // Se for uma célula preenchida com o número, destaca a célula inteira
-//                             cell.highlight = true; // Usando a propriedade highlight existente para células preenchidas
+//                             // If it's a filled cell with the number, highlight the cell itself generally
+//                             if (!cellsForGeneralHighlight.has(cell)) {
+//                                 cellsForGeneralHighlight.add(cell);
+//                             }
 //                         }
 //                     }
 //                 });
 //             });
 //         }
-//         // Comandos que não se encaixam nos formatos esperados são ignorados
+//         // Commands that don't match any expected filter operation are ignored.
 //     });
 
-//     // Após processar todos os comandos, aplica os candidatos coletados às células
-//     cellsWithHighlightedCandidates.forEach((candidatesSet, cell) => {
-//         cell.highlightedCandidates = Array.from(candidatesSet).sort((a, b) => a - b); // Converte o Set para Array e ordena
+//     // --- Apply the Collected Highlights ---
+
+//     // Apply the collected candidate colors to the cells
+//     cellCandidateColors.forEach((candidateMap, cell) => {
+//         cell.candidateColors = candidateMap; // Assign the Map to the cell property
 //     });
 
-//     // Atualiza o ref highlightedCells para incluir todas as células com destaque (geral ou de candidato)
-//     // Isso é útil se a sua interface usa highlightedCells para iterar sobre as células a serem renderizadas com algum tipo de destaque.
-//     highlightedCells.value = board.value.flat().filter(cell => cell.highlight || (cell.highlightedCandidates && cell.highlightedCandidates.length > 0));
+//     // Apply the collected general cell highlights
+//     cellsForGeneralHighlight.forEach(cell => {
+//         cell.highlight = true;
+//     });
+
+//     // Update highlightedCells ref to include all cells that have ANY type of highlight
+//     highlightedCells.value = board.value.flat().filter(cell => cell.highlight || (cell.candidateColors && cell.candidateColors.size > 0));
+
 // }
 
 function filterCandidates() {
-    // Limpa todos os destaques anteriores (tanto de candidatos quanto gerais de célula)
+    // Limpa todos os destaques anteriores (candidatos e geral)
     board.value.forEach(row => {
         row.forEach(cell => {
-            cell.highlight = false; // Limpa destaque geral da célula
-            cell.highlightedCandidates = undefined; // Limpa destaque de candidatos específicos
+            cell.highlight = false;
+            cell.candidateColors = undefined; // Limpa o mapa de cores de candidatos
         });
     });
 
     const query = searchQuery.value.trim();
     if (!query) {
-        // Se a query estiver vazia, limpa os destaques e sai
-        highlightedCells.value = []; // Limpa o ref que a interface pode estar observando
+        highlightedCells.value = [];
         return;
     }
 
     let universe: { rows: number[]; cols: number[]; blocks: number[] } = { rows: [], cols: [], blocks: [] };
     let filterCommands: string = query;
 
-    // Tenta encontrar uma especificação de universo no início da query (ex: "b(4) contains(2)")
     const universeMatch = query.match(/^(blocks?|b|lines?|l|columns?|column?|c)\((.*?)\)\s+(.*)$/i);
     if (universeMatch) {
         const universeType = universeMatch[1].toLowerCase();
@@ -1896,98 +1908,153 @@ function filterCandidates() {
         else if (['block', 'blocks', 'b'].includes(universeType)) universe.blocks = universeArgs;
     }
 
-    // Map para armazenar células e o Set de candidatos a serem destacados para cada uma (para destaque de candidatos)
-    const cellsWithHighlightedCandidates: Map<Cell, Set<number>> = new Map();
-    // Set para armazenar células que devem receber destaque geral (cell.highlight = true)
     const cellsForGeneralHighlight: Set<Cell> = new Set();
+    // Mapa para armazenar as cores dos candidatos: Cell -> (Candidato -> Cor)
+    const cellCandidateColors: Map<Cell, Map<number, string>> = new Map();
 
-    // Divide a string de comandos de filtro por '&&'
+    // Lista de cores para destacar
+    const highlightColors = ['#FF0000', '#0000FF', '#00FF00', '#A020F0', '#FFA500', '#FF4500', '#8A2BE2', '#32CD32', '#4169E1']; // Mais cores
+    let colorIndex = 0; // Índice para ciclar pelas cores
+
     const commands = filterCommands.split('&&').map(cmd => cmd.trim());
 
-    // Itera sobre cada comando de filtro
     commands.forEach(command => {
         const match = command.match(/(\w+)\((.*?)\)/i);
         if (match) {
-            const operation = match[1].toLowerCase(); // Nome da operação
-            const argsString = match[2]; // String de argumentos
-            const args = argsString.split(',').map(arg => parseInt(arg.trim())).filter(arg => !isNaN(arg)); // Argumentos como números
+            const operation = match[1].toLowerCase();
+            const argsString = match[2];
+            const args = argsString.split(',').map(arg => parseInt(arg.trim())).filter(arg => !isNaN(arg));
 
-            // --- Lida com filtros que resultam em DESTAQUE DE CANDIDATOS ---
-            // Inclui a maioria das funções find... e alguns filtros célula a célula
-            if (['contains', 'only', 'unique', 'nakedpairs', 'nakedtriples', 'hiddenpairs', 'hiddentriples', 'xwing', 'swordfish'].includes(operation)) {
+
+            // --- Lida com filtros que retornam Array<{ cell: Cell, candidates: number[] }> (Unique, Contains, Only) ---
+            // Estes filtros recebem uma cor por COMANDO. Unique retorna células com seus candidatos únicos.
+            // Contains e Only identificam candidatos em células específicas.
+            if (['contains', 'only', 'unique'].includes(operation)) {
                 let results: Array<{ cell: Cell, candidates: number[] }> = [];
-                switch (operation) {
-                    case 'contains':
-                    case 'only':
-                        // Filtros célula a célula que encontram candidatos a destacar.
-                        // Iteramos por todas as células e aplicamos a lógica.
-                        board.value.forEach(row => {
-                            row.forEach(cell => {
-                                // Verifica se a célula está no universo para filtros célula a célula
-                                const isCellInUniverse =
-                                    (universe.rows.length === 0 || universe.rows.includes(cell.coordinates.row + 1)) &&
-                                    (universe.cols.length === 0 || universe.cols.includes(cell.coordinates.col + 1)) &&
-                                    (universe.blocks.length === 0 || universe.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col))); // Assume getBlockNumber está definida
 
-                                // Aplica a lógica apenas a células candidatas dentro do universo
-                                if (isCellInUniverse && (cell.value === null || cell.value === 0) && cell.candidates) {
-                                    let candidatesToHighlight: number[] = [];
-                                    switch (operation) {
-                                        case 'contains':
-                                            // Destaca os candidatos da célula que estão na lista de argumentos
-                                            candidatesToHighlight = cell.candidates.filter(cand => args.includes(cand));
-                                            break;
-                                        case 'only':
-                                            // Se a célula contém *apenas* os candidatos dos argumentos, destaca todos os seus candidatos
-                                            if (only(cell, args)) { // Reutilizamos a lógica existente de 'only'
-                                                candidatesToHighlight = cell.candidates; // Destaca todos os seus candidatos (que são os 'args')
-                                            }
-                                            break;
-                                    }
-                                    // Se encontrarmos candidatos para destacar nesta célula, adicionamos à lista de resultados temporária
-                                    if (candidatesToHighlight.length > 0) {
-                                        results.push({ cell: cell, candidates: candidatesToHighlight });
-                                    }
+                // Lógica para Contains e Only (filtros célula a célula)
+                if (['contains', 'only'].includes(operation)) {
+                    board.value.forEach(row => {
+                        row.forEach(cell => {
+                            const isCellInUniverse = // Verifica se a célula está no universo
+                                (universe.rows.length === 0 || universe.rows.includes(cell.coordinates.row + 1)) &&
+                                (universe.cols.length === 0 || universe.cols.includes(cell.coordinates.col + 1)) &&
+                                (universe.blocks.length === 0 || universe.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col)));
+
+                            if (isCellInUniverse && (cell.value === null || cell.value === 0) && cell.candidates) {
+                                let candidatesToHighlight: number[] = [];
+                                switch (operation) {
+                                    case 'contains':
+                                        candidatesToHighlight = cell.candidates.filter(cand => args.includes(cand));
+                                        break;
+                                    case 'only':
+                                        if (only(cell, args)) {
+                                            candidatesToHighlight = cell.candidates;
+                                        }
+                                        break;
                                 }
-                            });
+                                if (candidatesToHighlight.length > 0) {
+                                    results.push({ cell: cell, candidates: candidatesToHighlight });
+                                }
+                            }
                         });
-                        break;
-                    // Casos para funções find... que já retornam Array<{ cell: Cell, candidates: number[] }>
-                    case 'unique': results = findUniqueCandidates(board.value, universe); break; // Assume findUniqueCandidates retornando Array<{cell, candidates}>
-                    case 'nakedpairs': results = findNakedPairs(board.value, universe); break; // Assume findNakedPairs retornando Array<{cell, candidates}>
-                    case 'nakedtriples': results = findNakedTriples(board.value, universe); break; // Assume findNakedTriples retornando Array<{cell, candidates}>
-                    case 'hiddenpairs': results = findHiddenPairs(board.value, universe); break; // Assume findHiddenPairs retornando Array<{cell, candidates}>
-                    case 'hiddentriples': results = findHiddenTriples(board.value, universe); break; // Assume findHiddenTriples retornando Array<{cell, candidates}>
-                    case 'xwing': results = findXWing(board.value, universe); break; // Assume findXWing retornando Array<{cell, candidates}>
-                    case 'swordfish': results = findSwordfish(board.value, universe); break; // Assume findSwordfish retornando Array<{cell, candidates}>
+                    });
+                } else { // Caso 'unique'
+                    results = findUniqueCandidates(board.value, universe); // Assume retorna Array<{cell, candidates}>
                 }
 
-                // Adiciona os resultados coletados (célula e candidatos) ao mapa de destaque de candidatos
+                // Atribui uma ÚNICA cor para todos os resultados deste comando
+                const commandColor = highlightColors[colorIndex % highlightColors.length];
+                colorIndex++; // Incrementa o índice de cor para o PRÓXIMO comando
+
                 results.forEach(item => {
-                    if (!cellsWithHighlightedCandidates.has(item.cell)) {
-                        cellsWithHighlightedCandidates.set(item.cell, new Set());
+                    if (!cellCandidateColors.has(item.cell)) {
+                        cellCandidateColors.set(item.cell, new Map());
                     }
-                    item.candidates.forEach(cand => cellsWithHighlightedCandidates.get(item.cell)!.add(cand));
+                    const candidateMap = cellCandidateColors.get(item.cell)!;
+                    item.candidates.forEach(cand => {
+                        // Atribui a cor do comando a cada candidato relevante nesta célula
+                        candidateMap.set(cand, commandColor);
+                    });
                 });
 
             }
+            // --- Lida com Naked/Hidden Pairs e Triples (que agora retornam Array<{ cells: Cell[], candidates: number[] }>) ---
+            // Estes filtros receberão uma cor POR INSTÂNCIA do padrão.
+            else if (['nakedpairs', 'nakedtriples', 'hiddenpairs', 'hiddentriples'].includes(operation)) {
+                let patternInstances: Array<{ cells: Cell[], candidates: number[] }> = [];
+                switch (operation) {
+                    case 'nakedpairs': patternInstances = findNakedPairs(board.value, universe); break; // Assume retorna Array<{cells, candidates}>
+                    case 'nakedtriples': patternInstances = findNakedTriples(board.value, universe); break; // Assume retorna Array<{cells, candidates}>
+                    case 'hiddenpairs': patternInstances = findHiddenPairs(board.value, universe); break; // Assume retorna Array<{cells, candidates}>
+                    case 'hiddentriples': patternInstances = findHiddenTriples(board.value, universe); break; // Assume retorna Array<{cells, candidates}>
+                }
+
+                // Itera por CADA INSTÂNCIA distinta do padrão encontrada por este comando
+                patternInstances.forEach(instance => {
+                    // Atribui uma NOVA cor para ESTA instância específica do padrão
+                    const instanceColor = highlightColors[colorIndex % highlightColors.length];
+                    colorIndex++; // Incrementa o índice de cor para a PRÓXIMA instância
+
+                    // Para cada célula envolvida nesta instância do padrão
+                    instance.cells.forEach(cell => {
+                        // Para cada candidato relevante para esta instância (geralmente 2 ou 3 candidatos do par/trio)
+                        instance.candidates.forEach(candidate => {
+                            // Aplica o destaque apenas se a célula for uma célula candidata e realmente contiver este candidato
+                            if ((cell.value === null || cell.value === 0) && cell.candidates && cell.candidates.includes(candidate)) {
+                                if (!cellCandidateColors.has(cell)) {
+                                    cellCandidateColors.set(cell, new Map());
+                                }
+                                // Atribui a cor DESSA INSTÂNCIA a este candidato NESTA célula
+                                cellCandidateColors.get(cell)!.set(candidate, instanceColor);
+                            }
+                        });
+                    });
+                });
+
+            }
+            // --- Lida com XWing e Swordfish (que retornam Map<number, Cell[]>) ---
+            // Estes filtros recebem uma cor POR GRUPO DE CANDIDATO que forma o padrão.
+            else if (['xwing', 'swordfish'].includes(operation)) {
+                let groupedResults: Map<number, Cell[]> = new Map();
+                switch (operation) {
+                    case 'xwing': groupedResults = findXWing(board.value, universe); break; // findXWing retorna Map<number, Cell[]>
+                    case 'swordfish': groupedResults = findSwordfish(board.value, universe); break; // findSwordfish retorna Map<number, Cell[]>
+                }
+
+                // Itera pelos resultados agrupados por candidato.
+                // CADA grupo de candidato (candidato específico) DENTRO deste comando receberá uma NOVA cor.
+                groupedResults.forEach((cellsInPattern, candidate) => {
+                    // Pega a próxima cor DISPONÍVEL para este grupo de padrão (candidato específico)
+                    const candidatePatternColor = highlightColors[colorIndex % highlightColors.length];
+                    colorIndex++; // Incrementa o índice de cor para o PRÓXIMO grupo de padrão/candidato
+
+                    // Para cada célula envolvida no padrão para este candidato
+                    cellsInPattern.forEach(cell => {
+                        // Aplica o destaque apenas se for uma célula candidata e contiver o candidato relevante
+                        if ((cell.value === null || cell.value === 0) && cell.candidates && cell.candidates.includes(candidate)) {
+                            if (!cellCandidateColors.has(cell)) {
+                                cellCandidateColors.set(cell, new Map());
+                            }
+                            // Atribui a cor específica deste grupo de padrão (candidato) a este candidato nesta célula
+                            cellCandidateColors.get(cell)!.set(candidate, candidatePatternColor);
+                        }
+                    });
+                });
+            }
             // --- Lida com filtros que resultam em DESTAQUE GERAL DA CÉLULA ---
-            // Inclui 'notcontains' e 'count'.
             else if (['notcontains', 'count'].includes(operation)) {
                 board.value.forEach(row => {
                     row.forEach(cell => {
-                        // Verifica se a célula está no universo para filtros célula a célula
-                        const isCellInUniverse =
+                        const isCellInUniverse = // Verifica se a célula está no universo
                             (universe.rows.length === 0 || universe.rows.includes(cell.coordinates.row + 1)) &&
                             (universe.cols.length === 0 || universe.cols.includes(cell.coordinates.col + 1)) &&
-                            (universe.blocks.length === 0 || universe.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col))); // Assume getBlockNumber está definida
+                            (universe.blocks.length === 0 || universe.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col)));
 
                         if (isCellInUniverse) {
                             let shouldHighlightCell = false;
                             switch (operation) {
                                 case 'notcontains':
-                                    // Destaca a célula se ela for vazia e NÃO contiver nenhum dos candidatos dos argumentos,
-                                    // OU se for preenchida e seu valor NÃO estiver nos argumentos.
                                     if ((cell.value === null || cell.value === 0) && cell.candidates) {
                                         shouldHighlightCell = !cell.candidates.some(cand => args.includes(cand));
                                     } else if (cell.value !== null && cell.value !== 0) {
@@ -1995,14 +2062,11 @@ function filterCandidates() {
                                     }
                                     break;
                                 case 'count':
-                                    // Destaca a célula se ela for vazia e tiver EXATAMENTE 'args[0]' candidatos.
                                     if (args.length === 1 && (cell.value === null || cell.value === 0) && cell.candidates) {
                                         shouldHighlightCell = cell.candidates.length === args[0];
                                     }
                                     break;
                             }
-                            // Se a célula deve ser destacada geralmente (e não é por destaque de candidato)
-                            // e ainda não foi adicionada ao Set de destaque geral, adiciona.
                             if (shouldHighlightCell && !cellsForGeneralHighlight.has(cell)) {
                                 cellsForGeneralHighlight.add(cell);
                             }
@@ -2010,30 +2074,32 @@ function filterCandidates() {
                     });
                 });
             }
-            // Adicione outros tipos de operação que podem destacar a célula inteira aqui, se houverem.
+            // Adicione outros tipos de operação que podem destacar a célula inteira aqui.
 
         } else if (!isNaN(parseInt(command.trim()))) {
             // Caso especial: o comando é apenas um número (e.g., "5").
-            // Destaca células que contêm esse número como valor fixo ou candidato.
+            // Destaca candidatos com uma cor, e células preenchidas com destaque geral.
             const number = parseInt(command.trim());
+            // Pega a cor para este filtro de número único
+            const filterNumberColor = highlightColors[colorIndex % highlightColors.length];
+            colorIndex++; // Incrementa o índice de cor
+
             board.value.forEach(row => {
                 row.forEach(cell => {
-                    // Verifica se a célula está no universo para este filtro de número
-                    const isCellInUniverse =
+                    const isCellInUniverse = // Verifica se a célula está no universo
                         (universe.rows.length === 0 || universe.rows.includes(cell.coordinates.row + 1)) &&
                         (universe.cols.length === 0 || universe.cols.includes(cell.coordinates.col + 1)) &&
-                        (universe.blocks.length === 0 || universe.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col))); // Assume getBlockNumber está definida
+                        (universe.blocks.length === 0 || universe.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col)));
 
                     if (isCellInUniverse) {
-                        // Se for uma célula candidata e contiver o número, destaca o candidato.
+                        // Se for uma célula candidata e contiver o número, destaca o candidato com sua cor.
                         if ((cell.value === null || cell.value === 0) && cell.candidates && cell.candidates.includes(number)) {
-                            if (!cellsWithHighlightedCandidates.has(cell)) {
-                                cellsWithHighlightedCandidates.set(cell, new Set());
+                            if (!cellCandidateColors.has(cell)) {
+                                cellCandidateColors.set(cell, new Map());
                             }
-                            cellsWithHighlightedCandidates.get(cell)!.add(number);
+                            cellCandidateColors.get(cell)!.set(number, filterNumberColor);
                         } else if (cell.value !== null && cell.value !== 0 && cell.value === number) {
                             // Se for uma célula preenchida com o número, destaca a célula inteira.
-                            // Adiciona ao Set de destaque geral.
                             if (!cellsForGeneralHighlight.has(cell)) {
                                 cellsForGeneralHighlight.add(cell);
                             }
@@ -2047,9 +2113,10 @@ function filterCandidates() {
 
     // --- Aplicar os Destaques Coletados ---
 
-    // Aplica os candidatos coletados à propriedade highlightedCandidates das células
-    cellsWithHighlightedCandidates.forEach((candidatesSet, cell) => {
-        cell.highlightedCandidates = Array.from(candidatesSet).sort((a, b) => a - b); // Converte o Set para Array e ordena
+    // Aplica as cores de candidatos coletadas à propriedade candidateColors das células
+    cellCandidateColors.forEach((candidateMap, cell) => {
+        // Cria um novo Map a partir do Set de pares candidato->cor e atribui à célula
+        cell.candidateColors = new Map(candidateMap);
     });
 
     // Aplica o destaque geral (cell.highlight = true) às células coletadas
@@ -2058,8 +2125,7 @@ function filterCandidates() {
     });
 
     // Atualiza o ref highlightedCells para incluir todas as células que têm QUALQUER tipo de destaque
-    // (seja destaque geral ou destaque de pelo menos um candidato).
-    highlightedCells.value = board.value.flat().filter(cell => cell.highlight || (cell.highlightedCandidates && cell.highlightedCandidates.length > 0));
+    highlightedCells.value = board.value.flat().filter(cell => cell.highlight || (cell.candidateColors && cell.candidateColors.size > 0));
 
 }
 

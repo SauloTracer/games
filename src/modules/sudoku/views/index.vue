@@ -34,7 +34,31 @@
                 </template>
             </div>
         </div>
-        <br />
+        <div class="writing-tools-top">
+            <v-btn-toggle
+                divided
+                v-model="fillCandidates"
+                color="primary"
+            >
+                <v-btn
+                    :value="true"
+                    title="Candidates"
+                >
+                    <v-icon end>
+                        mdi-pencil
+                    </v-icon>
+                </v-btn>
+
+                <v-btn
+                    :value="false"
+                    title="Answer"
+                >
+                    <v-icon start>
+                        mdi-pen
+                    </v-icon>
+                </v-btn>
+            </v-btn-toggle>
+        </div>
     </div>
 
     <v-row>
@@ -77,7 +101,7 @@
             </div>
         </v-col>
         <v-col>
-            <div class="writing-tool">
+            <div class="writing-tools">
                 <v-btn-toggle
                     divided
                     v-model="fillCandidates"
@@ -829,12 +853,18 @@ function undo() {
     grid-template-columns: repeat(3, 1fr);
 }
 
-.writing-tool {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
+.writing-tools-top {
+    width: 100%;
+    float: right;
+    padding-bottom: 5px;
+    display: none;
+}
+
+.writing-tools-top .v-btn-toggle {
+    margin: 0;
+    padding: 0;
+    height: 1.75em;
+    border: 1px solid #ccc;
 }
 
 #game-header {
@@ -1178,6 +1208,15 @@ function undo() {
         margin: 0 3px;
     }
 
+    .writing-tools-top {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .writing-tools {
+        display: none;
+    }
+
     #actions {
         display: flex;
         /* Use flexbox for horizontal arrangement that can wrap */
@@ -1186,7 +1225,7 @@ function undo() {
         justify-content: space-around;
         /* Distribute buttons */
         padding: 10px;
-        width: 95%;
+        width: 100%;
         margin: 10px auto;
     }
 
@@ -1198,7 +1237,7 @@ function undo() {
         /* Add some margin for spacing */
         display: inline-block;
         /* Allow buttons to sit side by side and wrap */
-        width: calc(50% - 10px);
+
         /* Two buttons per row with spacing */
         box-sizing: border-box;
         /* Include padding and border in width */
@@ -1206,10 +1245,11 @@ function undo() {
     }
 
     #numbers {
-        width: 95%;
+        width: 100%;
+        gap: 0;
         margin: 15px auto;
+        margin-top: -1em;
         display: flex;
-        flex-wrap: wrap;
         justify-content: space-around;
         align-items: flex-start;
     }
@@ -1220,7 +1260,7 @@ function undo() {
 
     .number {
         flex-basis: calc(33.33% - 10px);
-        margin: 5px;
+        margin: 2px;
         font-size: 1em;
         border-radius: 5px;
     }

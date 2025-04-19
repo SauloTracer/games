@@ -8,7 +8,10 @@
                 class="overlay"
                 :style="backgroundColor"
             ></div>
-            <div v-if="props.type == 'candidate'">
+            <div
+                class="cell"
+                v-if="props.type == 'candidate'"
+            >
                 <Candidates
                     v-model="(props.candidates as number[])"
                     :selected="props.selected"
@@ -18,6 +21,7 @@
                 ></Candidates>
             </div>
             <div
+                class="cell"
                 v-else
                 :class="cssClass"
             >
@@ -88,35 +92,41 @@ const cssClass = computed(() => {
 .cell {
     z-index: 90;
     border-collapse: collapse;
-    width: 1.8cm;
-    height: 1.8cm;
+    width: 100%;
+    height: 100%;
     align-content: center;
-    margin: 2px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
 }
 
 .given {
     font-weight: bold;
-    font-size: xx-large;
+    font-size: x-large;
     display: flex;
-    margin: -1px;
     align-items: center;
     justify-content: center;
-    /* background-color: lightgray; */
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
 }
 
 .filled {
     font-weight: bold;
-    font-size: xx-large;
+    font-size: x-large;
     display: flex;
-    margin: -1px;
     align-items: center;
     justify-content: center;
     color: gray;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
 }
 
 .selected {
     background-color: yellow !important;
-    /* #ffda00 */
 }
 
 .highlight {
@@ -136,8 +146,14 @@ const cssClass = computed(() => {
 }
 
 .outer {
-    margin: 3px;
     position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: stretch;
+    /* Make outer stretch to fill cell */
+    justify-content: stretch;
+    /* Make outer stretch to fill cell */
 }
 
 .overlay {
@@ -147,13 +163,29 @@ const cssClass = computed(() => {
     width: 100%;
     height: 100%;
     opacity: 0;
-    /* Inicialmente invisível */
-    background-color: rgba(255, 255, 255, 0.5);
-    /* Cor de exemplo */
+    background-color: yellow;
     pointer-events: none;
+    z-index: 100;
+}
+
+.cell.selected,
+.cell.highlight {
+    background-color: yellow !important;
+}
+
+.cell.highlight {
+    background-color: lightblue !important;
 }
 
 .highlightValue {
     background-color: orange !important;
+}
+
+@media (max-width: 768px) {
+    /* ... mobile cell styles ... */
+}
+
+@media (max-width: 480px) {
+    /* ... very small screen cell styles ... */
 }
 </style>

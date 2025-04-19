@@ -1,5 +1,42 @@
 <template>
-    <br />
+    <div id="game-header">
+        <Title>
+            Sudoku
+        </Title>
+        <button
+            id="play-button"
+            @click="showNewGameDialog = true"
+        >
+            <v-icon id="play-button-icon">mdi-play</v-icon>
+        </button>
+        <div id="gameMode">
+            <v-radio-group
+                v-model="gameMode"
+                @update:modelValue="changeMode($event)"
+                inline
+                hide-details
+            >
+                <v-radio
+                    label="Zen"
+                    :value="GameMode.Zen"
+                ></v-radio>
+                <v-radio
+                    label="3 Strikes"
+                    :value="GameMode.ThreeStrikes"
+                ></v-radio>
+            </v-radio-group>
+            <div
+                id="hearts"
+                v-if="gameMode == GameMode.ThreeStrikes"
+            >
+                <template v-for="i in [3, 2, 1]">
+                    <v-icon :color="i > errors ? 'red' : '#33333355'">mdi-heart-circle-outline</v-icon>
+                </template>
+            </div>
+        </div>
+        <br />
+    </div>
+
     <v-row>
         <v-col>
             <div
@@ -40,123 +77,27 @@
             </div>
         </v-col>
         <v-col>
-            <Title>
-                Sudoku
-                <button
-                    class="button"
-                    @click="showNewGameDialog = true"
+            <div class="writing-tool">
+                <v-btn-toggle
+                    divided
+                    v-model="fillCandidates"
+                    color="primary"
                 >
-                    <v-icon>mdi-play</v-icon>
-                </button>
-            </Title>
-            <div id="gameMode">
-                <v-radio-group
-                    v-model="gameMode"
-                    @update:modelValue="changeMode($event)"
-                    inline
-                >
-                    <v-radio
-                        label="Zen"
-                        :value="GameMode.Zen"
-                    ></v-radio>
-                    <v-radio
-                        label="3 Strikes"
-                        :value="GameMode.ThreeStrikes"
-                    ></v-radio>
-                </v-radio-group>
-                <div
-                    id="hearts"
-                    v-if="gameMode == GameMode.ThreeStrikes"
-                >
-                    <template v-for="i in [3, 2, 1]">
-                        <v-icon :color="i > errors ? 'red' : 'lightgray'">mdi-heart-circle-outline</v-icon>
-                    </template>
-                    <br />
-                    <br />
-                </div>
-            </div>
-            <hr
-                width="80%"
-                style="margin: 0 auto"
-            >
-            <br />
-            <div id="actions">
-                <span
-                    style="padding: 0.6em 1.2em;"
-                    class="checkbox"
-                >
-                    <input
-                        id="autoCheckCells"
-                        type="checkbox"
-                        v-model="autoCheckCells"
-                        label="Auto Check"
-                        @change="updateCheckCells()"
-                        :disabled="gameMode == GameMode.ThreeStrikes"
-                    />
-                    <label
-                        for="autoCheckCells"
-                        style="font-weight:500;"
-                    > Auto Check</label>
-                </span>
-                <button
-                    class="button"
-                    v-if="!autoCheckCells"
-                    @click="checkCell()"
-                >Check Cell</button>
-                <button
-                    class="button"
-                    @click="autoCandidate()"
-                >Auto Candidate</button>
-                <br />
-                <button
-                    class="button"
-                    @click="markCells()"
-                >{{ markCellsText }}</button>
-                <button
-                    class="button"
-                    @click="revealCell()"
-                >Reveal Cell</button>
-                <button
-                    class="button"
-                    @click="promoteSingles()"
-                >Promote Singles</button>
-                <br />
-                <button
-                    class="button"
-                    @click="showSolution()"
-                >Solve</button>
-                <button
-                    class="button"
-                    @click="reset()"
-                >Reset</button>
-                <button
-                    class="button"
-                    @click="undo()"
-                >Undo</button>
-                <button
-                    class="button"
-                    @click="showNewGameDialog = true"
-                >New Game</button>
-            </div>
-            <br />
+                    <v-btn :value="true">
+                        Candidates
+                        <v-icon end>
+                            mdi-pencil
+                        </v-icon>
+                    </v-btn>
 
-            <hr
-                width="80%"
-                style="margin: 0 auto"
-            >
-            <br />
-
-            <button
-                @click="fillCandidates = true"
-                :class="[fillCandidates ? 'selected' : '']"
-                style="margin: 5px"
-            >Fill
-                Candidates</button>
-            <button
-                @click="fillCandidates = false"
-                :class="[!fillCandidates ? 'selected' : '']"
-                style="margin: 5px"
-            >Answer</button>
+                    <v-btn :value="false">
+                        <v-icon start>
+                            mdi-pen
+                        </v-icon>
+                        Answer
+                    </v-btn>
+                </v-btn-toggle>
+            </div>
             <div
                 id="numbers"
                 class="grid3"
@@ -181,12 +122,70 @@
 
             </div>
             <button
-                class="number"
+                class="number eraser"
                 id="clearCellButton"
                 @click="clearCellValue()"
             >
-                X
+                <v-icon>mdi-eraser</v-icon>
+                Erase
             </button>
+
+            <div id="actions">
+                <span
+                    style="padding: 0.6em;"
+                    class="checkbox"
+                >
+                    <input
+                        id="autoCheckCells"
+                        type="checkbox"
+                        v-model="autoCheckCells"
+                        label="Auto Check"
+                        @change="updateCheckCells()"
+                        :disabled="gameMode == GameMode.ThreeStrikes"
+                    />
+                    <label
+                        for="autoCheckCells"
+                        style="font-weight:500;"
+                    > Auto Check</label>
+                </span>
+                <button
+                    class="button"
+                    v-if="!autoCheckCells"
+                    @click="checkCell()"
+                >Check Cell</button>
+                <button
+                    class="button"
+                    @click="autoCandidate()"
+                >Auto Candidate</button>
+                <button
+                    class="button"
+                    @click="promoteSingles()"
+                >Promote Singles</button>
+                <button
+                    class="button"
+                    @click="markCells()"
+                >{{ markCellsText }}</button>
+                <button
+                    class="button"
+                    @click="revealCell()"
+                >Reveal Cell</button>
+                <button
+                    class="button"
+                    @click="showSolution()"
+                >Solve</button>
+                <button
+                    class="button"
+                    @click="reset()"
+                >Reset</button>
+                <button
+                    class="button"
+                    @click="undo()"
+                >Undo</button>
+                <button
+                    class="button"
+                    @click="showNewGameDialog = true"
+                >New Game</button>
+            </div>
         </v-col>
     </v-row>
 
@@ -830,44 +829,169 @@ function undo() {
     grid-template-columns: repeat(3, 1fr);
 }
 
-#board {
-    width: 18cm;
+.writing-tool {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     margin: 0 auto;
+}
+
+#game-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 98vw;
+    max-width: 18cm;
+    box-sizing: border-box;
+    /* Ensure padding doesn't affect the overall width */
+}
+
+#play-button {
+    height: 2em;
+    font-size: 1.2em;
+    cursor: pointer;
+    border: solid 2px black;
+    margin-left: 5px;
+    padding: 0 5px;
 }
 
 #gameMode {
+    display: flex;
     align-items: center;
-    margin: 0 auto;
-    width: fit-content;
+    flex-shrink: 0;
 }
 
-.cell {
-    border: solid 1px gray;
-    border-collapse: collapse;
-    z-index: 2;
-    width: 2cm;
-    height: 2cm;
-    align-content: center;
+#gameMode label {
+    margin: 0 8px;
+}
+
+#hearts {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.heart {
+    color: red;
+    font-size: 1.2em;
+    margin: 0 3px;
+}
+
+#board {
+    width: 98vw;
+    max-width: 18cm;
+    margin: 5px auto 20px auto;
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(9, 1fr);
+    aspect-ratio: 1 / 1;
+    /* Maintain a square aspect ratio */
 }
 
 .block {
     border: solid 2px black;
-    z-index: 3
+    z-index: 3;
+    grid-column-span: 3;
+    grid-row-span: 3;
+}
+
+/* Target the correct blocks based on their position in the 9x9 grid */
+#board>div:nth-child(1) {
+    grid-column: 1 / span 3;
+    grid-row: 1 / span 3;
+}
+
+#board>div:nth-child(2) {
+    grid-column: 4 / span 3;
+    grid-row: 1 / span 3;
+}
+
+#board>div:nth-child(3) {
+    grid-column: 7 / span 3;
+    grid-row: 1 / span 3;
+}
+
+#board>div:nth-child(4) {
+    grid-column: 1 / span 3;
+    grid-row: 4 / span 3;
+}
+
+#board>div:nth-child(5) {
+    grid-column: 4 / span 3;
+    grid-row: 4 / span 3;
+}
+
+#board>div:nth-child(6) {
+    grid-column: 7 / span 3;
+    grid-row: 4 / span 3;
+}
+
+#board>div:nth-child(7) {
+    grid-column: 1 / span 3;
+    grid-row: 7 / span 3;
+}
+
+#board>div:nth-child(8) {
+    grid-column: 4 / span 3;
+    grid-row: 7 / span 3;
+}
+
+#board>div:nth-child(9) {
+    grid-column: 7 / span 3;
+    grid-row: 7 / span 3;
+}
+
+/* Ensure cells have borders */
+#board>div>div {
+    border: solid 1px gray;
+    border-collapse: collapse;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1 / 1;
+    /* Maintain square cells */
+}
+
+#gameMode {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+#hearts {
+    margin-left: 15px;
+}
+
+#actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    padding: 10px;
 }
 
 #numbers {
-    align-content: center;
-    margin: 0 auto;
     width: 8cm;
+    margin: 15px auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
 }
 
 .number {
-    margin: 5px;
-    font-size: 20px;
-    font-weight: bold;
+    font-size: 1em;
     border-radius: 5px;
     border: solid 1px gray;
     background-color: lightgray;
+    font-weight: bolder;
+    justify-content: center;
+}
+
+.eraser {
+    font-weight: normal !important;
+    width: 8cm;
+    margin: 15px auto;
 }
 
 .number:disabled {
@@ -876,7 +1000,7 @@ function undo() {
 }
 
 .selected {
-    border: 2px solid black
+    border: 2px solid black;
 }
 
 .button {
@@ -957,5 +1081,209 @@ function undo() {
     /* IE/Edge */
     user-select: none;
     /* Standard */
+}
+
+#clearCellButton {
+    margin: 10px auto;
+    display: block;
+    width: 50%;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: bold;
+    border-radius: 5px;
+    border: solid 1px gray;
+    background-color: lightgray;
+}
+
+.v-dialog {
+    width: 500px !important;
+    max-width: 500px !important;
+    margin: 0 auto;
+    /* Center dialogs */
+}
+
+@media (min-width: 1000px) {
+
+    #board,
+    #game-header {
+        width: 18cm;
+        max-width: none;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 999px) {
+
+    #board,
+    #game-header {
+        width: 98vw;
+    }
+}
+
+/* Media query for smaller screens (e.g., phones) */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #board,
+    #game-header {
+        width: 90vw;
+        margin: 10px auto;
+    }
+
+    .block {
+        border: solid 1px black;
+    }
+
+    #board>div>div {
+        border: solid 1px lightgray;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1 / 1;
+        font-size: 1em;
+    }
+
+    #title-play {
+        display: flex;
+        /* Manter título e botão na mesma linha */
+        align-items: center;
+        /* Alinhar verticalmente */
+        margin-bottom: 10px;
+    }
+
+    #title-play h1 {
+        font-size: 1.8em;
+        /* Reduzir um pouco o tamanho do título em telas menores */
+        margin-right: 5px;
+        /* Adicionar um pouco de espaço entre o título e o botão */
+    }
+
+    #game-header {
+        margin-bottom: -1.5em;
+    }
+
+    #gameMode label {
+        margin: 0 8px;
+        font-size: 0.9em;
+    }
+
+    #hearts {
+        margin-top: 5px;
+    }
+
+    .heart {
+        font-size: 1em;
+        margin: 0 3px;
+    }
+
+    #actions {
+        display: flex;
+        /* Use flexbox for horizontal arrangement that can wrap */
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        /* Distribute buttons */
+        padding: 10px;
+        width: 95%;
+        margin: 10px auto;
+    }
+
+    .button {
+        font-size: 1em;
+        padding: 0.8em 0.5em;
+        /* Adjust padding for smaller screens */
+        margin: 5px;
+        /* Add some margin for spacing */
+        display: inline-block;
+        /* Allow buttons to sit side by side and wrap */
+        width: calc(50% - 10px);
+        /* Two buttons per row with spacing */
+        box-sizing: border-box;
+        /* Include padding and border in width */
+        text-align: center;
+    }
+
+    #numbers {
+        width: 95%;
+        margin: 15px auto;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        align-items: flex-start;
+    }
+
+    .eraser {
+        width: 95%;
+    }
+
+    .number {
+        flex-basis: calc(33.33% - 10px);
+        margin: 5px;
+        font-size: 1em;
+        border-radius: 5px;
+    }
+
+    #clearCellButton {
+        width: 80%;
+        margin: 15px auto;
+        display: block;
+        padding: 0.8em;
+        font-size: 1em;
+        border-radius: 5px;
+    }
+
+    .v-dialog {
+        width: 90% !important;
+        max-width: 90% !important;
+        margin: 30px auto;
+        /* Add some top/bottom margin for dialogs */
+    }
+}
+
+@media (max-width: 740px) {
+    #board {
+        width: 97vw;
+    }
+}
+
+@media (max-width: 680px) {
+    #board {
+        width: 98vw;
+    }
+}
+
+@media (max-width: 670px) {
+    #board {
+        width: 99vw;
+    }
+}
+
+@media (max-width: 660px) {
+    #board {
+        width: 100vw;
+    }
+}
+
+/* Further adjustments for very small screens (optional) */
+@media (max-width: 480px) {
+    .number {
+        font-size: 0.9em;
+        padding: 0.7em 0.4em;
+        margin: 3px;
+        flex-basis: calc(33.33% - 6px);
+    }
+
+    .button {
+        font-size: 0.9em;
+        padding: 0.7em;
+    }
+
+    #clearCellButton {
+        font-size: 0.9em;
+        padding: 0.7em;
+        width: 70%;
+    }
 }
 </style>

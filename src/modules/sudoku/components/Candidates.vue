@@ -7,7 +7,7 @@
             >
                 <span
                     :class="highlightCss(n)"
-                    style="font-weight: bold;"
+                    style="font-weight: bold; padding:0 5px 0 5px;"
                 >
                     {{ `${candidates?.includes(n) ? n.toString() : '&nbsp;'}` }}
                 </span>
@@ -16,10 +16,7 @@
     </div>
 </template>
 
-<script
-    setup
-    lang='ts'
->
+<script setup lang='ts'>
 export interface CandidatesProps {
     modelValue: number[];
     selected: boolean;
@@ -64,15 +61,28 @@ watch(() => props.modelValue, (value) => {
 });
 </script>
 
-<style
-    lang="css"
-    scoped
->
+<style lang="css" scoped>
 .grid {
     display: grid;
-    gap: 0px;
-    grid-template-columns: repeat(3, auto);
-    grid-template-rows: repeat(3, auto);
+    gap: 1px;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    font-size: 0.85em;
+    width: 90%;
+    height: 90%;
+    z-index: 101;
+}
+
+.grid div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1 / 1;
+    padding: 1px;
+}
+
+.grid span {
+    font-weight: bold;
 }
 
 .selected {
@@ -85,6 +95,26 @@ watch(() => props.modelValue, (value) => {
 
 .highlightValue {
     background-color: lightgreen !important;
-    padding: 0 5px;
+}
+
+@media (max-width: 768px) {
+    .grid {
+        font-size: 0.8em;
+        gap: 1px;
+    }
+
+    .grid div {
+        padding: 2px;
+    }
+}
+
+@media (max-width: 480px) {
+    .grid {
+        font-size: 0.7em;
+    }
+
+    .grid div {
+        padding: 1px;
+    }
 }
 </style>

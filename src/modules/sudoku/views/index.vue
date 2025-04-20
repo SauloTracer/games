@@ -323,114 +323,115 @@
             <v-card-title class="headline">Manual do Filtro</v-card-title>
             <v-card-text>
                 <p><strong>Sintaxe Básica:</strong></p>
-                <p>[universo] comando1(args1) && comando2[args2] && ...</p>
-                <p>Você pode combinar múltiplos comandos usando '&&'. Use parênteses () ou colchetes [] para
-                    os argumentos.</p>
-
-                <p><strong>Filtro de Universo (Opcional no início):</strong></p>
+                <p>[universo1] comandoA(argsA) && comandoB[argsB]; [universo2] comandoX(argsX) && comandoY[argsY]; ...
+                </p>
+                <p>Você pode combinar múltiplos comandos DENTRO de um grupo usando '&&'.</p>
+                <p>Você pode ter múltiplos grupos de comandos, separados por ';'. Cada grupo pode opcionalmente definir
+                    seu próprio universo no início.</p>
+                <p>Use parênteses () ou colchetes [] para os argumentos de cada comando.</p>
+                <p><strong>Filtro de Universo (Opcional no início de cada grupo):</strong></p>
                 <ul>
                     <li><code>blocks(...)</code> ou <code>b(...)</code> ou <code>blocks[...]</code> ou
-                        <code>b[...]</code>: Restringe a busca aos blocos informados (1 a 9). Ex:
-                        <code>b(1,4) count(2)</code>
+                        <code>b[...]</code>: Restringe a busca aos blocos informados (1 a 9) PARA OS COMANDOS NESTE
+                        GRUPO. Ex: <code>b(1,4) count(2)</code>
                     </li>
-                    <li><code>lines(...)</code> ou <code>l(...)</code>: Restringe às linhas (1 a 9). Ex:
-                        <code>l[5] contains(9)</code>
-                    </li>
-                    <li><code>columns(...)</code> ou <code>c(...)</code>: Restringe às colunas (1 a 9). Ex:
-                        <code>c(2,8) unique()</code>
-                    </li>
+                    <li><code>lines(...)</code> ou <code>l(...)</code>: Restringe às linhas (1 a 9) PARA OS COMANDOS
+                        NESTE GRUPO. Ex: <code>l[5] contains(9)</code></li>
+                    <li><code>columns(...)</code> ou <code>c(...)</code>: Restringe às colunas (1 a 9) PARA OS COMANDOS
+                        NESTE GRUPO. Ex: <code>c(2,8) unique()</code></li>
                 </ul>
 
                 <p><strong>Comandos e Aliases:</strong></p>
                 <ul>
-                    <li><strong>Candidato Contém Qualquer:</strong> Células candidatas que possuem QUALQUER
-                        um dos números na lista de argumentos. Destaca APENAS os candidatos listados que
-                        estão na célula (Cor por Comando).
+                    <li><strong>Candidato Contém Qualquer:</strong> Células candidatas que possuem QUALQUER um dos
+                        números na lista de argumentos. Destaca APENAS os candidatos listados que estão na célula (Cor
+                        por Comando).
                         <br>Comandos: <code>contains</code>, <code>contain</code>, <code>has</code>,
                         <code>includes</code>, <code>:</code>
                         <br>Ex: <code>contains(2,3)</code>, <code>has[5]</code>, <code>: (1,9)</code>
                     </li>
-                    <li><strong>Candidato Contém Todos:</strong> Células candidatas que possuem TODOS os
-                        números na lista de argumentos. Destaca APENAS os candidatos listados que estão na
-                        célula (Cor por Comando).
-                        <br>Comandos: <code>containsall</code>, <code>hasall</code>,
-                        <code>includesall</code>, <code>>=</code>
+                    <li><strong>Candidato Contém Todos:</strong> Células candidatas que possuem TODOS os números na
+                        lista de argumentos. Destaca APENAS os candidatos listados que estão na célula (Cor por
+                        Comando).
+                        <br>Comandos: <code>containsall</code>, <code>hasall</code>, <code>includesall</code>,
+                        <code>>=</code>
                         <br>Ex: <code>containsall(1,5)</code>, <code>>=[8,9]</code>
                     </li>
-                    <li><strong>Candidato Apenas:</strong> Células candidatas cujos candidatos são
-                        EXATAMENTE a lista de argumentos. Destaca TODOS os candidatos na célula (Cor por
-                        Comando).
+                    <li><strong>Candidato Apenas:</strong> Células candidatas cujos candidatos são EXATAMENTE a lista de
+                        argumentos. Destaca TODOS os candidatos na célula (Cor por Comando).
                         <br>Comandos: <code>only</code> (e seus aliases, se definidos)
                         <br>Ex: <code>only(1,2)</code>, <code>only[7,8,9]</code>
                     </li>
-                    <li><strong>Único (Hidden Single):</strong> Células candidatas com um candidato que é
-                        único em sua linha, coluna OU bloco (dentro do universo). Destaca o candidato único
-                        (Cor por Comando).
+                    <li><strong>Único (Hidden Single):</strong> Células candidatas com um candidato que é único em sua
+                        linha, coluna OU bloco (dentro do universo do grupo). Destaca o candidato único (Cor por
+                        Comando).
                         <br>Comandos: <code>unique</code> (e seus aliases, se definidos)
                         <br>Ex: <code>unique()</code>
                     </li>
-                    <li><strong>Pares Nus (Naked Pairs):</strong> Células com exatamente 2 candidatos que
-                        aparecem juntos e APENAS juntos em 2 células dentro de uma unidade. Destaca os 2
-                        candidatos nessas 2 células (Cor por Instância).
+                    <li><strong>Pares Nus (Naked Pairs):</strong> Células com exatamente 2 candidatos que aparecem
+                        juntos e APENAS juntos em 2 células dentro de uma unidade (dentro do universo do grupo). Destaca
+                        os 2 candidatos nessas 2 células (Cor por Instância).
                         <br>Comandos: <code>nakedpairs</code>, <code>nakedpair</code>, <code>np</code>,
                         <code>pair</code>, <code>pairs</code>, <code>p</code>
                         <br>Ex: <code>nakedpairs()</code>
                     </li>
-                    <li><strong>Trios Nus (Naked Triples):</strong> Células com 2 ou 3 candidatos que
-                        aparecem juntos e APENAS juntos em 3 células dentro de uma unidade, formando um
-                        conjunto de 3 candidatos. Destaca os 3 candidatos nessas 3 células (Cor por
-                        Instância).
+                    <li><strong>Trios Nus (Naked Triples):</strong> Células com 2 ou 3 candidatos que aparecem juntos e
+                        APENAS juntos em 3 células dentro de uma unidade (dentro do universo do grupo), formando um
+                        conjunto de 3 candidatos. Destaca os 3 candidatos nessas 3 células (Cor por Instância).
                         <br>Comandos: <code>nakedtriples</code>, <code>nakedtriple</code>, <code>nt</code>,
                         <code>t</code>, <code>triple</code>, <code>trio</code>
                         <br>Ex: <code>nt()</code>, <code>trio[]</code>
                     </li>
-                    <li><strong>Pares Ocultos (Hidden Pairs):</strong> Em uma unidade, 2 candidatos aparecem
-                        APENAS em 2 células (e essas 2 células podem ter outros candidatos). Destaca os 2
-                        candidatos nessas 2 células (Cor por Instância).
+                    <li><strong>Pares Ocultos (Hidden Pairs):</strong> Em uma unidade (dentro do universo do grupo), 2
+                        candidatos aparecem APENAS em 2 células (e essas 2 células podem ter outros candidatos). Destaca
+                        os 2 candidatos nessas 2 células (Cor por Instância).
                         <br>Comandos: <code>hiddenpairs</code>, <code>hiddenpair</code>, <code>hp</code>
                         <br>Ex: <code>hiddenpairs()</code>
                     </li>
-                    <li><strong>Trios Ocultos (Hidden Triples):</strong> Em uma unidade, 3 candidatos
-                        aparecem APENAS em 3 células (e essas 3 células podem ter outros candidatos).
-                        Destaca os 3 candidatos nessas 3 células (Cor por Instância).
+                    <li><strong>Trios Ocultos (Hidden Triples):</strong> Em uma unidade (dentro do universo do grupo), 3
+                        candidatos aparecem APENAS em 3 células (e essas 3 células podem ter outros candidatos). Destaca
+                        os 3 candidatos nessas 3 células (Cor por Instância).
                         <br>Comandos: <code>hiddentriples</code>, <code>hiddentriple</code>, <code>ht</code>
                         <br>Ex: <code>ht()</code>
                     </li>
-                    <li><strong>X-Wing:</strong> Um candidato aparece em exatamente 2 células em 2 linhas
-                        diferentes, e essas células compartilham as mesmas 2 colunas. Destaca as 4 células
-                        envolvidas para um candidato específico (Cor por Grupo de Candidato).
+                    <li><strong>X-Wing:</strong> Um candidato aparece em exatamente 2 células em 2 linhas diferentes
+                        (dentro do universo do grupo), e essas células compartilham as mesmas 2 colunas. Destaca as 4
+                        células envolvidas para um candidato específico (Cor por Grupo de Candidato).
                         <br>Comandos: <code>xwing</code>, <code>xw</code>
                         <br>Ex: <code>xwing()</code>
                     </li>
-                    <li><strong>Swordfish:</strong> Um candidato aparece em exatamente 2 ou 3 células em 3
-                        linhas diferentes, e todas essas células compartilham as mesmas 3 colunas. Destaca
-                        as células envolvidas para um candidato específico (Cor por Grupo de Candidato).
+                    <li><strong>Swordfish:</strong> Um candidato aparece em exatamente 2 ou 3 células em 3 linhas
+                        diferentes (dentro do universo do grupo), e todas essas células compartilham as mesmas 3
+                        colunas. Destaca as células envolvidas para um candidato específico (Cor por Grupo de
+                        Candidato).
                         <br>Comandos: <code>swordfish</code>, <code>sf</code>
                         <br>Ex: <code>swordfish()</code>
                     </li>
-                    <li><strong>Contagem de Candidatos:</strong> Células candidatas com um número EXATO de
-                        candidatos especificado. Destaca a CÉLULA INTEIRA (Destaque Geral).
+                    <li><strong>Contagem de Candidatos:</strong> Células candidatas (dentro do universo do grupo) com um
+                        número EXATO de candidatos especificado. Destaca a CÉLULA INTEIRA (Destaque Geral).
                         <br>Comandos: <code>count</code>, <code>counter</code>, <code>*</code>, etc.
                         <br>Ex: <code>count(2)</code>, <code>*[3]</code>
                     </li>
-                    <li><strong>Não Contém:</strong> Células (candidatas ou preenchidas) que NÃO contêm
-                        nenhum dos números especificados. Destaca a CÉLULA INTEIRA (Destaque Geral).
+                    <li><strong>Não Contém:</strong> Células (candidatas ou preenchidas, dentro do universo do grupo)
+                        que NÃO contêm nenhum dos números especificados. Destaca a CÉLULA INTEIRA (Destaque Geral).
                         <br>Comandos: <code>notcontains</code>, <code>!</code>, <code>not</code>, etc.
                         <br>Ex: <code>notcontains(1,9)</code>, <code>![5]</code>
                     </li>
-                    <li><strong>Número Único (Sem Parênteses/Colchetes):</strong> Se o comando for apenas um
-                        número. Destaca CÉLULAS PREENCHIDAS com esse número (Destaque Geral) E destaca CADA
-                        CANDIDATO desse número nas células candidatas (Cor por Comando).
+                    <li><strong>Número Único (Sem Parênteses/Colchetes):</strong> Se o comando for apenas um número.
+                        Destaca CÉLULAS PREENCHIDAS (dentro do universo do grupo) com esse número E destaca CADA
+                        CANDIDATO desse número nas células candidatas (dentro do universo do grupo). Destaca CÉLULA
+                        PREENCHIDA (Destaque Geral) e CANDIDATO INDIVIDUAL (Cor por Comando).
                         <br>Ex: <code>5</code>
                     </li>
                 </ul>
 
                 <p><strong>Combinações:</strong></p>
-                <p>Use <code>&&</code> para combinar filtros. Células ou candidatos que correspondem a
-                    múltiplos filtros podem acumular destaques (a cor do último filtro correspondente
-                    prevalece para candidatos coloridos).</p>
-                <p>Ex: <code>b(1) contains(1) && l[2] unique()</code> (Candidatos '1' no bloco 1 E Hidden
-                    Singles na linha 2)</p>
+                <p>Use <code>&&</code> para combinar filtros DENTRO DE UM MESMO GRUPO. Use <code>;</code> para separar
+                    GRUPOS DE FILTRO. Os destaques de todos os grupos são combinados. Células ou candidatos que
+                    correspondem a múltiplos filtros podem acumular destaques (a cor do último filtro correspondente no
+                    ciclo geral de cores prevalece para candidatos coloridos).</p>
+                <p>Ex: <code>b(1) contains(1) && count(2); l[2] unique()</code> (Candidatos '1' no bloco 1 E Células com
+                    2 candidatos no bloco 1; Hidden Singles na linha 2)</p>
 
             </v-card-text>
             <v-card-actions>
@@ -508,6 +509,7 @@ const swatches = [
     ['#00FFFF', '#00AAAA', '#005555'],
     ['#0000FF', '#0000AA', '#000055'],
 ];
+const highlightColors = ['#FF0000', '#0000FF', '#10A310', '#A020F0', '#FFA500', '#FF4500', '#8A2BE2', '#32CD32', '#4169E1'];
 const searchQuery = ref('');
 const showFilterManualDialog = ref(false);
 
@@ -1878,29 +1880,12 @@ function filterCandidates() {
         return;
     }
 
-    let universe: { rows: number[]; cols: number[]; blocks: number[] } = { rows: [], cols: [], blocks: [] };
-    let filterCommands: string = query;
-
-    // Tenta primeiro analisar a definição do universo (e.g., blocks(1,4) filter...)
-    // Regex para suportar parênteses () ou colchetes [] e espaço opcional
-    const universeMatch = query.match(/^(blocks?|b|lines?|l|columns?|column?|c)\s*[\(\[]\s*(.*?)\s*[\)\]]\s+(.*)$/i);
-    if (universeMatch) {
-        const universeType = universeMatch[1].toLowerCase();
-        const universeArgs = universeMatch[2].split(',').map(arg => parseInt(arg.trim())).filter(arg => !isNaN(arg));
-        filterCommands = universeMatch[3]; // O resto da string após o universo
-
-        if (['line', 'lines', 'l'].includes(universeType)) universe.rows = universeArgs;
-        else if (['col', 'cols', 'column', 'columns', 'c'].includes(universeType)) universe.cols = universeArgs;
-        else if (['block', 'blocks', 'b'].includes(universeType)) universe.blocks = universeArgs;
-    }
-
+    // --- Coleções Globais para Acumular Destaques de Todos os Grupos ---
     const cellsForGeneralHighlight: Set<Cell> = new Set();
     // Mapa para armazenar as cores dos candidatos: Cell -> (Candidato -> Cor)
     const cellCandidateColors: Map<Cell, Map<number, string>> = new Map();
 
-    // Lista de cores para destacar. Você pode ajustar esta paleta.
-    const highlightColors = ['#FF0000', '#0000FF', '#106310', '#A020F0', '#FFA500', '#FF4500', '#8A2BE2', '#32CD32', '#4169E1']; // Exemplo: Vermelho, Azul, Verde Claro, Roxo, Laranja, Laranja Avermelhado, Azul Violeta, Verde Limão, Azul Royal
-    let colorIndex = 0; // Índice para ciclar pelas cores
+    let colorIndex = 0; // Índice para ciclar pelas cores (continua através de todos os grupos e comandos)
 
     // --- Definição dos Arrays de Aliases para cada Comando ---
     const containsAliases = [':', 'contains', 'contain', 'has', 'includes'];
@@ -1909,258 +1894,282 @@ function filterCandidates() {
     const uniqueAliases = ['unique'];
     const nakedPairsAliases = ['nakedpairs', 'nakedpair', 'np', 'pair', 'pairs', 'p'];
     const nakedTriplesAliases = ['nakedtriples', 'nakedtriple', 'naked-triple', 'naked_triple', 'nt', 't', 'triple', 'trio'];
-    const hiddenPairsAliases = ['hiddenpairs', 'hiddenpair', 'hp', 'hidden-pair', 'hidden_pair', 'hidden-pairs', 'hidden_pairs'];
-    const hiddenTriplesAliases = ['hiddentriples', 'hiddentriple', 'ht', 'hiddentrio', 'hidden-triple', 'hidden_triple', 'hidden_trio'];
+    const hiddenPairsAliases = ['hiddenpairs', 'hiddenpair', 'hp'];
+    const hiddenTriplesAliases = ['hiddentriples', 'hiddentriple', 'ht'];
     const xwingAliases = ['xwing', 'xw'];
     const swordfishAliases = ['swordfish', 'sf'];
-    const containsAllAliases = ['containsall', 'hasall', 'includesall', 'all', 'allof', 'all_of', 'all_of'];
+    const containsAllAliases = ['containsall', 'hasall', 'includesall', '>='];
     // Adicione aqui os arrays de aliases para outros comandos se necessário.
 
-    // Divide a string de filtros restantes em comandos individuais usando '&&'
-    const commands = filterCommands.split('&&').map(cmd => cmd.trim());
 
-    commands.forEach(command => {
-        // --- Análise de Comando com Aliases e Colchetes/Parênteses ---
-        // Regex para capturar o nome da operação (alias) e os argumentos dentro de () ou []
-        const match = command.match(/^(\w+)\s*[\(\[]\s*(.*?)\s*[\)\]]\s*$/i);
+    // --- Divide a query principal em grupos de filtro usando ';' ---
+    const filterGroups = query.split(';').map(group => group.trim()).filter(group => group.length > 0); // Remove grupos vazios
 
-        if (match) {
-            const rawOperation = match[1].toLowerCase(); // O nome/alias usado no comando (ex: ':', 'np', 'trio')
-            const argsString = match[2]; // A string dentro dos parênteses ou colchetes (ex: '2,3')
+    // --- Processa cada grupo de filtro ---
+    filterGroups.forEach(groupString => {
+        // Para cada grupo, um novo universo pode ser definido
+        let groupUniverse: { rows: number[]; cols: number[]; blocks: number[] } = { rows: [], cols: [], blocks: [] };
+        let groupCommandsString = groupString;
 
-            let operation: string | undefined; // Variável para armazenar o nome de operação padrão
+        // Tenta analisar a definição do universo NO INÍCIO DESTE GRUPO
+        // Regex para suportar parênteses () ou colchetes [] e espaço opcional
+        // Mantemos este regex separado pois ele só procura os aliases de universo específicos no início
+        const universeMatch = groupString.match(/^(blocks?|b|lines?|l|columns?|column?|c)\s*[\(\[]\s*(.*?)\s*[\)\]]\s+(.*)$/i);
+        if (universeMatch) {
+            const universeType = universeMatch[1].toLowerCase();
+            const universeArgs = universeMatch[2].split(',').map(arg => parseInt(arg.trim())).filter(arg => !isNaN(arg));
+            groupCommandsString = universeMatch[3]; // O resto da string após o universo deste grupo
 
-            // --- Mapeia o Alias para o Nome de Operação Padrão usando if/else if com includes() ---
-            if (containsAliases.includes(rawOperation)) {
-                operation = 'contains';
-            } else if (countAliases.includes(rawOperation)) {
-                operation = 'count';
-            } else if (notcontainsAliases.includes(rawOperation)) {
-                operation = 'notcontains';
-            } else if (uniqueAliases.includes(rawOperation)) {
-                operation = 'unique';
-            } else if (nakedPairsAliases.includes(rawOperation)) {
-                operation = 'nakedpairs';
-            } else if (nakedTriplesAliases.includes(rawOperation)) {
-                operation = 'nakedtriples';
-            } else if (hiddenPairsAliases.includes(rawOperation)) {
-                operation = 'hiddenpairs';
-            } else if (hiddenTriplesAliases.includes(rawOperation)) {
-                operation = 'hiddentriples';
-            } else if (xwingAliases.includes(rawOperation)) {
-                operation = 'xwing';
-            } else if (swordfishAliases.includes(rawOperation)) {
-                operation = 'swordfish';
-            } else if (containsAllAliases.includes(rawOperation)) { // Add check for containsAll aliases
-                operation = 'containsAll';
-            }
-            // --- Adicione aqui mais blocos else if para outros comandos se necessário ---
+            if (['line', 'lines', 'l'].includes(universeType)) groupUniverse.rows = universeArgs;
+            else if (['col', 'cols', 'column', 'columns', 'c'].includes(universeType)) groupUniverse.cols = universeArgs;
+            else if (['block', 'blocks', 'b'].includes(universeType)) groupUniverse.blocks = universeArgs;
+        }
+
+        // --- Divide os comandos dentro deste grupo usando '&&' ---
+        const commands = groupCommandsString.split('&&').map(cmd => cmd.trim()).filter(cmd => cmd.length > 0); // Remove comandos vazios
+
+        // --- Processa cada comando dentro deste grupo ---
+        commands.forEach(command => {
+            // --- Análise de Comando com Aliases e Colchetes/Parênteses ---
+            // Regex ATUALIZADA: Permite que o nome do comando seja uma palavra (letras/números/_) OU um único caractere *, :, !
+            // ^((?:\w+)|(?:\*)|(?:\:)|(?:!)): Captura um nome que é ou \w+ OU *, :, !
+            // (?:...) é um grupo não capturante, usado para agrupar as alternativas sem criar um grupo de captura extra.
+            // O primeiro grupo de captura agora é ((?:\w+)|(?:\*)|(?:\:)|(?:!)), então o nome bruto estará em match[1].
+            const match = command.match(/^((?:\w+)|(?:\*)|(?:\:)|(?:!))\s*[\(\[]\s*(.*?)\s*[\)\]]\s*$/i);
+
+            if (match) {
+                // rawOperation é o nome capturado pelo primeiro grupo, incluindo o alias especial se for o caso
+                const rawOperation = match[1].toLowerCase();
+                const argsString = match[2]; // A string dentro dos parênteses ou colchetes
+
+                let operation: string | undefined; // Variável para armazenar o nome de operação padrão
+
+                // --- Mapeia o Alias para o Nome de Operação Padrão usando if/else if com includes() ---
+                // Esta lógica permanece a mesma, comparando rawOperation com os arrays de aliases
+                if (containsAliases.includes(rawOperation)) { operation = 'contains'; }
+                else if (countAliases.includes(rawOperation)) { operation = 'count'; }
+                else if (notcontainsAliases.includes(rawOperation)) { operation = 'notcontains'; }
+                else if (uniqueAliases.includes(rawOperation)) { operation = 'unique'; }
+                else if (nakedPairsAliases.includes(rawOperation)) { operation = 'nakedpairs'; }
+                else if (nakedTriplesAliases.includes(rawOperation)) { operation = 'nakedtriples'; }
+                else if (hiddenPairsAliases.includes(rawOperation)) { operation = 'hiddenpairs'; }
+                else if (hiddenTriplesAliases.includes(rawOperation)) { operation = 'hiddentriples'; }
+                else if (xwingAliases.includes(rawOperation)) { operation = 'xwing'; }
+                else if (swordfishAliases.includes(rawOperation)) { operation = 'swordfish'; }
+                else if (containsAllAliases.includes(rawOperation)) { operation = 'containsAll'; }
+                // --- Adicione aqui mais blocos else if para outros comandos se necessário ---
 
 
-            // Verifica se o alias usado no comando corresponde a uma operação válida.
-            // Se 'operation' ainda for undefined, o alias não foi encontrado em nenhum dos arrays.
-            if (!operation) {
-                console.warn(`Operação de filtro ou alias desconhecido: "${rawOperation}" no comando "${command}". Comando ignorado.`);
-                return; // Ignora este comando se o alias não for reconhecido
-            }
+                // Verifica se o alias usado no comando corresponde a uma operação válida.
+                if (!operation) {
+                    console.warn(`Operação de filtro ou alias desconhecido: "${rawOperation}" no comando "${command}" do grupo "${groupString}". Comando ignorado.`);
+                    return; // Ignora este comando
+                }
 
-            // Analisa a string de argumentos em um array de números
-            const args = argsString.split(',').map(arg => parseInt(arg.trim())).filter(arg => !isNaN(arg));
+                // Analisa a string de argumentos em um array de números
+                const args = argsString.split(',').map(arg => parseInt(arg.trim())).filter(arg => !isNaN(arg));
 
 
-            // --- Lógica de Processamento dos Comandos (com base no nome padrão da operação) ---
-            // Esta parte permanece a mesma, usando a variável 'operation' que agora tem o nome padrão.
+                // --- Lógica de Processamento dos Comandos (com base no nome padrão da operação) ---
+                // Esta lógica usa o 'groupUniverse' definido para este grupo.
 
-            // --- Lida com filtros que resultam em DESTAQUE DE CANDIDATOS ---
-            if (['contains', 'only', 'unique', 'containsAll'].includes(operation)) {
-                // ... (Sua lógica existente para 'contains', 'only', 'unique') ...
-                let results: Array<{ cell: Cell, candidates: number[] }> = [];
+                // --- Lida com filtros que resultam em DESTAQUE DE CANDIDATOS ---
+                if (['contains', 'only', 'unique', 'containsAll'].includes(operation)) {
+                    let results: Array<{ cell: Cell, candidates: number[] }> = [];
 
-                if (['contains', 'only', 'containsAll'].includes(operation)) {
-                    board.value.forEach(row => {
-                        row.forEach(cell => {
-                            const isCellInUniverse = // Verifica se a célula está no universo
-                                (universe.rows.length === 0 || universe.rows.includes(cell.coordinates.row + 1)) &&
-                                (universe.cols.length === 0 || universe.cols.includes(cell.coordinates.col + 1)) &&
-                                (universe.blocks.length === 0 || universe.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col)));
+                    if (['contains', 'only', 'containsAll'].includes(operation)) {
+                        board.value.forEach(row => {
+                            row.forEach(cell => {
+                                // VERIFICAÇÃO CONTRA O UNIVERSO DESTE GRUPO
+                                const isCellInUniverse =
+                                    (groupUniverse.rows.length === 0 || groupUniverse.rows.includes(cell.coordinates.row + 1)) &&
+                                    (groupUniverse.cols.length === 0 || groupUniverse.cols.includes(cell.coordinates.col + 1)) &&
+                                    (groupUniverse.blocks.length === 0 || groupUniverse.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col)));
 
-                            if (isCellInUniverse && (cell.value === null || cell.value === 0) && cell.candidates) {
-                                let candidatesToHighlight: number[] = [];
-                                switch (operation) {
-                                    case 'contains':
-                                        candidatesToHighlight = cell.candidates.filter(cand => args.includes(cand));
-                                        break;
-                                    case 'only':
-                                        if (only(cell, args)) {
-                                            candidatesToHighlight = cell.candidates;
-                                        }
-                                        break;
-                                    case 'containsAll': // Add containsAll case
-                                        // Highlight candidates from the args list if the cell contains ALL of them
-                                        if (containsAll(cell, args)) { // Using the new 'containsAll' helper
-                                            // Highlight only the candidates from the args list that were required
-                                            candidatesToHighlight = args.filter(cand => cell.candidates.includes(cand));
-                                        }
-                                        break;
+                                if (isCellInUniverse && (cell.value === null || cell.value === 0) && cell.candidates) {
+                                    let candidatesToHighlight: number[] = [];
+                                    switch (operation) {
+                                        case 'contains':
+                                            candidatesToHighlight = cell.candidates.filter(cand => args.includes(cand));
+                                            break;
+                                        case 'only':
+                                            if (only(cell, args)) {
+                                                candidatesToHighlight = cell.candidates;
+                                            }
+                                            break;
+                                        case 'containsAll':
+                                            if (containsAll(cell, args)) {
+                                                candidatesToHighlight = args.filter(cand => cell.candidates.includes(cand));
+                                            }
+                                            break;
+                                    }
+                                    if (candidatesToHighlight.length > 0) {
+                                        results.push({ cell: cell, candidates: candidatesToHighlight });
+                                    }
                                 }
-                                if (candidatesToHighlight.length > 0) {
-                                    results.push({ cell: cell, candidates: candidatesToHighlight });
-                                }
-                            }
+                            });
+                        });
+                    } else { // Caso 'unique' (usa findUniqueCandidates que já considera o universo)
+                        // Chama findUniqueCandidates com o universo DESTE grupo
+                        results = findUniqueCandidates(board.value, groupUniverse);
+                    }
+
+                    // Aplica a coloração. O colorIndex CONTINUA através de todos os comandos de todos os grupos.
+                    // Uma cor por COMANDO (para contains, only, unique, containsAll)
+                    const commandColor = highlightColors[colorIndex % highlightColors.length];
+                    colorIndex++; // Incrementa para o PRÓXIMO comando/grupo de padrão
+
+                    results.forEach(item => {
+                        if (!cellCandidateColors.has(item.cell)) {
+                            cellCandidateColors.set(item.cell, new Map());
+                        }
+                        const candidateMap = cellCandidateColors.get(item.cell)!;
+                        item.candidates.forEach(cand => {
+                            candidateMap.set(cand, commandColor);
                         });
                     });
-                } else { // Caso 'unique'
-                    results = findUniqueCandidates(board.value, universe);
+
                 }
-
-                // Atribui uma ÚNICA cor para todos os resultados deste comando
-                const commandColor = highlightColors[colorIndex % highlightColors.length];
-                colorIndex++; // Incrementa o índice de cor para o PRÓXIMO comando
-
-                results.forEach(item => {
-                    if (!cellCandidateColors.has(item.cell)) {
-                        cellCandidateColors.set(item.cell, new Map());
+                // --- Lida com Naked/Hidden Pairs e Triples (Array<{ cells: Cell[], candidates: number[] }>) ---
+                // Estes filtros recebem uma cor POR INSTÂNCIA do padrão.
+                else if (['nakedpairs', 'nakedtriples', 'hiddenpairs', 'hiddentriples'].includes(operation)) {
+                    let patternInstances: Array<{ cells: Cell[], candidates: number[] }> = [];
+                    switch (operation) {
+                        // Chama as funções find com o universo DESTE grupo
+                        case 'nakedpairs': patternInstances = findNakedPairs(board.value, groupUniverse); break;
+                        case 'nakedtriples': patternInstances = findNakedTriples(board.value, groupUniverse); break;
+                        case 'hiddenpairs': patternInstances = findHiddenPairs(board.value, groupUniverse); break;
+                        case 'hiddentriples': patternInstances = findHiddenTriples(board.value, groupUniverse); break;
                     }
-                    const candidateMap = cellCandidateColors.get(item.cell)!;
-                    item.candidates.forEach(cand => {
-                        candidateMap.set(cand, commandColor);
+
+                    // Itera por CADA INSTÂNCIA distinta encontrada por este comando.
+                    // CADA INSTÂNCIA receberá uma NOVA cor.
+                    patternInstances.forEach(instance => {
+                        const instanceColor = highlightColors[colorIndex % highlightColors.length];
+                        colorIndex++; // Incrementa para a PRÓXIMA instância
+
+                        instance.cells.forEach(cell => {
+                            instance.candidates.forEach(candidate => {
+                                if ((cell.value === null || cell.value === 0) && cell.candidates && cell.candidates.includes(candidate)) {
+                                    if (!cellCandidateColors.has(cell)) {
+                                        cellCandidateColors.set(cell, new Map());
+                                    }
+                                    cellCandidateColors.get(cell)!.set(candidate, instanceColor);
+                                }
+                            });
+                        });
                     });
-                });
 
-            }
-            // --- Lida com Naked/Hidden Pairs e Triples (Array<{ cells: Cell[], candidates: number[] }>) ---
-            // Estes filtros recebem uma cor POR INSTÂNCIA do padrão.
-            else if (['nakedpairs', 'nakedtriples', 'hiddenpairs', 'hiddentriples'].includes(operation)) {
-                // ... (Sua lógica existente para estes filtros) ...
-                let patternInstances: Array<{ cells: Cell[], candidates: number[] }> = [];
-                switch (operation) {
-                    case 'nakedpairs': patternInstances = findNakedPairs(board.value, universe); break;
-                    case 'nakedtriples': patternInstances = findNakedTriples(board.value, universe); break;
-                    case 'hiddenpairs': patternInstances = findHiddenPairs(board.value, universe); break;
-                    case 'hiddentriples': patternInstances = findHiddenTriples(board.value, universe); break;
                 }
+                // --- Lida com XWing e Swordfish (Map<number, Cell[]>) ---
+                // Estes filtros recebem uma cor POR GRUPO DE CANDIDATO que forma o padrão.
+                else if (['xwing', 'swordfish'].includes(operation)) {
+                    let groupedResults: Map<number, Cell[]> = new Map();
+                    switch (operation) {
+                        // Chama as funções find com o universo DESTE grupo
+                        case 'xwing': groupedResults = findXWing(board.value, groupUniverse); break;
+                        case 'swordfish': groupedResults = findSwordfish(board.value, groupUniverse); break;
+                    }
 
-                patternInstances.forEach(instance => {
-                    const instanceColor = highlightColors[colorIndex % highlightColors.length];
-                    colorIndex++;
+                    // Itera pelos resultados agrupados por candidato.
+                    // CADA GRUPO DE CANDIDATO (para um candidato específico) DENTRO deste comando receberá uma NOVA cor.
+                    groupedResults.forEach((cellsInPattern, candidate) => {
+                        const candidatePatternColor = highlightColors[colorIndex % highlightColors.length];
+                        colorIndex++; // Incrementa para o PRÓXIMO grupo de padrão/candidato
 
-                    instance.cells.forEach(cell => {
-                        instance.candidates.forEach(candidate => {
+                        cellsInPattern.forEach(cell => {
                             if ((cell.value === null || cell.value === 0) && cell.candidates && cell.candidates.includes(candidate)) {
                                 if (!cellCandidateColors.has(cell)) {
                                     cellCandidateColors.set(cell, new Map());
                                 }
-                                cellCandidateColors.get(cell)!.set(candidate, instanceColor);
+                                cellCandidateColors.get(cell)!.set(candidate, candidatePatternColor);
                             }
                         });
                     });
-                });
-
-            }
-            // --- Lida com XWing e Swordfish (Map<number, Cell[]>) ---
-            // Estes filtros recebem uma cor POR GRUPO DE CANDIDATO que forma o padrão.
-            else if (['xwing', 'swordfish'].includes(operation)) {
-                // ... (Sua lógica existente para estes filtros) ...
-                let groupedResults: Map<number, Cell[]> = new Map();
-                switch (operation) {
-                    case 'xwing': groupedResults = findXWing(board.value, universe); break;
-                    case 'swordfish': groupedResults = findSwordfish(board.value, universe); break;
                 }
+                // --- Lida com filtros que resultam em DESTAQUE GERAL DA CÉLULA ---
+                else if (['notcontains', 'count'].includes(operation)) {
+                    board.value.forEach(row => {
+                        row.forEach(cell => {
+                            // VERIFICAÇÃO CONTRA O UNIVERSO DESTE GRUPO
+                            const isCellInUniverse =
+                                (groupUniverse.rows.length === 0 || groupUniverse.rows.includes(cell.coordinates.row + 1)) &&
+                                (groupUniverse.cols.length === 0 || groupUniverse.cols.includes(cell.coordinates.col + 1)) &&
+                                (groupUniverse.blocks.length === 0 || groupUniverse.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col)));
 
-                groupedResults.forEach((cellsInPattern, candidate) => {
-                    const candidatePatternColor = highlightColors[colorIndex % highlightColors.length];
-                    colorIndex++;
-
-                    cellsInPattern.forEach(cell => {
-                        if ((cell.value === null || cell.value === 0) && cell.candidates && cell.candidates.includes(candidate)) {
-                            if (!cellCandidateColors.has(cell)) {
-                                cellCandidateColors.set(cell, new Map());
+                            if (isCellInUniverse) {
+                                let shouldHighlightCell = false;
+                                switch (operation) {
+                                    case 'notcontains':
+                                        if ((cell.value === null || cell.value === 0) && cell.candidates) {
+                                            // Verifica se NENHUM dos candidatos da célula está na lista de args
+                                            shouldHighlightCell = !cell.candidates.some(cand => args.includes(cand));
+                                        } else if (cell.value !== null && cell.value !== 0) {
+                                            // CORREÇÃO: Verifica se o valor FIXO da célula NÃO está na lista de args
+                                            shouldHighlightCell = !args.includes(cell.value);
+                                        }
+                                        break;
+                                    case 'count':
+                                        if (args.length === 1 && (cell.value === null || cell.value === 0) && cell.candidates) {
+                                            shouldHighlightCell = cell.candidates.length === args[0];
+                                        }
+                                        break;
+                                }
+                                // Adiciona a célula ao conjunto global de destaque geral
+                                if (shouldHighlightCell && !cellsForGeneralHighlight.has(cell)) {
+                                    cellsForGeneralHighlight.add(cell);
+                                }
                             }
-                            cellCandidateColors.get(cell)!.set(candidate, candidatePatternColor);
-                        }
+                        });
                     });
-                });
-            }
-            // --- Lida com filtros que resultam em DESTAQUE GERAL DA CÉLULA ---
-            else if (['notcontains', 'count'].includes(operation)) {
-                // ... (Sua lógica existente para 'notcontains', 'count') ...
-                // NOTA: Estes filtros não usam colorIndex para colorir os candidatos individualmente.
-                // O destaque geral da célula (lightblue/yellow) é aplicado por Cell.vue
+                }
+                // Adicione outros tipos de operação que podem resultar em destaque geral da célula aqui.
+
+            } else if (!isNaN(parseInt(command.trim()))) {
+                // Caso especial: o comando é apenas um número único (e.g., "5").
+                // Este caso não usa parênteses/colchetes ou aliases, então sua lógica permanece separada.
+                const number = parseInt(command.trim());
+                // Pega a cor para este filtro de número único (usa colorIndex, incrementa)
+                const filterNumberColor = highlightColors[colorIndex % highlightColors.length];
+                colorIndex++; // Incrementa o índice de cor
+
                 board.value.forEach(row => {
                     row.forEach(cell => {
-                        const isCellInUniverse = // Verifica se a célula está no universo
-                            (universe.rows.length === 0 || universe.rows.includes(cell.coordinates.row + 1)) &&
-                            (universe.cols.length === 0 || universe.cols.includes(cell.coordinates.col + 1)) &&
-                            (universe.blocks.length === 0 || universe.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col)));
+                        // VERIFICAÇÃO CONTRA O UNIVERSO DESTE GRUPO
+                        const isCellInUniverse =
+                            (groupUniverse.rows.length === 0 || groupUniverse.rows.includes(cell.coordinates.row + 1)) &&
+                            (groupUniverse.cols.length === 0 || groupUniverse.cols.includes(cell.coordinates.col + 1)) &&
+                            (groupUniverse.blocks.length === 0 || groupUniverse.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col))); // CORREÇÃO AQUI: era blocks.blocks
 
                         if (isCellInUniverse) {
-                            let shouldHighlightCell = false;
-                            switch (operation) {
-                                case 'notcontains':
-                                    if ((cell.value === null || cell.value === 0) && cell.candidates) {
-                                        shouldHighlightCell = !cell.candidates.some(cand => args.includes(cand));
-                                    } else if (cell.value !== null && cell.value !== 0) {
-                                        shouldHighlightCell = !args.includes(cell.value);
-                                    }
-                                    break;
-                                case 'count':
-                                    if (args.length === 1 && (cell.value === null || cell.value === 0) && cell.candidates) {
-                                        shouldHighlightCell = cell.candidates.length === args[0];
-                                    }
-                                    break;
-                            }
-                            if (shouldHighlightCell && !cellsForGeneralHighlight.has(cell)) {
-                                cellsForGeneralHighlight.add(cell);
+                            // Se for célula candidata e contiver o número, destaca o candidato com sua cor.
+                            if ((cell.value === null || cell.value === 0) && cell.candidates && cell.candidates.includes(number)) {
+                                if (!cellCandidateColors.has(cell)) {
+                                    cellCandidateColors.set(cell, new Map());
+                                }
+                                cellCandidateColors.get(cell)!.set(number, filterNumberColor);
+                            } else if (cell.value !== null && cell.value !== 0 && cell.value === number) {
+                                // Se for célula preenchida com o número, destaca a célula inteira (geral).
+                                if (!cellsForGeneralHighlight.has(cell)) {
+                                    cellsForGeneralHighlight.add(cell);
+                                }
                             }
                         }
                     });
                 });
             }
-            // Adicione outros tipos de operação que podem destacar a célula inteira aqui.
+            // Comandos que não correspondem ao regex (operação(...) ou operação[...])
+            // E não são um número único, são ignorados.
+        }); // Fim do loop de comandos dentro de um grupo
 
-        } else if (!isNaN(parseInt(command.trim()))) {
-            // Caso especial: o comando é apenas um número único (e.g., "5").
-            // Este caso não usa parênteses/colchetes ou aliases, então sua lógica permanece separada.
-            const number = parseInt(command.trim());
-            // Pega a cor para este filtro de número único
-            const filterNumberColor = highlightColors[colorIndex % highlightColors.length];
-            colorIndex++; // Incrementa o índice de cor para este comando de número único
+    }); // Fim do loop de grupos de filtro
 
-            board.value.forEach(row => {
-                row.forEach(cell => {
-                    const isCellInUniverse = // Verifica se a célula está no universo
-                        (universe.rows.length === 0 || universe.rows.includes(cell.coordinates.row + 1)) &&
-                        (universe.cols.length === 0 || universe.cols.includes(cell.coordinates.col + 1)) &&
-                        (universe.blocks.length === 0 || universe.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col)));
 
-                    if (isCellInUniverse) {
-                        // Se for uma célula candidata e contiver o número, destaca o candidato com sua cor.
-                        if ((cell.value === null || cell.value === 0) && cell.candidates && cell.candidates.includes(number)) {
-                            if (!cellCandidateColors.has(cell)) {
-                                cellCandidateColors.set(cell, new Map());
-                            }
-                            cellCandidateColors.get(cell)!.set(number, filterNumberColor);
-                        } else if (cell.value !== null && cell.value !== 0 && cell.value === number) {
-                            // Se for uma célula preenchida com o número, destaca a célula inteira (geral).
-                            // Isso usa o mecanismo de destaque geral (Set cellsForGeneralHighlight).
-                            if (!cellsForGeneralHighlight.has(cell)) {
-                                cellsForGeneralHighlight.add(cell);
-                            }
-                        }
-                    }
-                });
-            });
-        }
-        // Comandos que não correspondem ao regex (operação(...) ou operação[...])
-        // E não são um número único, são ignorados.
-    });
-
-    // --- Aplicar os Destaques Coletados ---
+    // --- Aplicar os Destaques Coletados (DEPOIS DE PROCESSAR TODOS OS GRUPOS) ---
 
     // Aplica as cores de candidatos coletadas à propriedade candidateColors das células
     cellCandidateColors.forEach((candidateMap, cell) => {
-        // Cria um novo Map a partir do candidateMap e atribui à propriedade da célula.
-        cell.candidateColors = new Map(candidateMap);
+        cell.candidateColors = new Map(candidateMap); // Cria um novo Map e atribui
     });
 
     // Aplica o destaque geral (cell.highlight = true) às células coletadas
@@ -2169,7 +2178,6 @@ function filterCandidates() {
     });
 
     // Atualiza o ref highlightedCells para incluir todas as células que têm QUALQUER tipo de destaque
-    // Este ref é usado por Cell.vue para a prop 'highlight' (destaque geral).
     highlightedCells.value = board.value.flat().filter(cell => cell.highlight || (cell.candidateColors && cell.candidateColors.size > 0));
 
 }

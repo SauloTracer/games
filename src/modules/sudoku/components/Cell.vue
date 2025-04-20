@@ -8,18 +8,22 @@
                 class="overlay"
                 :style="backgroundColor"
             ></div>
+
             <div
                 class="cell"
                 v-if="props.type == 'candidate'"
+                :class="{ 'selected': props.selected, 'highlight': props.highlight && !props.selected }"
             >
                 <Candidates
                     v-model="(props.candidates as number[])"
                     :selected="props.selected"
                     :highlight="props.highlight"
                     :highlightValue="props.highlightValue"
+                    :candidateColors="props.candidateColors"
                     @updateCandidates="$emit('updateCandidates', $event)"
                 ></Candidates>
             </div>
+
             <div
                 class="cell"
                 v-else
@@ -27,8 +31,10 @@
             >
                 <span
                     :class="[
-                        props.highlightValue == value ? 'highlightValue' : '',
-                        props.type != 'given' && props.check ? value == props.answer ? 'correct' : 'wrong' : '',
+                        // Classe para destacar o valor fixo se ele corresponder a highlightValue
+                        props.highlightValue != null && value == props.highlightValue ? 'highlightValue' : '',
+                        // Lógica para classes 'correct' ou 'wrong' se a verificação estiver ativa e não for 'given'
+                        props.type != 'given' && props.check ? (props.value != null && props.value == props.answer ? 'correct' : 'wrong') : '',
                     ]"
                     style="aspect-ratio: 1 / 1; margin: 5px; padding: 0 10px;"
                 >
@@ -40,19 +46,20 @@
 </template>
 
 <script setup lang='ts'>
+import { computed, onBeforeMount, ref } from 'vue'
+
 export interface CellProps {
     value: number | null;
     type: 'given' | 'filled' | 'candidate';
     candidates?: number[];
     selected: boolean;
-    highlight: boolean;
-    highlightValue?: number | null;
-    check: boolean;
-    answer: number;
-    color: string;
+    highlight: boolean; // Para destaque geral da célula
+    highlightValue?: number | null; // Para destacar um valor fixo específico
+    check: boolean; // Se a verificação de resposta está ativa
+    answer: number; // A resposta correta para verificação
+    color: string; // Para marcação manual com cor de fundo
+    candidateColors?: Map<number, string>; // Mapeamento de cores para candidatos
 }
-
-import { computed, onBeforeMount, ref } from 'vue'
 
 import Candidates from './Candidates.vue';
 
@@ -68,27 +75,31 @@ onBeforeMount(() => {
 });
 
 const backgroundColor = computed(() => {
-    return props.color == "#FFFFFF" ? "" : "opacity: .5 !important; background-color: " + props.color.substring(0, 7) + " !important;";
+    // Lógica para a cor de fundo baseada na propriedade 'color' (marcação manual)
+    // Aplica opacidade e cor se a cor não for #FFFFFF
+    return props.color === "#FFFFFF" ? "" : `opacity: .5 !important; background-color: ${props.color.substring(0, 7)} !important;`;
 });
 
 function handleClick() {
     selected.value = true;
-    emits('click');
+    emits('click'); // Emite o evento click, assumindo que a lógica de seleção é externa
 }
 
+// Computed property para classes CSS gerais da célula (given, filled, selected, highlight)
 const cssClass = computed(() => {
     return [
         'cell',
-        props.type == 'given' ? 'given' : '',
-        props.type == 'filled' ? 'filled' : '',
+        props.type === 'given' ? 'given' : '',
+        props.type === 'filled' ? 'filled' : '',
         props.selected ? 'selected' : '',
-        props.highlight && !props.selected ? 'highlight' : '',
+        props.highlight && !props.selected ? 'highlight' : '', // Aplica 'highlight' apenas se não estiver selecionada
     ].join(' ');
 });
 
 </script>
 
 <style lang="css" scoped>
+/* Estilos para o div principal da célula (.cell) */
 .cell {
     z-index: 90;
     border-collapse: collapse;
@@ -102,6 +113,7 @@ const cssClass = computed(() => {
     background-color: transparent;
 }
 
+/* Estilos específicos para tipos de célula */
 .given {
     font-weight: bold;
     font-size: x-large;
@@ -151,21 +163,30 @@ const cssClass = computed(() => {
     height: 100%;
     display: flex;
     align-items: stretch;
-    /* Make outer stretch to fill cell */
+    /* Faz o conteúdo esticar para preencher o outer */
     justify-content: stretch;
-    /* Make outer stretch to fill cell */
+    /* Faz o conteúdo esticar para preencher o outer */
+    cursor: pointer;
+    /* Indica que a célula é clicável */
+    /* Border removida daqui se a border for aplicada no .cell */
 }
 
+/* Overlay para cor de marcação manual */
 .overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+    /* Opacidade controlada pelo estilo inline da prop color */
     opacity: 0;
+    /* Padrão */
     background-color: yellow;
+    /* Cor padrão de fallback, será sobrescrita pelo estilo inline */
     pointer-events: none;
+    /* Permite clicar na célula por baixo */
     z-index: 100;
+    /* Posicionado acima do .cell */
 }
 
 .cell.selected,
@@ -179,13 +200,5 @@ const cssClass = computed(() => {
 
 .highlightValue {
     background-color: orange !important;
-}
-
-@media (max-width: 768px) {
-    /* ... mobile cell styles ... */
-}
-
-@media (max-width: 480px) {
-    /* ... very small screen cell styles ... */
 }
 </style>

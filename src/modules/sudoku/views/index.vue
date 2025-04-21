@@ -91,6 +91,7 @@
                                             :color="cell.color"
                                             :candidateColors="cell.candidateColors"
                                             @click="selectCell(cell.coordinates.row, cell.coordinates.col, true, $event)"
+                                            @click.ctrl="selectCell(cell.coordinates.row, cell.coordinates.col, true, $event)"
                                             @updateCandidates="cell.candidates = $event"
                                         ></Cell>
                                     </div>
@@ -186,6 +187,22 @@
                         style="font-weight:500;"
                     > Auto Check</label>
                 </span>
+
+                <span
+                    style="padding: 0.6em;"
+                    class="checkbox"
+                >
+                    <input
+                        id="multiselect-checkbox"
+                        type="checkbox"
+                        v-model="isMultiselectChecked"
+                    />
+                    <label
+                        for="multiselect-checkbox"
+                        style="font-weight:500;"
+                    > Multiselect</label>
+                </span>
+
                 <button
                     class="button"
                     v-if="!autoCheckCells"
@@ -202,7 +219,7 @@
                 <button
                     class="button"
                     @click="markCells()"
-                >{{ markCellsText }}</button>
+                >Mark Cells</button>
                 <button
                     class="button"
                     @click="revealCell()"
@@ -284,7 +301,7 @@
                 <v-row>
                     <v-col cols="5">Choose Color</v-col>
                     <v-col cols="7">
-                        <v-btn @click="showMarkCellsDialog = false">
+                        <v-btn @click="applyMarkColorToSelection()">
                             Confirm choice
                         </v-btn>
                     </v-col>
@@ -499,7 +516,6 @@ const finishedTitle = ref('');
 const finishedMessage = ref('');
 const errors = ref(0);
 const showNewGameDialog = ref(false);
-const isMarkingCells = ref(false);
 const showMarkCellsDialog = ref(false)
 const markColor = ref()
 const swatches = [
@@ -512,6 +528,7 @@ const swatches = [
 const highlightColors = ['#FF0000', '#0000FF', '#10A310', '#A020F0', '#FFA500', '#FF4500', '#8A2BE2', '#32CD32', '#4169E1'];
 const searchQuery = ref('');
 const showFilterManualDialog = ref(false);
+const isMultiselectChecked = ref(false);
 
 let solution: number[][] = [[]];
 
@@ -525,22 +542,20 @@ onBeforeMount(() => {
     }
 });
 
-const markCellsText = computed(() => {
-    return isMarkingCells.value ? 'Finish Marking' : 'Mark Cells';
-})
-
 function markCells() {
-    isMarkingCells.value = !isMarkingCells.value;
-    if (!isMarkingCells.value) {
-        showMarkCellsDialog.value = false;
-        return
-    }
     showMarkCellsDialog.value = true;
 }
 
 function clearMarks() {
     markColor.value = '#FFFFFF';
+    if (!selectedCell.value || (Array.isArray(selectedCell.value) && selectedCell.value.length === 0)) {
+        showMarkCellsDialog.value = false;
+        return;
+    }
+    const cellsToClear = Array.isArray(selectedCell.value) ? selectedCell.value : [selectedCell.value];
+    cellsToClear.forEach(cell => { const boardCell = board.value[cell.coordinates.row][cell.coordinates.col]; boardCell.color = '#FFFFFF'; }); // Limpa a cor (define como branco)
     showMarkCellsDialog.value = false;
+    saveChanges(); save();
 }
 
 function clearAllMarks() {
@@ -550,7 +565,6 @@ function clearAllMarks() {
         )
     );
     showMarkCellsDialog.value = false;
-    isMarkingCells.value = false;
 }
 
 function changeMode(mode: GameMode) {
@@ -657,28 +671,117 @@ function highlightConnectedCells(row: number, col: number) {
     highlightedCells.value = [...block, ...boardRow, ...boardColumn];
 }
 
-function selectCell(row: number, col: number, fromClick: boolean = false, event: Event = null) {
-    if (fromClick) {
-        // console.log("CLICK", event)
-        if (isMarkingCells.value) {
-            board.value[row][col].color = markColor.value
+function selectCell(row: number, col: number, fromClick: boolean = false, event: MouseEvent | null = null) {
+    const clickedCell = board.value[row][col];
+
+    // Verifica se Ctrl (ou Cmd no Mac) está pressionado ou se o modo multiselect está ativo
+    const isCtrlPressed = event?.ctrlKey || event?.metaKey || false;
+    const isMultiselectMode = isMultiselectChecked.value;
+
+    // Determina o novo estado de selectedCell
+    let newSelectedCell: Cell | Cell[] | null = null;
+
+    if (isCtrlPressed || isMultiselectMode) {
+        // Lógica para seleção múltipla (adicionar ou remover)
+        if (Array.isArray(selectedCell.value)) {
+            // Já é uma seleção múltipla, verifica se a célula clicada já está na lista
+            const index = selectedCell.value.findIndex(cell => cell === clickedCell);
+            if (index > -1) {
+                // Célula clicada já está selecionada, remove dela
+                newSelectedCell = selectedCell.value.filter(cell => cell !== clickedCell);
+                if (newSelectedCell.length === 0) {
+                    newSelectedCell = null; // Se a lista ficar vazia, a seleção é nula
+                }
+            } else {
+                // Célula clicada não está selecionada, adiciona à lista existente
+                newSelectedCell = [...selectedCell.value, clickedCell];
+            }
+        } else if (selectedCell.value === null) {
+            // Nenhuma célula selecionada, inicia uma nova seleção múltipla com a célula clicada
+            newSelectedCell = [clickedCell];
+        } else {
+            // Uma única célula estava selecionada, transforma em seleção múltipla
+            // incluindo a célula previamente selecionada e a célula clicada.
+            // Se a célula clicada for a mesma que já estava selecionada (e Ctrl+Click/Multiselect ativo),
+            // deseleciona (toggle).
+            if (selectedCell.value !== clickedCell) {
+                newSelectedCell = [selectedCell.value, clickedCell];
+            } else {
+                // Clicou na mesma célula única selecionada com Ctrl ou Multiselect ativo, deseleciona.
+                newSelectedCell = null;
+            }
         }
-        // if (event?.ctrlKey) {
-        //     if (selectedCell.value) {
-        //         alert(typeof (selectedCell.value))
-        //     }
-        // }
+    } else {
+        // Lógica para seleção única (comportamento padrão sem Ctrl ou Multiselect ativo)
+        // Se a célula clicada é a mesma que a única selecionada, deseleciona.
+        if (selectedCell.value === clickedCell && !Array.isArray(selectedCell.value)) {
+            newSelectedCell = null;
+        } else {
+            // Seleciona apenas a célula clicada, substituindo qualquer seleção anterior (única ou múltipla)
+            newSelectedCell = clickedCell;
+        }
     }
-    highlightValue.value = board.value[row][col].value;
-    selectedCell.value = board.value[row][col];
-    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(row =>
-        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(col => {
-            board.value[row][col].selected = false;
-            board.value[row][col].highlight = false;
-        })
-    );
-    board.value[row][col].selected = true;
-    highlightConnectedCells(row, col);
+
+    // Atualiza o estado da ref selectedCell
+    selectedCell.value = newSelectedCell;
+
+    // --- Lógica para Atualizar o Destaque Visual na UI ---
+    // Primeiro, remove o destaque de seleção de TODAS as células
+    board.value.flat().forEach(cell => {
+        cell.selected = false;
+    });
+
+    // Aplica o destaque às células recém-selecionadas
+    if (Array.isArray(selectedCell.value)) {
+        selectedCell.value.forEach(cell => {
+            // Encontra a referência reativa correta no board para garantir que a UI atualize
+            const boardCell = board.value[cell.coordinates.row][cell.coordinates.col];
+            boardCell.selected = true;
+        });
+        // Em multiseleção, geralmente não destacamos células conectadas ou um único highlightValue
+        highlightedCells.value = [];
+        highlightValue.value = null;
+    } else if (selectedCell.value !== null) {
+        // Encontra a referência reativa correta para seleção única
+        const boardCell = board.value[selectedCell.value.coordinates.row][selectedCell.value.coordinates.col];
+        boardCell.selected = true;
+        // Em seleção única, destaca células conectadas e o valor da célula selecionada
+        highlightConnectedCells(selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
+        highlightValue.value = selectedCell.value.value;
+    } else {
+        // Nenhuma célula selecionada, limpa todos os destaques
+        highlightedCells.value = [];
+        highlightValue.value = null;
+    }
+
+    console.log('Células selecionadas atualizadas:', selectedCell.value); // Para depuração
+
+    saveChanges(); // Salva a mudança no histórico (para Undo)
+    save(); // Salva no localStorage
+}
+
+function applyMarkColorToSelection() {
+    // Verifica se há células selecionadas (única ou múltipla)
+    if (!selectedCell.value || (Array.isArray(selectedCell.value) && selectedCell.value.length === 0)) {
+        showMarkCellsDialog.value = false; // Fecha o diálogo se não houver seleção
+        return;
+    }
+
+    // Obtém as células a serem marcadas (única ou múltiplas)
+    const cellsToMark = Array.isArray(selectedCell.value) ? selectedCell.value : [selectedCell.value];
+    const colorToApply = markColor.value;
+
+    // Aplica a cor a cada célula selecionada
+    cellsToMark.forEach(cell => {
+        // Encontra a referência reativa correta no board para garantir a atualização da UI
+        const boardCell = board.value[cell.coordinates.row][cell.coordinates.col];
+        boardCell.color = colorToApply;
+    });
+
+    saveChanges(); // Salva as mudanças de cor no histórico
+    save(); // Salva no localStorage
+
+    showMarkCellsDialog.value = false; // Fecha o diálogo após aplicar a cor
 }
 
 function promoteSingles() {
@@ -702,152 +805,241 @@ function promoteSingles() {
 }
 
 function handleKeyUp(event: KeyboardEvent) {
-    // console.log(event.key, selectedCell.value, selectedCell.value?.coordinates);
-    // Ctrl + C => Auto candidates
-    // if (event.ctrlKey && event.altlKey) {
-    //     console.log(event.key, event)
-    //     event.preventDefault()
-    // }
+    // Define quais teclas são consideradas "teclas de input" para valores/candidatos
+    const isInputKey = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "Backspace", "Delete"].includes(event.key);
 
-    if (!selectedCell.value) return;
+    // Se não houver célula selecionada OU a seleção for um array vazio, e for uma tecla de input, não faz nada.
+    if ((!selectedCell.value || (Array.isArray(selectedCell.value) && selectedCell.value.length === 0)) && isInputKey) return;
 
-    let row = selectedCell.value.coordinates.row;
-    let col = selectedCell.value.coordinates.col;
-
-    if (event.key == ' ') {
-        fillCandidates.value = !fillCandidates.value;
-        return;
-    }
-
-    if (event.ctrlKey && event.key == 'z') {
-        undo();
-        return;
-    }
-
-    if (event.key == 'ArrowUp') {
-        row = row > 0 ? row - 1 : 8;
-        if (event.shiftKey) {
-            let count = 0;
-            while (board.value[row][col].type != 'candidate' && count < 9) {
-                row = row > 0 ? row - 1 : 8;
-                count++;
-            }
-        } else {
-            if (event.ctrlKey) {
-                row = row == 0 ? 8 : 0;
-            }
-        }
-        selectCell(row, col);
-        return;
-    }
-    if (event.key == 'ArrowDown') {
-        row = row < 8 ? row + 1 : 0;
-        if (event.shiftKey) {
-            let count = 0;
-            while (board.value[row][col].type != 'candidate' && count < 9) {
-                row = row < 8 ? row + 1 : 0;
-                count++;
-            }
-        } else {
-            if (event.ctrlKey) {
-                row = row == 8 ? 0 : 8;
-            }
-        }
-        selectCell(row, col);
-        return;
-    }
-    if (event.key == 'ArrowLeft') {
-        col = col > 0 ? col - 1 : 8;
-        if (event.shiftKey) {
-            let count = 0;
-            while (board.value[row][col].type != 'candidate' && count < 9) {
-                col = col > 0 ? col - 1 : 8;
-                count++;
-            }
-        } else {
-            if (event.ctrlKey) {
-                col = col == 0 ? 8 : 0;
-            }
-        }
-        selectCell(row, col);
-        return;
-    }
-    if (event.key == 'ArrowRight') {
-        col = col < 8 ? col + 1 : 0;
-        if (event.shiftKey) {
-            let count = 0;
-            while (board.value[row][col].type != 'candidate' && count < 9) {
-                col = col < 8 ? col + 1 : 0;
-                count++;
-            }
-        } else {
-            if (event.ctrlKey) {
-                col = col == 8 ? 0 : 8;
-            }
-        }
-
-        selectCell(row, col);
-        return;
-    }
-
-    if (selectedCell.value.type != 'given') {
-        if (!["1", "2", "3", "4", "5", "6", "7", "8", "9", "Backspace", "Delete"].includes(event.key)) return;
-
+    // --- Lógica para teclas de Input (Números, Backspace, Delete) ---
+    if (isInputKey) {
         if (["Backspace", "Delete"].includes(event.key)) {
             clearCellValue();
         } else {
             setCellValue(parseInt(event.key));
         }
+        return; // Sai da função após lidar com a entrada
     }
+
+    // --- Lógica para atalhos de teclado não relacionados a input direto (Espaço, Ctrl+Z) ---
+    if (event.key == ' ') {
+        // Garante que modificadores não ativem o toggle de fillCandidates a menos que seja intencional
+        if (!event.ctrlKey && !event.shiftKey && !event.altKey) {
+            fillCandidates.value = !fillCandidates.value; // Alterna modo candidato/valor
+            event.preventDefault(); // Previne o comportamento padrão da barra de espaço (rolar)
+            return;
+        }
+    }
+
+    if (event.ctrlKey && event.key == 'z') {
+        undo(); // Desfaz a última ação
+        event.preventDefault(); // Previne o comportamento padrão do navegador
+        return;
+    }
+
+    // --- Lógica para teclas de Navegação (Setas) ---
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) {
+
+        const isCtrlPressed = event.ctrlKey || event.metaKey; // Verifica Ctrl ou Cmd
+        const isShiftPressed = event.shiftKey;
+        const isAltPressed = event.alttKey;
+        const isMultiselectMode = isMultiselectChecked.value; // Verifica o checkbox de multiseleção
+        const isExtendingSelection = isShiftPressed || isMultiselectMode; // Modo de extensão ativado
+
+        let referenceCell: Cell | null = null;
+
+        // Determina a célula de referência para calcular a PRÓXIMA célula.
+        // Se houver seleção (única ou múltipla), usa a ÚLTIMA célula no array (ou a única) como referência.
+        // Se não houver seleção alguma, começa de (0,0) como referência.
+        if (Array.isArray(selectedCell.value) && selectedCell.value.length > 0) {
+            // Se multiseleção, usa a última célula no array como referência para a navegação de extensão.
+            referenceCell = selectedCell.value[selectedCell.value.length - 1];
+        } else if (selectedCell.value !== null && !Array.isArray(selectedCell.value)) {
+            // Se seleção única, usa essa célula como referência.
+            referenceCell = selectedCell.value;
+        } else {
+            // Se não houver seleção alguma, a referência inicial é (0,0).
+            referenceCell = board.value[0][0];
+            // Se não houver seleção e estiver em modo de extensão (Shift ou checkbox), inicia a multiseleção com (0,0)
+            if (isExtendingSelection && selectedCell.value === null) {
+                selectedCell.value = [referenceCell];
+                // Atualiza UI para a nova multiseleção inicial
+                board.value.flat().forEach(cell => { cell.selected = false; });
+                referenceCell.selected = true; // Marca a célula inicial como selecionada
+                highlightedCells.value = []; // Limpa destaques conectados para multiseleção
+                highlightValue.value = null;
+                saveChanges(); save(); // Salva o estado inicial da multiseleção
+                event.preventDefault(); // Previne o scroll
+                return; // Sai após iniciar a multiseleção
+            }
+        }
+
+        if (!referenceCell) return;
+
+        const moveMap = {
+            ArrowUp: { row: -1, col: 0 },
+            ArrowDown: { row: 1, col: 0 },
+            ArrowLeft: { row: 0, col: -1 },
+            ArrowRight: { row: 0, col: 1 }
+        }
+
+        const getNextCell = (currentCell: cell, direction: { row: number, col: number }, modifiers: { ctrl: bool; alt: bool }) => {
+            const cycle = (value: number, step: number) => {
+                if (step === 0) return value; // Se o passo for 0, retorna o valor atual
+                const [limit, oposite] = (step > 0) ? [8, 0] : [0, 8];
+                if (modifiers.ctrl) return limit;
+                return (value === limit) ? oposite : value + step;
+            }
+            if (modifiers.alt) {
+                let nextCell = board.value[cycle(currentCell.row, direction.row)][cycle(currentCell.col, direction.col)];
+                let count = 0;
+                while (!nextCell.type == 'candidate' && count < 8) {
+                    nextCell = board.value[cycle(nextCell.row, direction.row)][cycle(nextCell.col, direction.col)];
+                    count++;
+                }
+                return nextCell;
+            }
+            return board.value[cycle(currentCell.coordinates.row, direction.row)][cycle(currentCell.coordinates.col, direction.col)];
+        }
+        const nextCell = getNextCell(referenceCell, moveMap[event.key], { ctrl: isCtrlPressed, alt: isAltPressed }); // A célula para onde a navegação "iria"
+        const [nextRow, nextCol] = [nextCell.coordinates.row, nextCell.coordinates.col];
+
+        // --- Aplica a Lógica de Seleção baseada no Modo de Extensão vs. Ctrl ---
+        if (isExtendingSelection) {
+            // Se Shift OU Multiselect checkbox estiverem ativos (e Ctrl não estiver), EXTENDE a seleção.
+            let currentSelectionArray = Array.isArray(selectedCell.value) ? selectedCell.value : (selectedCell.value !== null ? [selectedCell.value] : []);
+
+            // Adiciona a nextCell ao array de seleção se ela não estiver lá.
+            // Se a célula já estiver na seleção, remove e adiciona ela novamente para garantir que ela será o último elemento do array.
+            currentSelectionArray = currentSelectionArray.filter(cell => cell !== nextCell);
+            if (!currentSelectionArray.includes(nextCell)) selectedCell.value = [...currentSelectionArray, nextCell];
+
+            // Atualiza highlight da UI para a seleção
+            board.value.flat().forEach(cell => { cell.selected = false; }); // Clear all highlights
+            if (selectedCell.value && Array.isArray(selectedCell.value)) {
+                selectedCell.value.forEach(cell => {
+                    const boardCell = board.value[cell.coordinates.row][cell.coordinates.col];
+                    boardCell.selected = true; // Highlight selected cells
+                });
+            } else if (selectedCell.value !== null) { // Should not happen here if logic is correct
+                const boardCell = board.value[selectedCell.value.coordinates.row][selectedCell.value.coordinates.col];
+                boardCell.selected = true;
+            }
+            // Clear connected/value highlights for multi-selection
+            highlightedCells.value = [];
+            highlightValue.value = null;
+        } else {
+            selectCell(nextRow, nextCol);
+        }
+
+        saveChanges(); // Salva o estado da seleção atualizada para o histórico de desfazer
+        save(); // Salva no local storage
+        return; // Exit function after handling key
+    }
+
+    // If the key was not an input key, shortcut, or arrow key, allow default behavior.
 }
 
 function setCellValue(value: number) {
-    if (!selectedCell.value) return;
-    if (selectedCell.value.type == 'given') return;
-
-    if (fillCandidates.value) {
-        if (!selectedCell.value.candidates.includes(value)) {
-            selectedCell.value.candidates.push(value);
-        } else {
-            selectedCell.value.candidates = selectedCell.value.candidates.filter(candidate => candidate != value);
-        }
-    } else {
-        selectedCell.value.value = value;
-        selectedCell.value.type = 'filled';
-        handleStrikes(selectedCell.value);
-        removeCandidateFromConnectedCells(value, selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
+    // Verifica se há alguma célula selecionada (única ou múltipla)
+    if (!selectedCell.value || (Array.isArray(selectedCell.value) && selectedCell.value.length === 0)) {
+        return; // Nenhuma célula selecionada, não faz nada
     }
-    highlightValue.value = value;
-    handleFinish();
-    saveChanges();
-    save();
+
+    // Cria um array de células para iterar, seja uma única célula ou o array de células selecionadas
+    const cellsToUpdate = Array.isArray(selectedCell.value) ? selectedCell.value : [selectedCell.value];
+
+    cellsToUpdate.forEach(cell => {
+        // Não permite editar células 'given'
+        if (cell.type == 'given') return; // Pula para a próxima célula se for 'given'
+
+        if (fillCandidates.value) {
+            // Modo Candidatos: Alterna o candidato 'value' em cada célula selecionada
+            const candidateIndex = cell.candidates.indexOf(value);
+            if (candidateIndex > -1) {
+                // Candidato existe, remove
+                cell.candidates.splice(candidateIndex, 1);
+            } else {
+                // Candidato não existe, adiciona e ordena
+                cell.candidates.push(value);
+                cell.candidates.sort((a, b) => a - b);
+            }
+        } else {
+            // Modo Resposta: Define o valor 'value' em cada célula selecionada
+            cell.value = value;
+            cell.type = 'filled'; // Marca como célula preenchida
+
+            // Lida com strikes se o modo de jogo for 'Three Strikes'
+            if (gameMode.value === GameMode.ThreeStrikes) handleStrikes(cell);
+
+            // Remove o candidato das células conectadas (linha, coluna, bloco)
+            // Esta remoção só deve ocorrer se o valor definido não for um erro (se autoCheck estiver ativo).
+            // Se o valor for um erro, ele deve permanecer como um candidato válido em outras células.
+            let removeCandidates = !(autoCheckCells.value && cell.value !== cell.answer); // Não remove candidatos se o valor for um erro em modo autoCheck
+            if (removeCandidates) removeCandidateFromConnectedCells(value, cell.coordinates.row, cell.coordinates.col);
+        }
+    });
+
+    // Atualiza o highlightValue:
+    // Se estiver em modo de valor (fillCandidates=false) e houver células selecionadas:
+    // - Se for seleção única, highlightValue é o valor definido.
+    // - Se for multiseleção, highlightValue pode ser o valor definido SE TODAS foram preenchidas com o MESMO valor.
+    //   Se forem valores diferentes (embora a UI atual só permita setar um valor por vez), ou se a seleção for múltipla,
+    //   limpar o highlightValue é mais seguro.
+    if (!fillCandidates.value && cellsToUpdate.length > 0) {
+        const allFilledWithSameValue = cellsToUpdate.every(cell => cell.value === value);
+        highlightValue.value = allFilledWithSameValue ? value : null;
+    } else {
+        // Se estiver em modo candidato, o highlightValue normalmente segue a célula única selecionada.
+        // Em multiseleção candidato, não há uma única célula para seguir, então limpamos.
+        if (Array.isArray(selectedCell.value)) {
+            highlightValue.value = null;
+        } else if (selectedCell.value !== null) {
+            // Se for seleção única em modo candidato, highlightValue segue o valor da célula (se houver)
+            highlightValue.value = selectedCell.value.value;
+        } else {
+            highlightValue.value = null; // Nenhuma célula selecionada
+        }
+    }
+
+
+    handleFinish(); // Verifica se o jogo terminou após as alterações
+    saveChanges(); // Salva as mudanças no histórico de desfazer
+    save(); // Salva o estado atual do jogo no armazenamento local
 }
 
 function clearCellValue() {
-    if (!selectedCell.value) return;
-    if (selectedCell.value.type == 'given') return;
+    // Verifica se há alguma célula selecionada (única ou múltipla)
+    if (!selectedCell.value || (Array.isArray(selectedCell.value) && selectedCell.value.length === 0)) {
+        return; // Nenhuma célula selecionada, não faz nada
+    }
 
-    selectedCell.value.value = null;
-    selectedCell.value.type = 'candidate';
+    // Cria um array de células para iterar
+    const cellsToUpdate = Array.isArray(selectedCell.value) ? selectedCell.value : [selectedCell.value];
 
-    // selectedCell.value.candidates = getCellCandidates(selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
+    cellsToUpdate.forEach(cell => {
+        // Limpa o valor e define o tipo para 'candidate' a não ser que o tipo seja 'given'
+        if (cell.type == 'given') return; // Pula para a próxima célula se for 'given'
+        cell.value = null;
+        cell.type = 'candidate';
+    });
 
     highlightValue.value = null;
+
     saveChanges();
+    save();
 }
 
 function esc() {
     selectedCell.value = null;
     highlightValue.value = null;
     highlightedCells.value = [];
-    [0, 1, 2, 3, 4, 5, 6, 7, 8].map(row =>
-        [0, 1, 2, 3, 4, 5, 6, 7, 8].map(col =>
-            board.value[row][col].selected = false
-        )
-    );
-    isMarkingCells.value = false;
+    board.value.flat().forEach(cell => { cell.selected = false; });
+    showMarkCellsDialog.value = false; // Fecha o diálogo de marcação
+    isMultiselectChecked.value = false; // Sai do modo seleção multipla
+    saveChanges(); // Salva o estado com seleção limpa
+    save(); // Salva no local storage
 }
-
 function possible(row: number, col: number, k: number) {
     for (let i = 0; i < 9; i++) {
         const m = 3 * Math.floor(row / 3) + Math.floor(i / 3);

@@ -111,6 +111,13 @@ const cssClass = computed(() => {
     align-items: center;
     justify-content: center;
     background-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    /* Para navegadores baseados em WebKit (Chrome, Safari, etc.) */
+    -moz-user-select: none;
+    /* Para Firefox */
+    -ms-user-select: none;
+    /* Para Internet Explorer/Edge (versões antigas) */
 }
 
 /* Estilos específicos para tipos de célula */

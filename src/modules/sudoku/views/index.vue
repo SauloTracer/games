@@ -67,6 +67,7 @@
                 id="board"
                 class="grid3"
                 tabindex="0"
+                ref="boardElement"
                 @keyup.stop="handleKeyUp($event)"
                 @keyup.escape="esc()"
             >
@@ -90,10 +91,9 @@
                                             :answer="cell.answer"
                                             :color="cell.color"
                                             :candidateColors="cell.candidateColors"
-                                            @click="selectCell(cell.coordinates.row, cell.coordinates.col, true, $event)"
-                                            @click.ctrl="selectCell(cell.coordinates.row, cell.coordinates.col, true, $event)"
-                                            @updateCandidates="cell.candidates = $event"
                                         ></Cell>
+                                        <!-- @updateCandidates="cell.candidates = $event" -->
+                                        <!-- @click="selectCell(cell.coordinates.row, cell.coordinates.col, true, $event)" -->
                                     </div>
                                 </template>
                             </template>
@@ -484,7 +484,7 @@ enum GameMode {
     ThreeStrikes = "threeStrikes",
 }
 
-import { ref, onBeforeMount, computed, watch } from 'vue'
+import { ref, onBeforeMount, onMounted, onUnmounted, watch } from 'vue'
 import { useSudokuStore, Difficulty } from '../stores/SudokuStore';
 
 import Title from '../../../components/Title.vue';
@@ -529,6 +529,12 @@ const highlightColors = ['#FF0000', '#0000FF', '#10A310', '#A020F0', '#FFA500', 
 const searchQuery = ref('');
 const showFilterManualDialog = ref(false);
 const isMultiselectChecked = ref(false);
+const boardElement = ref<HTMLElement | null>(null);
+const isDragging = ref(false);
+const dragStartCell = ref<Cell | null>(null);
+const lastDraggedCell = ref<Cell | null>(null);
+const dragStartX = ref(0);
+const dragStartY = ref(0);
 
 let solution: number[][] = [[]];
 
@@ -539,6 +545,34 @@ onBeforeMount(() => {
     } else {
         sudokuStore.getBoard();
         reset();
+    }
+});
+
+onMounted(() => {
+    // Adiciona event listeners para drag selection ao elemento do tabuleiro
+    if (boardElement.value) {
+        boardElement.value.addEventListener('mousedown', handleMouseDown);
+        boardElement.value.addEventListener('mousemove', handleMouseMove);
+        boardElement.value.addEventListener('mouseup', handleMouseUp);
+        boardElement.value.addEventListener('keydown', (event) => {
+            if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) {
+                event.preventDefault(); // Previne o comportamento padrão de rolagem
+            }
+        });
+    }
+});
+
+onUnmounted(() => {
+    // Remove event listeners ao desmontar
+    if (boardElement.value) {
+        boardElement.value.removeEventListener('mousedown', handleMouseDown);
+        boardElement.value.removeEventListener('mousemove', handleMouseMove);
+        boardElement.value.removeEventListener('mouseup', handleMouseUp);
+        boardElement.value.removeEventListener('keydown', (event) => {
+            if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) {
+                event.preventDefault(); // Previne o comportamento padrão de rolagem
+            }
+        });
     }
 });
 
@@ -725,38 +759,9 @@ function selectCell(row: number, col: number, fromClick: boolean = false, event:
     // Atualiza o estado da ref selectedCell
     selectedCell.value = newSelectedCell;
 
-    // --- Lógica para Atualizar o Destaque Visual na UI ---
-    // Primeiro, remove o destaque de seleção de TODAS as células
-    board.value.flat().forEach(cell => {
-        cell.selected = false;
-    });
+    // Atualiza a seleção visual das células
+    updateUISelection(selectedCell.value);
 
-    // Aplica o destaque às células recém-selecionadas
-    if (Array.isArray(selectedCell.value)) {
-        selectedCell.value.forEach(cell => {
-            // Encontra a referência reativa correta no board para garantir que a UI atualize
-            const boardCell = board.value[cell.coordinates.row][cell.coordinates.col];
-            boardCell.selected = true;
-        });
-        // Em multiseleção, geralmente não destacamos células conectadas ou um único highlightValue
-        highlightedCells.value = [];
-        highlightValue.value = null;
-    } else if (selectedCell.value !== null) {
-        // Encontra a referência reativa correta para seleção única
-        const boardCell = board.value[selectedCell.value.coordinates.row][selectedCell.value.coordinates.col];
-        boardCell.selected = true;
-        // Em seleção única, destaca células conectadas e o valor da célula selecionada
-        highlightConnectedCells(selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
-        highlightValue.value = selectedCell.value.value;
-    } else {
-        // Nenhuma célula selecionada, limpa todos os destaques
-        highlightedCells.value = [];
-        highlightValue.value = null;
-    }
-
-    console.log('Células selecionadas atualizadas:', selectedCell.value); // Para depuração
-
-    saveChanges(); // Salva a mudança no histórico (para Undo)
     save(); // Salva no localStorage
 }
 
@@ -2381,6 +2386,307 @@ watch(board, () => {
 watch(searchQuery, () => {
     filterCandidates(); // Refiltrar quando a query mudar
 });
+
+/* *******************************DRAG SELECTION******************************************* */
+// Funções auxiliares para converter coordenadas do mouse para linha/coluna da célula
+function getCellFromMouseEvent(event: MouseEvent): Cell | null {
+    if (!boardElement.value) return null;
+
+    const boardRect = boardElement.value.getBoundingClientRect();
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+
+    // Verifica se o mouse está dentro dos limites do tabuleiro
+    if (mouseX < boardRect.left || mouseX > boardRect.right || mouseY < boardRect.top || mouseY > boardRect.bottom) {
+        return null; // Mouse fora do tabuleiro
+    }
+
+    // Coordenadas do mouse relativas ao canto superior esquerdo do tabuleiro
+    const relativeX = mouseX - boardRect.left;
+    const relativeY = mouseY - boardRect.top;
+
+    const cellWidth = boardRect.width / 9;
+    const cellHeight = boardRect.height / 9;
+
+    // Calcula a linha e coluna com base nas coordenadas relativas e tamanho da célula
+    const col = Math.floor(relativeX / cellWidth);
+    const row = Math.floor(relativeY / cellHeight);
+
+    // Garante que as coordenadas calculadas estão dentro dos limites do tabuleiro (0-8)
+    if (row >= 0 && row < 9 && col >= 0 && col < 9) return board.value[row][col];
+
+    // Se as coordenadas não estão dentro do tabuleiro, retorna null
+    return null; // Coordenadas inválidas
+}
+
+
+// Função auxiliar para obter o número do candidato a partir do elemento clicado
+function getCandidateNumberFromElement(element: HTMLElement): number | null {
+    // Procura o elemento mais próximo com a classe 'candidate-spot' e obtém seu id
+    const candidateSpot = element.closest('.candidate-spot');
+    if (candidateSpot && candidateSpot.id) {
+        const id = parseInt(candidateSpot.id);
+        // Verifica se o id é um número válido entre 1 e 9
+        if (!isNaN(id) && id >= 1 && id <= 9) {
+            return id;
+        }
+    }
+    return null; // Retorna null se não for um clique em candidato válido
+}
+
+// --- Lida com o clique em um candidato ---
+function handleCandidateClick(cell: Cell, candidateNumber: number) {
+    // Esta função é chamada quando um clique em um ponto de candidato é detectado.
+    // Ela só deve alternar o candidato se a célula estiver selecionada.
+    // Verifica se a célula passada é válida e está selecionada.
+    if (!cell || !cell.selected) return; // Não faz nada se a célula não estiver selecionada
+
+    // Lógica para alternar o candidato (movida de Candidates.vue)
+    const currentCandidates = [...cell.candidates]; // Copia o array de candidatos
+
+    if (currentCandidates.includes(candidateNumber)) {
+        // Se o candidato existe, remove
+        const index = currentCandidates.indexOf(candidateNumber);
+        currentCandidates.splice(index, 1);
+    } else {
+        // Se o candidato não existe, adiciona e mantém ordenado
+        currentCandidates.push(candidateNumber);
+        currentCandidates.sort((a, b) => a - b);
+    }
+
+    // Atualiza o array de candidatos da célula no estado do tabuleiro
+    cell.candidates = currentCandidates;
+
+    // Salva as mudanças no estado (histórico de desfazer e local storage)
+    saveChanges();
+    save();
+}
+// --- FIM DA NOVA FUNÇÃO ---
+
+function handleMouseDown(event: MouseEvent) {
+    // Ignora cliques que não sejam do botão esquerdo do mouse
+    if (event.button !== 0) return;
+
+    const clickedCell = getCellFromMouseEvent(event); // Determina a célula clicada
+    const targetElement = event.target as HTMLElement; // Obtém o elemento clicado diretamente
+
+
+    if (clickedCell) {
+        // Se o clique foi em uma célula do tabuleiro
+
+        if (clickedCell.selected) {
+            // Se a célula clicada JÁ ESTÁ selecionada.
+            // A intenção AGORA pode ser interagir com um candidato (se for célula candidate)
+            // ou re-selecionar/iniciar drag a partir desta célula selecionada.
+
+            // Verifica se o clique target é especificamente um ponto de candidato dentro desta célula.
+            const candidateSpotElement = targetElement.closest('.candidate-spot');
+
+            if (candidateSpotElement) {
+                // Se o target for um ponto de candidato E a célula estiver selecionada,
+                // trata como clique para toggle de candidato.
+                const candidateNumber = getCandidateNumberFromElement(targetElement);
+                if (candidateNumber !== null) { // Garante que o número do candidato seja válido
+                    handleCandidateClick(clickedCell, candidateNumber);
+                }
+
+                // Após tratar (ou tentar tratar) o clique em candidato, NÃO iniciamos arrasto ou seleção principal.
+                isDragging.value = false; // Garante que o estado de arrasto esteja desligado
+                dragStartCell.value = null;
+                lastDraggedCell.value = null;
+                dragStartX.value = 0;
+                dragStartY.value = 0;
+                // No preventDefault() aqui.
+                return; // Sai da função handleMouseDown
+            }
+        }
+
+        // --- LÓGICA PARA SELEÇÃO / ARRASTO DE CÉLULA ---
+        // Este bloco é alcançado se:
+        // - A célula clicada NÃO ESTÁ selecionada (clickedCell.selected é false)
+        // - OU a célula clicada ESTÁ selecionada, MAS o clique target NÃO FOI um ponto de candidato.
+
+        // Inicia a lógica de arrasto/seleção de célula principal para esta célula.
+        isDragging.value = true;
+        dragStartCell.value = clickedCell;
+        lastDraggedCell.value = clickedCell;
+        dragStartX.value = event.clientX; // Armazena a posição inicial do clique
+        dragStartY.value = event.clientY;
+
+        // --- LÓGICA DE SELEÇÃO INICIAL (CLIQUE SIMPLES OU INÍCIO DE ARRASTO) ---
+        // Esta lógica decide o estado inicial de selectedCell.value
+        // (seleção única LIMPA anterior OU adiciona à multiseleção).
+        const isCtrlPressed = event.ctrlKey || event.metaKey;
+        const isMultiselectMode = isMultiselectChecked.value;
+
+        if (isCtrlPressed || isMultiselectMode) {
+            // Se Ctrl ou Multiselect checkbox estiver ativo, adiciona a célula clicada à seleção existente
+            let currentSelectionArray = Array.isArray(selectedCell.value) ? selectedCell.value : (selectedCell.value !== null ? [selectedCell.value] : []);
+
+            // Adiciona a célula clicada se ela ainda não estiver no array
+            if (!currentSelectionArray.includes(clickedCell)) {
+                selectedCell.value = [...currentSelectionArray, clickedCell];
+            }
+        } else {
+            // Se NÃO Ctrl e NÃO Multiselect checkbox, LIMPA a seleção anterior e seleciona apenas a célula clicada.
+            // Isso lida tanto com o clique simples em uma nova célula quanto com o início de um arrasto simples.
+            selectedCell.value = [clickedCell];
+        }
+        // --- FIM DA LÓGICA DE SELEÇÃO INICIAL ---
+
+        // Atualiza o destaque da UI com a nova seleção inicial
+        updateUISelection(selectedCell.value);
+    } else {
+        // Clique fora do tabuleiro - limpa a seleção atual (se houver)
+        if (selectedCell.value !== null) {
+            selectedCell.value = null;
+            updateUISelection(selectedCell.value);
+            highlightedCells.value = []; // Limpa destaques conectados/valor
+            highlightValue.value = null;
+            saveChanges(); save();
+        }
+    }
+}
+
+function handleMouseMove(event: MouseEvent) {
+    // Só age se estiver arrastando E o botão esquerdo do mouse ainda estiver pressionado
+    // O 'buttons & 1' verifica se o botão esquerdo está pressionado durante o mousemove
+    if (!isDragging.value || !dragStartCell.value || !(event.buttons & 1)) {
+        // Se isDragging for true mas o botão não estiver pressionado, pode ser um mouseup que não foi capturado.
+        // Neste caso, finalize o drag.
+        if (isDragging.value) {
+            handleMouseUp(event); // Chama mouseup para finalizar
+        }
+        return;
+    }
+
+    const currentCell = getCellFromMouseEvent(event);
+
+    // Lógica para adicionar células conforme o mouse passa DURANTE o arrasto
+    // A seleção inicial (substituir ou adicionar) foi definida em handleMouseDown.
+    // Aqui, apenas adicionamos a célula atual ao array existente, se ela for nova.
+    if (currentCell && currentCell !== lastDraggedCell.value) {
+        // Se o mouse moveu para uma nova célula DENTRO do tabuleiro durante o arrasto
+
+        let currentSelectionArray = Array.isArray(selectedCell.value) ? selectedCell.value : (selectedCell.value !== null ? [selectedCell.value] : []);
+
+        // Adiciona a célula atual à seleção (array), se ela não estiver lá.
+        // Não removemos ao "voltar" durante o arrasto com esta lógica simples.
+        if (!currentSelectionArray.includes(currentCell)) {
+            selectedCell.value = [...currentSelectionArray, currentCell]; // Adiciona a nova célula
+            updateUISelection(selectedCell.value); // Atualiza o destaque visual
+        }
+
+        lastDraggedCell.value = currentCell; // Atualiza a última célula arrastada para otimização
+
+        // No modo de arrasto, limpamos os destaques de célula conectada/valor
+        highlightedCells.value = [];
+        highlightValue.value = null;
+    }
+    // Se o mouse sair do tabuleiro durante o arrasto, a lógica atual ignora.
+    // Para seleção que se estende para fora: listeners no document seriam melhores.
+}
+
+// Copie e substitua esta função no seu arquivo index.vue.txt
+function handleMouseUp(event: MouseEvent) {
+    // --- VERIFICAÇÃO: Verifica se o target do mouseup é um elemento candidato ---
+    const targetElement = event.target as HTMLElement;
+    const isCandidateClick = getCandidateNumberFromElement(targetElement) !== null;
+
+    if (isCandidateClick) {
+        // Se o mouseup ocorreu ESPECIFICAMENTE sobre um ponto de candidato,
+        // não fazemos nada aqui. O handleMouseDown já lidou com o toggle do candidato.
+        isDragging.value = false; // Garante que o estado de arrasto esteja desligado
+        dragStartCell.value = null;
+        lastDraggedCell.value = null;
+        dragStartX.value = 0;
+        dragStartY.value = 0;
+        return; // Sai da função handleMouseUp
+    }
+    // --- FIM DA VERIFICAÇÃO ---
+
+
+    // Se não era um clique em candidato, procede com a diferenciação de clique vs arrasto
+    // Só processa se um arrasto potencial foi iniciado em handleMouseDown (ou seja, clicou em uma célula não-candidato)
+    if (!isDragging.value) {
+        // Se MouseUp ocorreu mas isDragging era false, e não era candidato,
+        // foi um clique fora do board (handleMouseDown já lidou)
+        // ou algum outro caso que não iniciou um drag válido.
+        return;
+    }
+
+
+    // Finaliza o estado de arrasto (mesmo que tenha sido um clique rápido)
+    isDragging.value = false;
+    const endX = event.clientX;
+    const endY = event.clientY;
+
+    // Calcula a distância percorrida pelo mouse
+    const moveDistance = Math.sqrt(Math.pow(endX - dragStartX.value, 2) + Math.pow(endY - dragStartY.value, 2));
+
+    // Define um limite de distância para diferenciar clique de arrasto (ajuste conforme necessário)
+    const clickThreshold = 5; // pixels
+
+    if (moveDistance > clickThreshold) {
+        // Se o movimento foi maior que o limite, trata como um ARRASTO
+        // Ao final de um arrasto, limpamos os destaques de célula conectada/valor (se estavam visíveis)
+        highlightedCells.value = [];
+        highlightValue.value = null;
+
+        // Salva o estado da seleção final após o arrasto (array de células arrastadas)
+        save();
+    }
+
+    // Reseta as variáveis de estado do arrasto
+    isDragging.value = false; // Redundante, mas seguro
+    dragStartCell.value = null;
+    lastDraggedCell.value = null;
+    dragStartX.value = 0;
+    dragStartY.value = 0;
+
+    // Opcional: prevenir comportamento padrão em mouseup também (menos comum que em mousedown para drag)
+    // event.preventDefault(); // Cuidado com isso e a propagação de eventos
+}
+// Mantenha as outras funções (handleKeyUp, selectCell, updateUISelection, getCellFromMouseEvent, getCandidateNumberFromElement, handleCandidateClick) inalteradas em relação às últimas versões funcionais.
+
+
+function updateUISelection(currentSelection: Cell | Cell[] | null) {
+
+    // Remove a classe de seleção de todas as células primeiro
+    board.value.flat().forEach(cell => cell.selected = false);
+
+    // Limpa sempre os destaques conectados e de valor antes de re-aplicar
+    highlightedCells.value = [];
+    highlightValue.value = null;
+
+    if (Array.isArray(currentSelection)) {
+        // Aplica a classe 'selected' a todas as células no array
+        currentSelection.forEach(cell => {
+            // Encontra a referência reativa correta no board
+            const boardCell = board.value[cell.coordinates.row][cell.coordinates.col];
+            boardCell.selected = true;
+        });
+
+        if (currentSelection.length === 1) {
+            const singleCell = currentSelection[0];
+            // Verifica se a célula única selecionada é válida antes de destacar
+            if (singleCell && singleCell.coordinates) {
+                highlightConnectedCells(singleCell.coordinates.row, singleCell.coordinates.col);
+                highlightValue.value = singleCell.value;
+            }
+        }
+
+    } else if (currentSelection) {
+        // Aplica a classe 'selected' para seleção única (quando selectedCell.value é um único objeto Cell)
+        const boardCell = board.value[currentSelection.coordinates.row][currentSelection.coordinates.col];
+        boardCell.selected = true;
+        // Para seleção única, aplica os destaques conectados e o valor
+        highlightConnectedCells(currentSelection.coordinates.row, currentSelection.coordinates.col);
+        highlightValue.value = currentSelection.value;
+    } else {
+        // Nenhuma seleção
+    }
+}
 
 </script>
 

@@ -3,9 +3,9 @@
         <template v-for="n in [1, 2, 3, 4, 5, 6, 7, 8, 9]">
             <div
                 :id="n.toString()"
-                @click="toggle(n, $event)"
                 class="candidate-spot"
             >
+                <!-- @click="toggle(n, $event)" -->
                 <span
                     :class="highlightCss(n)"
                     :style="[
@@ -50,7 +50,7 @@ onBeforeMount(() => {
 function toggle(value: number, event?: MouseEvent) {
     // Só alternar se a célula estiver selecionada
     if (!props.selected) return;
-    else event?.stopPropagation(); // Se a célula está selecionada, previne o evento de clique de subir para a célula pai
+    event?.stopPropagation(); // Se a célula está selecionada, previne o evento de clique de subir para a célula pai
 
     const currentCandidates = candidates.value; // Use a ref local
 

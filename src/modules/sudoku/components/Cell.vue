@@ -2,7 +2,7 @@
     <slot>
         <div
             class="outer"
-            @click="handleClick()"
+            @click="handleClick($event)"
         >
             <div
                 class="overlay"
@@ -20,8 +20,8 @@
                     :highlight="props.highlight"
                     :highlightValue="props.highlightValue"
                     :candidateColors="props.candidateColors"
-                    @updateCandidates="$emit('updateCandidates', $event)"
                 ></Candidates>
+                <!-- @updateCandidates="$emit('updateCandidates', $event)" -->
             </div>
 
             <div
@@ -80,9 +80,10 @@ const backgroundColor = computed(() => {
     return props.color === "#FFFFFF" ? "" : `opacity: .5 !important; background-color: ${props.color.substring(0, 7)} !important;`;
 });
 
-function handleClick() {
+function handleClick(event: MouseEvent) {
     selected.value = true;
-    emits('click'); // Emite o evento click, assumindo que a lógica de seleção é externa
+    emits('click'); //, event); // Emite o evento click, assumindo que a lógica de seleção é externa
+    // event.stopPropagation(); // Para evitar que o evento suba para o pai
 }
 
 // Computed property para classes CSS gerais da célula (given, filled, selected, highlight)

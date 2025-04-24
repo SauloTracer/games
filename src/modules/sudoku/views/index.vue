@@ -1227,7 +1227,13 @@ function loadConfig() {
 function saveChanges() {
     let changes = JSON.parse(localStorage.getItem('sudoku-changes') ?? JSON.stringify([{ board: board.value, selectedCell: selectedCell.value }]));
     changes.push({ board: board.value, selectedCell: selectedCell.value });
-    localStorage.setItem('sudoku-changes', JSON.stringify(changes));
+    try {
+        localStorage.setItem('sudoku-changes', JSON.stringify(changes));
+    } catch (e) {
+        // remove first five items from the changes array and try again
+        changes = changes.slice(5);
+        localStorage.setItem('sudoku-changes', JSON.stringify(changes));
+    }
 }
 
 function undo() {

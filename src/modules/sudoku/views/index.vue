@@ -872,7 +872,7 @@ function handleKeyUp(event: KeyboardEvent) {
                 referenceCell.selected = true; // Marca a célula inicial como selecionada
                 highlightedCells.value = []; // Limpa destaques conectados para multiseleção
                 highlightValue.value = null;
-                saveChanges(); save(); // Salva o estado inicial da multiseleção
+                save(); // Salva o estado inicial da multiseleção
                 event.preventDefault(); // Previne o scroll
                 return; // Sai após iniciar a multiseleção
             }
@@ -936,7 +936,6 @@ function handleKeyUp(event: KeyboardEvent) {
             selectCell(nextRow, nextCol);
         }
 
-        saveChanges(); // Salva o estado da seleção atualizada para o histórico de desfazer
         save(); // Salva no local storage
         return; // Exit function after handling key
     }
@@ -1041,7 +1040,6 @@ function esc() {
     board.value.flat().forEach(cell => { cell.selected = false; });
     showMarkCellsDialog.value = false; // Fecha o diálogo de marcação
     isMultiselectChecked.value = false; // Sai do modo seleção multipla
-    saveChanges(); // Salva o estado com seleção limpa
     save(); // Salva no local storage
 }
 
@@ -1240,7 +1238,6 @@ function undo() {
     let changes = JSON.parse(localStorage.getItem('sudoku-changes') ?? JSON.stringify([board.value]));
     let state = changes.pop();
     board.value = state.board;
-    if (state.selectedCell) selectCell(state.selectedCell.coordinates.row, state.selectedCell.coordinates.col);
     if (changes.length == 0) changes.push({ board: board.value, selectedCell: selectedCell.value });
     localStorage.setItem('sudoku-changes', JSON.stringify(changes));
 }
@@ -2638,7 +2635,7 @@ function handleMouseDown(event: MouseEvent) {
             updateUISelection(selectedCell.value);
             highlightedCells.value = []; // Limpa destaques conectados/valor
             highlightValue.value = null;
-            saveChanges(); save();
+            save();
         }
     }
 }

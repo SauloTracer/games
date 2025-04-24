@@ -210,7 +210,7 @@
                 >Check Cell</button>
                 <button
                     class="button"
-                    @click="autoCandidate()"
+                    @click="handleAutoCandidateClick"
                 >Auto Candidate</button>
                 <button
                     class="button"
@@ -463,6 +463,42 @@
             </v-card-actions>
         </v-card>
     </v-dialog>
+
+    <v-dialog
+        v-model="showAutoCandidateDialog"
+        max-width="450"
+    >
+        <v-card>
+            <v-card-title class="headline">Auto Candidates</v-card-title>
+            <v-card-text>
+                Where do you want to apply auto candidates?
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    color="primary"
+                    text
+                    @click="applyAutoCandidates('selected'); showAutoCandidateDialog = false;"
+                >
+                    Selection
+                </v-btn>
+                <v-btn
+                    color="primary"
+                    text
+                    @click="applyAutoCandidates('all'); showAutoCandidateDialog = false;"
+                >
+                    Board
+                </v-btn>
+                <v-btn
+                    color="grey"
+                    text
+                    @click="showAutoCandidateDialog = false;"
+                >
+                    Cancel
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 </template>
 
 <script setup lang='ts'>
@@ -528,6 +564,7 @@ const swatches = [
 const highlightColors = ['#FF0000', '#0000FF', '#10A310', '#A020F0', '#FFA500', '#FF4500', '#8A2BE2', '#32CD32', '#4169E1'];
 const searchQuery = ref('');
 const showFilterManualDialog = ref(false);
+const showAutoCandidateDialog = ref(false);
 const isMultiselectChecked = ref(false);
 const boardElement = ref<HTMLElement | null>(null);
 const isDragging = ref(false);
@@ -679,6 +716,30 @@ function autoCandidate() {
         )
     );
     saveChanges();
+}
+
+function applyAutoCandidates(scope: 'selected' | 'all') {
+    const cellsToProcess = scope === 'selected' ? selectedCell.value : board.value.flat();
+    cellsToProcess.forEach(cell => {
+        if (!cell.value) {
+            cell.candidates = getCellCandidates(cell.coordinates.row, cell.coordinates.col);
+            cell.candidateColors = undefined;
+        }
+    });
+    saveChanges(); // Salva as alterações no localStorage
+    save(); // Salva o estado atual do jogo
+}
+
+// Esta função decide se mostra o dialog ou aplica direto.
+function handleAutoCandidateClick() {
+    // Verifica se UMA OU MAIS células estão atualmente selecionadas
+    if (selectedCell.value && selectedCell.value.length > 0) {
+        // Se há células selecionadas, mostra o dialog de confirmação
+        showAutoCandidateDialog.value = true;
+    } else {
+        // Se NENHUMA célula está selecionada, aplica candidatos a todo o tabuleiro diretamente
+        applyAutoCandidates('all');
+    }
 }
 
 function removeCandidateFromConnectedCells(value: number, row: number, col: number) {

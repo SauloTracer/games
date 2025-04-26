@@ -586,7 +586,7 @@ function handleKeyDown(event: KeyboardEvent) {
         return;
     }
 
-    console.log('Key pressed:', event.key, 'Ctrl:', event.ctrlKey, 'Shift:', event.shiftKey, 'Alt:', event.altKey);
+    // console.log('Key pressed:', event.key, 'Ctrl:', event.ctrlKey, 'Shift:', event.shiftKey, 'Alt:', event.altKey);
 
     // --- '/' para Focar a Caixa de Pesquisa ---
     // Verifica se a tecla é '/' E se o foco NÃO está atualmente em um input de texto, textarea ou elemento editável

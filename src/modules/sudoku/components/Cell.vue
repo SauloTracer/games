@@ -226,15 +226,15 @@ const cssClass = computed(() => {
 
 @media (max-width: 480px) {
     .cell {
-        font-size: 0.7em;
+        font-size: 0.65em;
     }
 
     .cell.given {
-        font-size: 0.7em;
+        font-size: 0.65em;
     }
 
     .cell.filled {
-        font-size: 0.7em;
+        font-size: 0.65em;
     }
 }
 </style>

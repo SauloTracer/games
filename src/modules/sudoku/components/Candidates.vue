@@ -175,7 +175,7 @@ function highlightCss(value: number) {
 @media (max-width: 600px) {
     .grid {
         gap: 0;
-        font-size: 0.7em;
+        font-size: 0.5em;
     }
 
     .grid .candidate-spot {

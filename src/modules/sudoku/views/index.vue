@@ -245,6 +245,131 @@
         </v-col>
     </v-row>
 
+    <div class="tools">
+        <v-btn
+            @click="showPrintDialog = true"
+            color="secondary"
+            class="ml-4"
+        >
+            <v-icon left>mdi-printer</v-icon> Imprimir
+        </v-btn>
+    </div>
+
+    <v-dialog
+        v-model="showPrintDialog"
+        max-width="800"
+        fullscreen
+        scrollable
+    >
+        <v-card>
+            <v-card-title class="headline">
+                Opções de Impressão
+                <v-spacer></v-spacer>
+                <v-btn
+                    icon
+                    @click="showPrintDialog = false"
+                >
+                    <v-icon>mdi-close</v-icon>
+                </v-btn>
+            </v-card-title>
+
+            <v-card-text>
+                <div class="print-options mb-4">
+                    <v-checkbox
+                        v-model="includeAnswers"
+                        label="Incluir Respostas (Board Virado ao Final)"
+                        hide-details
+                        density="compact"
+                    ></v-checkbox>
+
+                    <v-switch
+                        v-model="printScope"
+                        label="Estado do Tabuleiro a Imprimir"
+                        inset
+                        :value="'current'"
+                        :false-value="'given'"
+                        true-value="current"
+                        hide-details
+                        density="compact"
+                    >
+                        <template v-slot:label>
+                            Estado do Tabuleiro:
+                            <strong>
+                                {{ printScope === 'current' ? 'Estado Atual' : 'Apenas Pistas (Iniciais)' }}
+                            </strong>
+                        </template>
+                    </v-switch>
+                </div>
+
+                <div id="print-preview-area">
+                    <div class="board-preview">
+                        <div
+                            v-for="(row, rowIndex) in boardDataForPrintPreview"
+                            :key="'preview-row-' + rowIndex"
+                            class="board-row"
+                        >
+                            <Cell
+                                v-for="(cell, colIndex) in row"
+                                :key="'preview-' + rowIndex + '-' + colIndex"
+                                :type="cell.type"
+                                :candidates="cell.candidates"
+                                :value="cell.value"
+                                :selected="cell.selected"
+                                :highlight="cell.highlight"
+                                :highlightValue="cell.highlightValue"
+                                :check="cell.check"
+                                :answer="cell.answer"
+                                :color="cell.color"
+                                :candidateColors="cell.candidateColors"
+                            ></Cell>
+                        </div>
+                    </div>
+
+                    <div
+                        v-if="includeAnswers"
+                        class="answer-board-preview mt-8"
+                    >
+                        <h4>Respostas (Board Virado)</h4>
+                        <div class="answer-board-content">
+                            <div
+                                v-for="(row, rowIndex) in answerBoardDataForPrintPreview"
+                                :key="'answer-preview-row-' + rowIndex"
+                                class="board-row"
+                            >
+                                <Cell
+                                    v-for="(cell, colIndex) in row"
+                                    :key="'answer-preview-' + rowIndex + '-' + colIndex"
+                                    :type="cell.type"
+                                    :candidates="cell.candidates"
+                                    :value="cell.value"
+                                    :selected="cell.selected"
+                                    :highlight="cell.highlight"
+                                    :highlightValue="cell.highlightValue"
+                                    :check="cell.check"
+                                    :answer="cell.answer"
+                                    :color="cell.color"
+                                    :candidateColors="cell.candidateColors"
+                                ></Cell>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </v-card-text>
+
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    color="primary"
+                    @click="handlePrint"
+                >
+                    <v-icon left>mdi-printer</v-icon>
+                    Imprimir
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
     <v-dialog
         max-width="500"
         v-model="finished"
@@ -521,7 +646,7 @@ enum GameMode {
     ThreeStrikes = "threeStrikes",
 }
 
-import { ref, onBeforeMount, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onBeforeMount, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useSudokuStore, Difficulty } from '../stores/SudokuStore';
 
 import Title from '../../../components/Title.vue';
@@ -575,6 +700,18 @@ const dragStartY = ref(0);
 
 const boardElement = ref<HTMLElement | null>(null);
 const searchInputElement = ref<HTMLElement | null>(null);
+
+const showPrintDialog = ref(false); // Controla a visibilidade do dialog de impressão
+const includeAnswers = ref(false); // Estado do checkbox "Add answers"
+// 'current' mostra o estado atual (pistas, preenchidos, candidatos)
+// 'given' mostra apenas as pistas iniciais
+const printScope = ref<'current' | 'given'>('current'); // Estado do switch "Current state" vs "Only given"
+
+// Necessita do tabuleiro resolvido para a opção "Add answers"
+// Assumindo que você tem uma ref que armazena a solução (array 9x9 de números)
+// Se não tiver, precisará populá-la ao gerar/carregar um jogo.
+const answerBoard = ref<number[][]>([]); // <--- CERTIFIQUE-SE QUE ESTA REF EXISTE E É POPULADA
+
 
 let solution: number[][] = [[]];
 
@@ -1361,11 +1498,6 @@ function undo() {
 }
 
 /* ****************************FILTER************************************ */
-function contains(cell: any, values: number[]): boolean {
-    if (cell.value) return values.includes(cell.value);
-    return cell.candidates.some(candidate => values.includes(candidate));
-}
-
 function containsAll(cell: any, values: number[]): boolean {
     // Check if the cell is a candidate cell and has candidates
     if (!cell.value && cell.candidates && cell.candidates.length > 0) {
@@ -1376,115 +1508,10 @@ function containsAll(cell: any, values: number[]): boolean {
     return false;
 }
 
-function notContains(cell: any, values: number[]): boolean {
-    if (cell.value) return !values.includes(cell.value);
-    return !cell.candidates.some(candidate => values.includes(candidate));
-}
-
 function only(cell: any, values: number[]): boolean {
     if (cell.value) return values.length === 1 && cell.value === values[0];
     return cell.candidates.length === values.length && cell.candidates.every(candidate => values.includes(candidate));
 }
-
-// // Função para encontrar candidatos únicos (Hidden Singles) e retornar as células e os candidatos
-// function findUniqueCandidates(board: Cell[][], universe: { rows: number[]; cols: number[]; blocks: number[] }): Array<{ cell: Cell, candidates: number[] }> {
-//     const uniqueCandidateInfo: Array<{ cell: Cell, candidates: number[] }> = [];
-
-//     board.forEach(row => {
-//         row.forEach(cell => {
-//             // Processa apenas células candidatas que estão dentro do universo especificado
-//             const isCellInUniverse =
-//                 (universe.rows.length === 0 || universe.rows.includes(cell.coordinates.row + 1)) &&
-//                 (universe.cols.length === 0 || universe.cols.includes(cell.coordinates.col + 1)) &&
-//                 (universe.blocks.length === 0 || universe.blocks.includes(getBlockNumber(cell.coordinates.row, cell.coordinates.col))); // Assume getBlockNumber está definida
-
-//             if (isCellInUniverse && !cell.value && cell.candidates && cell.candidates.length > 0) {
-
-//                 const { row: r, col: c } = cell.coordinates;
-//                 const blockNumber = getBlockNumber(r, c);
-//                 const uniqueCandsInCell: number[] = []; // Para armazenar os candidatos únicos encontrados nesta célula
-
-//                 // Verifica cada candidato na célula
-//                 for (const candidate of cell.candidates) {
-//                     let isUniqueInRelevantUnit = false; // Flag para saber se o candidato é único em *alguma* unidade relevante
-
-//                     // 1. Verificar unicidade na LINHA (se a linha estiver no universo OU se não houver restrição de linhas)
-//                     if (universe.rows.length === 0 || universe.rows.includes(r + 1)) {
-//                         let foundOtherCellWithCandidate = false;
-//                         for (let cc = 0; cc < 9; cc++) {
-//                             const otherCell = board[r][cc];
-//                             if (otherCell !== cell && !otherCell.value && otherCell.candidates && otherCell.candidates.includes(candidate)) {
-//                                 foundOtherCellWithCandidate = true;
-//                                 break; // Encontramos outra célula com o mesmo candidato na linha
-//                             }
-//                         }
-//                         if (!foundOtherCellWithCandidate) {
-//                             isUniqueInRelevantUnit = true; // O candidato é único nesta linha relevante
-//                         }
-//                     }
-
-//                     // Se for único em uma unidade relevante, adiciona e passa para o próximo candidato desta célula
-//                     if (isUniqueInRelevantUnit) {
-//                         uniqueCandsInCell.push(candidate);
-//                         continue;
-//                     }
-
-//                     // 2. Verificar unicidade na COLUNA (se a coluna estiver no universo OU sem restrição)
-//                     if (universe.cols.length === 0 || universe.cols.includes(c + 1)) {
-//                         let foundOtherCellWithCandidate = false;
-//                         for (let rr = 0; rr < 9; rr++) {
-//                             const otherCell = board[rr][c];
-//                             if (otherCell !== cell && !otherCell.value && otherCell.candidates && otherCell.candidates.includes(candidate)) {
-//                                 foundOtherCellWithCandidate = true;
-//                                 break; // Encontramos outra célula com o mesmo candidato na coluna
-//                             }
-//                         }
-//                         if (!foundOtherCellWithCandidate) {
-//                             isUniqueInRelevantUnit = true; // O candidato é único nesta coluna relevante
-//                         }
-//                     }
-
-//                     if (isUniqueInRelevantUnit) {
-//                         uniqueCandsInCell.push(candidate);
-//                         continue;
-//                     }
-
-//                     // 3. Verificar unicidade no BLOCO (se o bloco estiver no universo OU sem restrição)
-//                     if (universe.blocks.length === 0 || universe.blocks.includes(blockNumber)) {
-//                         let foundOtherCellWithCandidate = false;
-//                         const blockRowStart = Math.floor(r / 3) * 3;
-//                         const blockColStart = Math.floor(c / 3) * 3;
-//                         for (let br = blockRowStart; br < blockRowStart + 3; br++) {
-//                             for (let bc = blockColStart; bc < blockColStart + 3; bc++) {
-//                                 const otherCell = board[br][bc];
-//                                 if (otherCell !== cell && !otherCell.value && otherCell.candidates && otherCell.candidates.includes(candidate)) {
-//                                     foundOtherCellWithCandidate = true;
-//                                     break;
-//                                 }
-//                             }
-//                             if (foundOtherCellWithCandidate) break;
-//                         }
-//                         if (!foundOtherCellWithCandidate) {
-//                             isUniqueInRelevantUnit = true; // O candidato é único neste bloco relevante
-//                         }
-//                     }
-
-//                     // Se chegou até aqui e isUniqueInRelevantUnit é true, significa que é único em pelo menos uma unidade relevante
-//                     if (isUniqueInRelevantUnit) {
-//                         uniqueCandsInCell.push(candidate);
-//                     }
-//                 }
-
-//                 // Se algum candidato nesta célula foi encontrado como único em uma unidade relevante, adiciona a informação
-//                 if (uniqueCandsInCell.length > 0) {
-//                     uniqueCandidateInfo.push({ cell: cell, candidates: uniqueCandsInCell });
-//                 }
-//             }
-//         });
-//     });
-
-//     return uniqueCandidateInfo; // Retorna a lista de células e os candidatos únicos encontrados em cada uma
-// }
 
 /**
  * Encontra Candidatos Únicos (Hidden Singles) no tabuleiro dentro das unidades especificadas pelo universo.
@@ -2297,17 +2324,16 @@ function filterCandidates() {
     // --- Definição dos Arrays de Aliases para cada Comando ---
     const containsAliases = [':', 'contains', 'contain', 'has', 'includes'];
     const countAliases = ['*', 'count', 'counter', 'cont', 'qtd'];
-    const notcontainsAliases = ['notcontains', 'notcontain', 'not_contains', 'not_contain', 'not-contains', 'not-contain', '!', 'not'];
+    const notcontainsAliases = ['notcontains', 'notcontain', 'not_contains', 'not_contain', 'not-contains', 'not-contain', '!', 'not', 'nc'];
     const uniqueAliases = ['unique', '?'];
     const nakedPairsAliases = ['nakedpairs', 'nakedpair', 'np', 'pair', 'pairs', 'p'];
     const nakedTriplesAliases = ['nakedtriples', 'nakedtriple', 'naked-triple', 'naked_triple', 'nt', 't', 'triple', 'trio'];
     const hiddenPairsAliases = ['hiddenpairs', 'hiddenpair', 'hp'];
     const hiddenTriplesAliases = ['hiddentriples', 'hiddentriple', 'ht'];
     const xwingAliases = ['xwing', 'xw'];
-    const swordfishAliases = ['swordfish', 'sf'];
+    const swordfishAliases = ['swordfish', 'sf', 'sw', 'sword-fish', 'sword_fish'];
     const containsAllAliases = ['containsall', 'hasall', 'includesall', '>='];
     // Adicione aqui os arrays de aliases para outros comandos se necessário.
-
 
     // --- Divide a query principal em grupos de filtro usando ';' ---
     const filterGroups = query.split(';').map(group => group.trim()).filter(group => group.length > 0); // Remove grupos vazios
@@ -2342,7 +2368,7 @@ function filterCandidates() {
             // ^((?:\w+)|(?:\*)|(?:\:)|(?:!)): Captura um nome que é ou \w+ OU *, :, !
             // (?:...) é um grupo não capturante, usado para agrupar as alternativas sem criar um grupo de captura extra.
             // O primeiro grupo de captura agora é ((?:\w+)|(?:\*)|(?:\:)|(?:!)), então o nome bruto estará em match[1].
-            const match = command.match(/^((?:\w+)|(?:\*)|(?:\:)|(?:!))\s*[\(\[]\s*(.*?)\s*[\)\]]\s*$/i);
+            const match = command.match(/^((?:\w+)|(?:\*)|(?:\:)|(?:\?)|(?:!))\s*[\(\[]\s*(.*?)\s*[\)\]]\s*$/i);
 
             if (match) {
                 // rawOperation é o nome capturado pelo primeiro grupo, incluindo o alias especial se for o caso
@@ -2897,6 +2923,102 @@ function logBoard(board: Cell[][]) {
     console.table(candidatesByCell);
 }
 
+
+// Gera os dados para o tabuleiro principal no preview de impressão
+const boardDataForPrintPreview = computed<Cell[][]>(() => {
+    // Baseado na opção 'printScope', gera uma cópia modificada do tabuleiro atual
+    const data: Cell[][] = [];
+    for (let r = 0; r < 9; r++) {
+        data[r] = [];
+        for (let c = 0; c < 9; c++) {
+            const originalCell = board.value[r][c];
+            // Cria um novo objeto Cell para o preview, copiando propriedades e modificando
+            const previewCell: Cell = {
+                ...originalCell, // Copia propriedades como coordinates, answer, check
+                // Modifica o valor e candidatos baseado no printScope
+                // Se 'given', mostra valor apenas se o tipo original era 'given', e limpa candidatos
+                // Se 'current', mostra valor e candidatos atuais
+                value: printScope.value === 'given' ? (originalCell.type === 'given' ? originalCell.value : null) : originalCell.value,
+                candidates: printScope.value === 'given' ? [] : originalCell.candidates,
+                // Limpa estados de seleção, destaque e cores que não devem aparecer no preview de impressão
+                selected: false,
+                highlight: false,
+                highlightValue: null,
+                color: "#FFFFFF", // Limpa cor de marcação manual
+                candidateColors: undefined, // Limpa cores de candidatos (os candidatos podem mudar ou ser limpos)
+            };
+            // Ajusta o tipo da célula no preview para refletir o valor/candidatos que serão mostrados
+            if (previewCell.value !== null && previewCell.value !== 0) {
+                previewCell.type = originalCell.type === 'given' ? 'given' : 'filled'; // Mantém 'given' se era original, senão vira 'filled'
+            } else if (previewCell.candidates && previewCell.candidates.length > 0) {
+                previewCell.type = 'candidate'; // Vira 'candidate' se tiver candidatos
+            } else {
+                // Se não tiver valor nem candidatos, qual o tipo? 'candidate' com lista vazia parece razoável.
+                previewCell.type = 'candidate';
+                previewCell.candidates = []; // Garante que candidatos seja um array vazio se null/undefined
+            }
+
+            data[r][c] = previewCell;
+        }
+    }
+    return data;
+});
+
+// Gera os dados para o tabuleiro de respostas no preview de impressão (se incluir respostas)
+const answerBoardDataForPrintPreview = computed<Cell[][]>(() => {
+    // Esta computed property só será usada se includeAnswers for true.
+    // Ela sempre mostra a chave de respostas.
+    const data: Cell[][] = [];
+    answerBoard.value = solution; // Garante que answerBoard seja um array vazio se não estiver definido
+    // Verifica se a chave de respostas (answerBoard) está populada
+    if (!answerBoard.value || answerBoard.value.length === 0) {
+        console.warn("Dados do tabuleiro de respostas não disponíveis para preview.");
+        return []; // Retorna array vazio se a chave de respostas não estiver pronta
+    }
+
+    for (let r = 0; r < 9; r++) {
+        data[r] = [];
+        for (let c = 0; c < 9; c++) {
+            const originalCell = board.value[r][c]; // Pega a célula original (para coordenadas, etc.)
+            const answer = answerBoard.value[r][c]; // Pega o número da resposta
+
+            // Cria um objeto Cell para o preview da resposta, mostrando apenas o número da resposta
+            const previewCell: Cell = {
+                ...originalCell, // Copia propriedades como coordinates, answer
+                value: answer, // Define o valor como o número da resposta
+                candidates: [], // Não mostra candidatos no board de respostas
+                type: 'given', // Pode tratar visualmente como 'given' para consistência na aparência de números fixos
+                // Limpa estados de seleção, destaque e cores
+                selected: false,
+                highlight: false,
+                highlightValue: null,
+                color: "#FFFFFF",
+                candidateColors: undefined,
+                answer: answer, // Mantém a propriedade answer
+            };
+            data[r][c] = previewCell;
+        }
+    }
+    return data;
+});
+
+
+// --- Função para Lidar com o Botão de Impressão ---
+function handlePrint() {
+    // Esta função é chamada ao clicar no botão "Imprimir" dentro do dialog.
+    // O conteúdo visível no preview (o board principal e opcionalmente o board de respostas)
+    // será o conteúdo que será preparado para a impressão.
+    // Chamamos a função de impressão nativa do navegador.
+    // As regras CSS @media print definirão o que será visível na saída da impressão.
+
+    window.print();
+
+    // Opcional: Fechar o dialog após disparar a impressão.
+    // Pode ser melhor deixar o usuário fechar manualmente após a janela de impressão aparecer.
+    // showPrintDialog.value = false;
+}
+
+
 watch(() => board.value.map(row => row.map(cell => cell.value ? [cell.value].join(', ') : cell.candidates.join(', '))), () => {
     filterCandidates(); // Refiltrar quando o board mudar (e.g., novo jogo)
 });
@@ -3412,6 +3534,151 @@ watch(searchQuery, () => {
 
     #play-button {
         display: none;
+    }
+}
+
+/* --- Estilos para o Preview no Dialog --- */
+#print-preview-area {
+    /* Estilos gerais para a área de preview no dialog */
+    padding: 10px;
+    /* Espaçamento interno */
+    border: 1px dashed #ccc;
+    /* Borda para delimitar a área de impressão */
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+    /* Um leve fundo */
+    overflow-y: auto;
+    /* Permite scrollar se o conteúdo exceder a altura do dialog */
+    max-height: 60vh;
+    /* Altura máxima antes de scrollar (ajuste conforme o tamanho do seu dialog) */
+}
+
+/* Estilos para o contêiner do tabuleiro principal no preview */
+.board-preview {
+    /* Ajuste a largura e margens para centralizar e posicionar no preview */
+    /* width: 100%; */
+    /* Ocupa a largura da área de preview */
+    max-width: 500px;
+    /* Exemplo: Limite a largura em telas/dialogs maiores */
+    margin: 20px auto;
+    /* Centraliza o tabuleiro principal */
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(9, 1fr);
+    aspect-ratio: 1 / 1;
+    width: 800px;
+}
+
+/* Estilos para a área do tabuleiro de respostas no preview */
+.answer-board-preview {
+    margin-top: 40px;
+    /* Espaço acima do board de respostas */
+    text-align: center;
+    /* Centraliza o título "Respostas" */
+}
+
+/* Estilos para o contêiner do CONTEÚDO (células) do tabuleiro de respostas no preview */
+.answer-board-content {
+    /* Aplica as transformações de escala e rotação para o preview */
+    transform: scale(0.5) rotate(180deg);
+    /* Escala para 1/2 do tamanho, gira 180 graus */
+    transform-origin: center center;
+    /* Aplica a transformação a partir do centro */
+    /* Ajuste a largura para que o contêiner ocupe o espaço correto APÓS a escala */
+    /* Se o board principal tem max-width de 500px, scaled 0.5 é 250px */
+    width: 250px;
+    /* Exemplo de largura após escala 0.5 */
+    margin: 20px auto;
+    /* Centraliza o board de respostas escalado */
+    border: 1px dashed #ddd;
+    /* Borda para visualização no preview */
+    padding: 10px;
+    /* Espaçamento interno no preview */
+    box-sizing: content-box;
+    /* Garante que padding/border não afetem o cálculo da largura se estiver usando border-box em outro lugar */
+    opacity: 0.8;
+    /* Torna um pouco transparente no preview */
+}
+
+
+/* --- Estilos para a Impressão (@media print) --- */
+@media print {
+
+    /* Oculta todos os elementos do corpo que NÃO SÃO a área de preview */
+    /* Isso garante que apenas o conteúdo dentro de #print-preview-area seja impresso */
+    body>*:not(#print-preview-area) {
+        display: none !important;
+    }
+
+    /* Torna a área de preview visível e ocupa toda a largura disponível na impressão */
+    #print-preview-area {
+        display: block !important;
+        /* Garante que seja visível */
+        position: relative !important;
+        /* Ajusta posicionamento para print */
+        width: 100% !important;
+        /* Ocupa toda a largura da página */
+        margin: 0 !important;
+        /* Remove margens do preview */
+        padding: 0 !important;
+        /* Remove padding do preview */
+        border: none !important;
+        /* Remove a borda do preview */
+        background-color: transparent !important;
+        /* Remove o fundo do preview */
+        overflow: visible !important;
+        /* Garante que todo o conteúdo seja visível */
+        max-height: none !important;
+        /* Remove limite de altura */
+    }
+
+    /* Estilos para o contêiner do tabuleiro principal na impressão */
+    .board-preview {
+        width: 100%;
+        /* Permite que o board ocupe a largura total da área de impressão */
+        max-width: 100%;
+        /* Garante que não exceda a largura da página */
+        margin: 1cm auto !important;
+        /* Centraliza com margens de 1cm na impressão */
+        /* Remova quaisquer outros estilos de visualização de preview que não sejam desejados na impressão */
+    }
+
+    /* Estilos para a área do tabuleiro de respostas na impressão */
+    .answer-board-preview {
+        margin-top: 2cm !important;
+        /* Espaço maior após o board principal na impressão */
+        /* Remova text-align: center se quiser o título alinhado à esquerda na impressão */
+    }
+
+    /* Estilos para o contêiner do CONTEÚDO (células) do tabuleiro de respostas na impressão */
+    .answer-board-content {
+        /* Aplica as transformações de escala e rotação para a impressão (1/4 do tamanho) */
+        transform: scale(0.25) rotate(180deg) !important;
+        /* Escala para 1/4, gira 180deg */
+        transform-origin: center center !important;
+        /* Mantém a origem no centro */
+        /* Ajuste a largura para que o contêiner ocupe o espaço correto APÓS a escala para 1/4 */
+        /* Se o board principal tem max-width de 500px, scaled 0.25 é 125px */
+        width: 125px !important;
+        /* Exemplo de largura após escala 0.25 */
+        margin: 1cm auto !important;
+        /* Centraliza com margem de 1cm na impressão */
+        border: none !important;
+        /* Remove borda do preview */
+        padding: 0 !important;
+        /* Remove padding do preview */
+        opacity: 1 !important;
+        /* Garante que seja totalmente visível na impressão */
+        box-sizing: content-box !important;
+        /* Mantém o box-sizing se relevante */
+    }
+
+    .cell span {
+        font-size: 12pt !important;
+    }
+
+    .grid span {
+        font-size: 8pt !important;
     }
 }
 </style>

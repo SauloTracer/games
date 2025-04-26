@@ -209,4 +209,32 @@ const cssClass = computed(() => {
 .highlightValue {
     background-color: orange !important;
 }
+
+@media (max-width: 600px) {
+    .cell {
+        font-size: 1.5em;
+    }
+
+    .cell.given {
+        font-size: 1.5em;
+    }
+
+    .cell.filled {
+        font-size: 1.5em;
+    }
+}
+
+@media (max-width: 480px) {
+    .cell {
+        font-size: 0.65em;
+    }
+
+    .cell.given {
+        font-size: 0.65em;
+    }
+
+    .cell.filled {
+        font-size: 0.65em;
+    }
+}
 </style>

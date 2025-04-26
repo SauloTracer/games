@@ -166,6 +166,7 @@
                     append-inner-icon="mdi-help-circle-outline"
                     @click:append-inner="showFilterManualDialog = true"
                     hide-details
+                    ref="searchInputElement"
                 ></v-text-field>
             </div>
 
@@ -566,14 +567,64 @@ const searchQuery = ref('');
 const showFilterManualDialog = ref(false);
 const showAutoCandidateDialog = ref(false);
 const isMultiselectChecked = ref(false);
-const boardElement = ref<HTMLElement | null>(null);
 const isDragging = ref(false);
 const dragStartCell = ref<Cell | null>(null);
 const lastDraggedCell = ref<Cell | null>(null);
 const dragStartX = ref(0);
 const dragStartY = ref(0);
 
+const boardElement = ref<HTMLElement | null>(null);
+const searchInputElement = ref<HTMLElement | null>(null);
+
 let solution: number[][] = [[]];
+
+function handleKeyDown(event: KeyboardEvent) {
+    // Evita que atalhos padrão do navegador aconteçam se já estamos tratando a combinação
+    // Também evita processar se a tecla já foi tratada por outro lugar (ex: input de texto)
+    if (event.defaultPrevented) {
+        console.log('Default prevented, ignoring keydown event');
+        return;
+    }
+
+    console.log('Key pressed:', event.key, 'Ctrl:', event.ctrlKey, 'Shift:', event.shiftKey, 'Alt:', event.altKey);
+
+    // --- '/' para Focar a Caixa de Pesquisa ---
+    // Verifica se a tecla é '/' E se o foco NÃO está atualmente em um input de texto, textarea ou elemento editável
+    // Isso evita que '/' no meio da digitação em outro campo acione o atalho.
+    const target = event.target as HTMLElement;
+    const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+
+    if (event.key === '/' && !isTyping) {
+        // Previne o comportamento padrão do navegador para '/' (que pode abrir a busca rápida)
+        event.preventDefault();
+        // Foca o campo de input de pesquisa
+        if (searchInputElement.value) {
+            searchInputElement.value.focus();
+        }
+    }
+
+    // --- Ctrl + B para Focar o Tabuleiro ---
+    // Verifica se a tecla é 'b' e a tecla Ctrl está pressionada
+    if (event.key === 'b' && event.ctrlKey) {
+        // Previne o comportamento padrão do navegador (ex: adicionar aos favoritos)
+        event.preventDefault();
+        // Foca o elemento do tabuleiro/board
+        if (boardElement.value) {
+            boardElement.value.focus(); // Requer que o elemento do tabuleiro seja focável (tabindex="-1" ou "0")
+        }
+    }
+
+    // --- Ctrl + N para Abrir Dialog de Novo Jogo ---
+    if (event.key === 'n' && event.ctrlKey) {
+        // Previne o comportamento padrão do navegador (ex: abrir nova janela/aba)
+        event.preventDefault();
+        // Fecha quaisquer outros dialogs que possam estar abertos
+        showFilterManualDialog.value = false;
+        showAutoCandidateDialog.value = false;
+        // Abre o dialog de Novo Jogo
+        showNewGameDialog.value = true;
+    }
+}
 
 onBeforeMount(() => {
     loadConfig();
@@ -597,6 +648,7 @@ onMounted(() => {
             }
         });
     }
+    window.addEventListener('keydown', handleKeyDown, true);
 });
 
 onUnmounted(() => {
@@ -611,6 +663,7 @@ onUnmounted(() => {
             }
         });
     }
+    window.removeEventListener('keydown', handleKeyDown, true);
 });
 
 function markCells() {
@@ -1150,17 +1203,21 @@ function showSolution() {
 
 function revealCell() {
     if (!selectedCell.value) return;
-    if (selectedCell.value.type == 'given') return;
-    selectedCell.value.value = selectedCell.value.answer;
-    selectedCell.value.type = 'filled';
-    removeCandidateFromConnectedCells(selectedCell.value.answer, selectedCell.value.coordinates.row, selectedCell.value.coordinates.col);
+    selectedCell.value.map(cell => {
+        if (cell.type == 'given') return;
+        cell.value = cell.answer;
+        cell.type = 'filled';
+        removeCandidateFromConnectedCells(cell.answer, cell.coordinates.row, cell.coordinates.col);
+    });
     saveChanges();
 }
 
 function checkCell() {
     if (!selectedCell.value) return;
-    if (selectedCell.value.type == 'given') return;
-    selectedCell.value.check = true;
+    selectedCell.value.map(cell => {
+        if (cell.type == 'given') return;
+        cell.check = true;
+    });
 }
 
 function updateCheckCells() {
@@ -2532,14 +2589,6 @@ function filterCandidates() {
 
 }
 
-watch(() => board.value.map(row => row.map(cell => cell.value ? [cell.value].join(', ') : cell.candidates.join(', '))), () => {
-    filterCandidates(); // Refiltrar quando o board mudar (e.g., novo jogo)
-});
-
-watch(searchQuery, () => {
-    filterCandidates(); // Refiltrar quando a query mudar
-});
-
 /* *******************************DRAG SELECTION******************************************* */
 // Funções auxiliares para converter coordenadas do mouse para linha/coluna da célula
 function getCellFromMouseEvent(event: MouseEvent): Cell | null {
@@ -2848,6 +2897,18 @@ function logBoard(board: Cell[][]) {
     console.table(candidatesByCell);
 }
 
+watch(() => board.value.map(row => row.map(cell => cell.value ? [cell.value].join(', ') : cell.candidates.join(', '))), () => {
+    filterCandidates(); // Refiltrar quando o board mudar (e.g., novo jogo)
+});
+
+watch(searchQuery, () => {
+    filterCandidates(); // Refiltrar quando a query mudar
+});
+
+// watch(selectedCell, () => {
+//     console.log('selectedCell mudou:', selectedCell.value);
+// });
+
 </script>
 
 <style lang="css" scoped>
@@ -2925,8 +2986,7 @@ function logBoard(board: Cell[][]) {
 .block {
     border: solid 2px black;
     z-index: 3;
-    grid-column-span: 3;
-    grid-row-span: 3;
+    box-sizing: content-box;
 }
 
 /* Target the correct blocks based on their position in the 9x9 grid */
@@ -3286,25 +3346,33 @@ function logBoard(board: Cell[][]) {
 }
 
 @media (max-width: 740px) {
-    #board {
+
+    #board,
+    #game-header {
         width: 97vw;
     }
 }
 
 @media (max-width: 680px) {
-    #board {
+
+    #board,
+    #game-header {
         width: 98vw;
     }
 }
 
 @media (max-width: 670px) {
-    #board {
+
+    #board,
+    #game-header {
         width: 99vw;
     }
 }
 
 @media (max-width: 660px) {
-    #board {
+
+    #board,
+    #game-header {
         width: 100vw;
     }
 }

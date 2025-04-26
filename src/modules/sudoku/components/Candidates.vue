@@ -165,23 +165,24 @@ function highlightCss(value: number) {
 @media (max-width: 768px) {
     .grid {
         font-size: 0.8em;
-        gap: 1px;
     }
 
-    .grid .candidate-spot {
-        /* Usando a nova classe */
-        padding: 2px;
+    .candidate-spot {
+        padding: 0;
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
     .grid {
-        font-size: 0.7em;
+        gap: 0;
+        font-size: 0.5em;
     }
 
     .grid .candidate-spot {
-        /* Usando a nova classe */
-        padding: 1px;
+        padding: 0;
+        gap: 0;
     }
 }
+
+@media (max-width: 480px) {}
 </style>

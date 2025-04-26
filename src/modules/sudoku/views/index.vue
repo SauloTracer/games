@@ -1,6 +1,6 @@
 <template>
     <div id="game-header">
-        <Title>
+        <Title class="game-title">
             Sudoku
         </Title>
         <button
@@ -140,7 +140,7 @@
                         <div style="display: flex; flex-direction: column; aspect-ratio: 1;">
                             <span>{{ n }}</span>
                             <span style="font-size:x-small; color: rgb(100, 100, 100);">
-                                ({{ getCount(n) }} / 9)
+                                {{ getCount(n) }}/9
                             </span>
                         </div>
                     </button>
@@ -3395,6 +3395,23 @@ watch(searchQuery, () => {
         font-size: 0.9em;
         padding: 0.7em;
         width: 70%;
+    }
+
+    #game-header {
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .game-title {
+        font-size: 1.5rem;
+    }
+
+    #gameMode {
+        margin-bottom: -5px;
+    }
+
+    #play-button {
+        display: none;
     }
 }
 </style>

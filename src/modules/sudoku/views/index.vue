@@ -257,103 +257,177 @@
 
     <v-dialog
         v-model="showPrintDialog"
-        max-width="800"
-        fullscreen
-        scrollable
+        width="800"
+        max-width="95vw"
     >
         <v-card>
-            <v-card-title class="headline">
-                Opções de Impressão
-                <v-spacer></v-spacer>
-                <v-btn
-                    icon
-                    @click="showPrintDialog = false"
-                >
-                    <v-icon>mdi-close</v-icon>
-                </v-btn>
+            <v-card-title>
+                <v-row>
+                    Opções de Impressão
+                    <v-spacer></v-spacer>
+                    <v-icon @click="showPrintDialog = false">mdi-close
+                    </v-icon>
+                </v-row>
             </v-card-title>
 
             <v-card-text>
                 <div class="print-options mb-4">
+
                     <v-checkbox
-                        v-model="includeAnswers"
-                        label="Incluir Respostas (Board Virado ao Final)"
+                        v-model="includeMyAnswers"
+                        label="Incluir minhas respostas"
                         hide-details
                         density="compact"
                     ></v-checkbox>
 
-                    <v-switch
-                        v-model="printScope"
-                        label="Estado do Tabuleiro a Imprimir"
-                        inset
-                        :value="'current'"
-                        :false-value="'given'"
-                        true-value="current"
+                    <!-- Mostrar Candidatos Checkbox --- -->
+                    <v-checkbox
+                        v-model="showCandidatesInPrint"
+                        label="Mostrar Candidatos"
                         hide-details
                         density="compact"
-                    >
-                        <template v-slot:label>
-                            Estado do Tabuleiro:
-                            <strong>
-                                {{ printScope === 'current' ? 'Estado Atual' : 'Apenas Pistas (Iniciais)' }}
-                            </strong>
-                        </template>
-                    </v-switch>
-                </div>
+                    ></v-checkbox>
 
-                <div id="print-preview-area">
-                    <div class="board-preview">
-                        <div
-                            v-for="(row, rowIndex) in boardDataForPrintPreview"
-                            :key="'preview-row-' + rowIndex"
-                            class="board-row"
+                    <div class="print-candidates-options">
+                        <v-btn-toggle
+                            v-if="showCandidatesInPrint"
+                            v-model="candidateDisplayMode"
+                            density="compact"
+                            color="primary"
+                            label="Candidatos:"
+                            class="mt-2"
                         >
-                            <Cell
-                                v-for="(cell, colIndex) in row"
-                                :key="'preview-' + rowIndex + '-' + colIndex"
-                                :type="cell.type"
-                                :candidates="cell.candidates"
-                                :value="cell.value"
-                                :selected="cell.selected"
-                                :highlight="cell.highlight"
-                                :highlightValue="cell.highlightValue"
-                                :check="cell.check"
-                                :answer="cell.answer"
-                                :color="cell.color"
-                                :candidateColors="cell.candidateColors"
-                            ></Cell>
-                        </div>
+                            <v-btn
+                                value="grid"
+                                class="option"
+                            >Grid 3x3</v-btn>
+                            <v-btn
+                                value="inline"
+                                class="option"
+                            >InLine</v-btn>
+                        </v-btn-toggle>
+                        <v-btn-toggle
+                            v-if="showCandidatesInPrint && !includeMyAnswers"
+                            v-model="candidatesInPrint"
+                            density="compact"
+                            color="secondary"
+                            label="Gerar candidatos:"
+                            class="mt-2"
+                        >
+                            <v-btn
+                                value="all"
+                                class="option"
+                            >Todos</v-btn>
+                            <v-btn
+                                value="auto"
+                                class="option"
+                            >Auto Candidate</v-btn>
+                        </v-btn-toggle>
                     </div>
 
-                    <div
-                        v-if="includeAnswers"
-                        class="answer-board-preview mt-8"
-                    >
-                        <h4>Respostas (Board Virado)</h4>
-                        <div class="answer-board-content">
-                            <div
-                                v-for="(row, rowIndex) in answerBoardDataForPrintPreview"
-                                :key="'answer-preview-row-' + rowIndex"
-                                class="board-row"
+                    <v-checkbox
+                        v-model="includeAnswers"
+                        label="Incluir Gabarito"
+                        hide-details
+                        density="compact"
+                    ></v-checkbox>
+                </div>
+                <div id="print-area">
+                    <div id="print-preview-area">
+                        <div class="print-board-container print-board-main">
+                            <template
+                                v-for="(row, rowIndex) in boardDataForPrintPreview"
+                                :key="'preview-row-template-' + rowIndex"
                             >
-                                <Cell
+                                <div
                                     v-for="(cell, colIndex) in row"
-                                    :key="'answer-preview-' + rowIndex + '-' + colIndex"
-                                    :type="cell.type"
-                                    :candidates="cell.candidates"
-                                    :value="cell.value"
-                                    :selected="cell.selected"
-                                    :highlight="cell.highlight"
-                                    :highlightValue="cell.highlightValue"
-                                    :check="cell.check"
-                                    :answer="cell.answer"
-                                    :color="cell.color"
-                                    :candidateColors="cell.candidateColors"
-                                ></Cell>
+                                    :key="'preview-' + rowIndex + '-' + colIndex"
+                                    class="print-board-cell"
+                                >
+                                    <span
+                                        v-if="cell.value !== null && cell.value && cell.value !== 0"
+                                        class="print-cell-value"
+                                    >
+                                        {{ cell.value }}
+                                    </span>
+                                    <div v-else-if="cell.candidates && cell.candidates.length > 0">
+                                        <div :class="['print-cell-candidates', candidateDisplayMode + '-layout']">
+                                            <template v-if="candidateDisplayMode === 'grid'">
+                                                <span
+                                                    v-for="n in [1, 2, 3, 4, 5, 6, 7, 8, 9]"
+                                                    :key="'preview-candidate-grid-' + rowIndex + '-' + colIndex + '-' + n"
+                                                    class="print-candidate"
+                                                >
+                                                    {{ cell.candidates.includes(n) ? n : '&nbsp;' }}
+                                                </span>
+                                            </template>
+                                            <template v-else-if="candidateDisplayMode === 'inline'">
+                                                <span
+                                                    v-for="(n, index) in cell.candidates"
+                                                    :key="'preview-candidate-inline-' + rowIndex + '-' + colIndex + '-' + n"
+                                                    class="print-candidate-inline"
+                                                >
+                                                    {{ n }}
+                                                    {{ index <
+                                                        cell.candidates.length
+                                                        -
+                                                        1
+                                                        ? ' '
+                                                        : ''
+                                                    }}
+                                                        </span
+                                                    >
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <span
+                                        v-else
+                                        class="print-cell-empty"
+                                    >&nbsp;</span>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="answer-board-content-wrapper">
+                            <div
+                                v-if="includeAnswers"
+                                class="print-board-container print-board-answer mt-8"
+                            >
+                                <template
+                                    v-for="(row, rowIndex) in solution"
+                                    :key="'answer-preview-row-template-' + rowIndex"
+                                >
+                                    <div
+                                        v-for="(cell, colIndex) in row"
+                                        :key="'answer-preview-' + rowIndex + '-' + colIndex"
+                                        class="print-board-cell"
+                                    >
+                                        <span
+                                            v-if="cell"
+                                            class="print-cell-value"
+                                            sttle="font-size: .5em; !important"
+                                        >
+                                            {{ cell }}
+                                        </span>
+                                        <span
+                                            v-else
+                                            class="print-cell-empty"
+                                        >&nbsp;</span>
+                                    </div>
+                                </template>
                             </div>
                         </div>
+                        <img
+                            src="/src/assets/images/banner.jpeg"
+                            alt="puzzled.com.br"
+                            class="logo"
+                            style="height: 7%; position: absolute; top: 626px; right: 24px; z-index: 99;"
+                        />
+                        <img
+                            src="/src/assets/qrcode.png"
+                            alt="puzzled.com.br"
+                            style="height: 15%; position: absolute; top: 671px; right: 50px; z-index: 98;"
+                        />
                     </div>
-
                 </div>
             </v-card-text>
 
@@ -703,6 +777,11 @@ const searchInputElement = ref<HTMLElement | null>(null);
 
 const showPrintDialog = ref(false); // Controla a visibilidade do dialog de impressão
 const includeAnswers = ref(false); // Estado do checkbox "Add answers"
+const includeMyAnswers = ref(false); // Estado do checkbox "Add answers"
+const showCandidatesInPrint = ref(false); // Estado do checkbox "Show candidates"
+const candidateDisplayMode = ref<'grid' | 'inline'>('grid');
+const candidatesInPrint = ref<'all' | 'auto'>('auto');
+
 // 'current' mostra o estado atual (pistas, preenchidos, candidatos)
 // 'given' mostra apenas as pistas iniciais
 const printScope = ref<'current' | 'given'>('current'); // Estado do switch "Current state" vs "Only given"
@@ -711,6 +790,10 @@ const printScope = ref<'current' | 'given'>('current'); // Estado do switch "Cur
 // Assumindo que você tem uma ref que armazena a solução (array 9x9 de números)
 // Se não tiver, precisará populá-la ao gerar/carregar um jogo.
 const answerBoard = ref<number[][]>([]); // <--- CERTIFIQUE-SE QUE ESTA REF EXISTE E É POPULADA
+
+watch(includeMyAnswers, (newValue) => {
+    printScope.value = newValue ? 'current' : 'given'; // Atualiza o escopo de impressão com base na seleção
+});
 
 
 let solution: number[][] = [[]];
@@ -2923,39 +3006,113 @@ function logBoard(board: Cell[][]) {
     console.table(candidatesByCell);
 }
 
+// --- Função auxiliar para calcular candidatos com base em UM ESTADO de tabuleiro ---
+// Isso será usado para o modo 'Auto Candidate' quando includeAnswers for false
+function calculateCandidatesForBoardState(boardState: Array<Array<number | null | undefined>>, row: number, col: number): number[] {
 
-// Gera os dados para o tabuleiro principal no preview de impressão
+    // console.log("Calculando candidatos para célula:", row, col, boardState, boardState[row][col]); // Debugging: loga a célula sendo calculada
+
+    // Certifique-se de que a célula no estado do tabuleiro é vazia
+    if (boardState[row][col].value) return []; // Células não vazias não precisam de candidatos
+
+    const candidates = new Set<number>([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    // Remove candidatos presentes na mesma linha
+    for (let c = 0; c < 9; c++) if (boardState[row][c].value) candidates.delete(boardState[row][c].value as number);
+
+    // Remove candidatos presentes na mesma coluna
+    for (let r = 0; r < 9; r++) if (boardState[r][col].value) candidates.delete(boardState[r][col].value as number);
+
+    // Remove candidatos presentes no mesmo bloco
+    const blockRow = Math.floor(row / 3) * 3;
+    const blockCol = Math.floor(col / 3) * 3;
+    for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+            if (boardState[blockRow + r][blockCol + c].value) {
+                candidates.delete(boardState[blockRow + r][blockCol + c].value as number);
+            }
+        }
+    }
+
+    return Array.from(candidates).sort((a, b) => a - b);
+}
+
+// --- Computed property para os dados do tabuleiro principal do preview ---
 const boardDataForPrintPreview = computed<Cell[][]>(() => {
-    // Baseado na opção 'printScope', gera uma cópia modificada do tabuleiro atual
     const data: Cell[][] = [];
+
+    const initialBoard = board.value.map(row => row.map(cell => {
+        if (cell.type !== 'given') return { ...cell, value: null }; // Limpa o valor para células que não são 'given'
+        return { ...cell };
+    }));
+
+    // console.log("Initial Board for Preview:", initialBoard); // Debugging: loga o tabuleiro inicial para o preview
+
     for (let r = 0; r < 9; r++) {
         data[r] = [];
         for (let c = 0; c < 9; c++) {
-            const originalCell = board.value[r][c];
-            // Cria um novo objeto Cell para o preview, copiando propriedades e modificando
+            const originalCell = board.value[r][c]; // Usa a célula original para propriedades como coordinates, answer, type (inicial)
+
+            // Determina o valor da célula no preview
+            // Se includeMyAnswers é true, usa o valor atual da célula (originalCell.value).
+            // Se false, usa o valor do initialBoard (que é null/0 para vazias).
+            const previewValue = includeMyAnswers.value ? originalCell.value : initialBoard[r][c].value ?? null; // Use null se originalCell.value for null/undefined
+
+            let previewCandidates: number[] = [];
+            // Inclui candidatos APENAS se showCandidatesInPrint for verdadeiro
+            if (showCandidatesInPrint.value) {
+                // Se includeMyAnswers é true, usa os candidatos atuais da célula original
+                if (includeMyAnswers.value) {
+                    previewCandidates = originalCell.candidates ?? []; // Use [] se originalCell.candidates for null/undefined
+                } else {
+                    // Se includeMyAnswers é false (apenas pistas iniciais):
+                    // Determina como gerar candidatos baseado em candidatesInPrint
+                    if (candidatesInPrint.value === 'all') {
+                        // Mostrar todos os candidatos (1-9) nas células vazias do board inicial
+                        // Verifica se a célula estava vazia no initialBoard
+                        previewCandidates = !initialBoard[r][c].value ? [1, 2, 3, 4, 5, 6, 7, 8, 9] : []; // Célula tinha um valor inicialmente, sem candidatos
+                    } else { // candidatesInPrint.value === 'auto'
+                        // Calcula candidatos com base APENAS no estado do initialBoard
+                        // Passa o array initialBoard (que contém numbers ou 0/null)
+                        const initialBoardValues: Array<Array<number | null | undefined>> = initialBoard.map(row => row.map(val => !val ? null : val));
+                        previewCandidates = calculateCandidatesForBoardState(initialBoardValues, r, c);
+                    }
+                }
+            } else {
+                previewCandidates = []; // Candidate display mode é 'none'
+            }
+
+            // Garante que candidatos seja sempre um array (vazio ou não)
+            if (!previewCandidates) previewCandidates = [];
+
+            // Cria o objeto Cell para o preview
+            // Embora não usemos o componente Cell.vue, criamos um objeto com a mesma estrutura
+            // para consistência e para a computed property de respostas.
             const previewCell: Cell = {
-                ...originalCell, // Copia propriedades como coordinates, answer, check
-                // Modifica o valor e candidatos baseado no printScope
-                // Se 'given', mostra valor apenas se o tipo original era 'given', e limpa candidatos
-                // Se 'current', mostra valor e candidatos atuais
-                value: printScope.value === 'given' ? (originalCell.type === 'given' ? originalCell.value : null) : originalCell.value,
-                candidates: printScope.value === 'given' ? [] : originalCell.candidates,
-                // Limpa estados de seleção, destaque e cores que não devem aparecer no preview de impressão
+                ...originalCell, // Copia propriedades como coordinates, answer
+                value: previewValue, // Valor determinado acima
+                candidates: previewCandidates, // Candidatos determinados acima
+                // Limpa estados visuais que não devem aparecer no preview
                 selected: false,
                 highlight: false,
                 highlightValue: null,
-                color: "#FFFFFF", // Limpa cor de marcação manual
-                candidateColors: undefined, // Limpa cores de candidatos (os candidatos podem mudar ou ser limpos)
+                color: "#FFFFFF",
+                candidateColors: undefined,
+                // O tipo será ajustado abaixo com base no valor/candidatos do preview
             };
+
             // Ajusta o tipo da célula no preview para refletir o valor/candidatos que serão mostrados
-            if (previewCell.value !== null && previewCell.value !== 0) {
-                previewCell.type = originalCell.type === 'given' ? 'given' : 'filled'; // Mantém 'given' se era original, senão vira 'filled'
+            if (previewCell.value !== null && previewCell.value !== undefined && previewCell.value !== 0) {
+                // Se tem valor, verifica se era uma pista inicial para definir o tipo 'given'
+                // Se o valor vem do initialBoard e não era 0/null, é 'given'. Senão, é 'filled'.
+                previewCell.type = (initialBoard[r][c] !== null && initialBoard[r][c] !== undefined && initialBoard[r][c] !== 0) ? 'given' : 'filled';
             } else if (previewCell.candidates && previewCell.candidates.length > 0) {
-                previewCell.type = 'candidate'; // Vira 'candidate' se tiver candidatos
-            } else {
-                // Se não tiver valor nem candidatos, qual o tipo? 'candidate' com lista vazia parece razoável.
+                // Se não tem valor mas tem candidatos, é do tipo 'candidate'
                 previewCell.type = 'candidate';
-                previewCell.candidates = []; // Garante que candidatos seja um array vazio se null/undefined
+            } else {
+                // Se não tem valor nem candidatos (visíveis), é do tipo 'candidate' com lista vazia
+                previewCell.type = 'candidate'; // Mantém tipo 'candidate'
+                previewCell.candidates = []; // Garante array vazio
             }
 
             data[r][c] = previewCell;
@@ -2963,45 +3120,6 @@ const boardDataForPrintPreview = computed<Cell[][]>(() => {
     }
     return data;
 });
-
-// Gera os dados para o tabuleiro de respostas no preview de impressão (se incluir respostas)
-const answerBoardDataForPrintPreview = computed<Cell[][]>(() => {
-    // Esta computed property só será usada se includeAnswers for true.
-    // Ela sempre mostra a chave de respostas.
-    const data: Cell[][] = [];
-    answerBoard.value = solution; // Garante que answerBoard seja um array vazio se não estiver definido
-    // Verifica se a chave de respostas (answerBoard) está populada
-    if (!answerBoard.value || answerBoard.value.length === 0) {
-        console.warn("Dados do tabuleiro de respostas não disponíveis para preview.");
-        return []; // Retorna array vazio se a chave de respostas não estiver pronta
-    }
-
-    for (let r = 0; r < 9; r++) {
-        data[r] = [];
-        for (let c = 0; c < 9; c++) {
-            const originalCell = board.value[r][c]; // Pega a célula original (para coordenadas, etc.)
-            const answer = answerBoard.value[r][c]; // Pega o número da resposta
-
-            // Cria um objeto Cell para o preview da resposta, mostrando apenas o número da resposta
-            const previewCell: Cell = {
-                ...originalCell, // Copia propriedades como coordinates, answer
-                value: answer, // Define o valor como o número da resposta
-                candidates: [], // Não mostra candidatos no board de respostas
-                type: 'given', // Pode tratar visualmente como 'given' para consistência na aparência de números fixos
-                // Limpa estados de seleção, destaque e cores
-                selected: false,
-                highlight: false,
-                highlightValue: null,
-                color: "#FFFFFF",
-                candidateColors: undefined,
-                answer: answer, // Mantém a propriedade answer
-            };
-            data[r][c] = previewCell;
-        }
-    }
-    return data;
-});
-
 
 // --- Função para Lidar com o Botão de Impressão ---
 function handlePrint() {
@@ -3011,13 +3129,17 @@ function handlePrint() {
     // Chamamos a função de impressão nativa do navegador.
     // As regras CSS @media print definirão o que será visível na saída da impressão.
 
+    var printContents = document.getElementById('print-area').innerHTML;
+    var originalContents = document.body.innerHTML;
+
+    document.body.innerHTML = printContents;
     window.print();
+    document.body.innerHTML = originalContents;
 
     // Opcional: Fechar o dialog após disparar a impressão.
     // Pode ser melhor deixar o usuário fechar manualmente após a janela de impressão aparecer.
     // showPrintDialog.value = false;
 }
-
 
 watch(() => board.value.map(row => row.map(cell => cell.value ? [cell.value].join(', ') : cell.candidates.join(', '))), () => {
     filterCandidates(); // Refiltrar quando o board mudar (e.g., novo jogo)
@@ -3030,6 +3152,19 @@ watch(searchQuery, () => {
 // watch(selectedCell, () => {
 //     console.log('selectedCell mudou:', selectedCell.value);
 // });
+
+// function printDiv(divId) {
+//     var printContents = document.getElementById(divId).innerHTML;
+//     var originalContents = document.body.innerHTML;
+
+//     document.body.innerHTML = printContents;
+
+//     window.print();
+
+//     document.body.innerHTML = originalContents;
+// }
+
+// printDiv('print-preview-area');
 
 </script>
 
@@ -3537,148 +3672,381 @@ watch(searchQuery, () => {
     }
 }
 
-/* --- Estilos para o Preview no Dialog --- */
-#print-preview-area {
-    /* Estilos gerais para a área de preview no dialog */
-    padding: 10px;
-    /* Espaçamento interno */
-    border: 1px dashed #ccc;
-    /* Borda para delimitar a área de impressão */
-    margin-bottom: 20px;
-    background-color: #f9f9f9;
-    /* Um leve fundo */
-    overflow-y: auto;
-    /* Permite scrollar se o conteúdo exceder a altura do dialog */
-    max-height: 60vh;
-    /* Altura máxima antes de scrollar (ajuste conforme o tamanho do seu dialog) */
+.print-candidates-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-/* Estilos para o contêiner do tabuleiro principal no preview */
-.board-preview {
-    /* Ajuste a largura e margens para centralizar e posicionar no preview */
-    /* width: 100%; */
-    /* Ocupa a largura da área de preview */
-    max-width: 500px;
-    /* Exemplo: Limite a largura em telas/dialogs maiores */
+.print-candidates-options .option {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding-left: 5px;
+}
+
+
+/* --- Estilos para a Área de Preview de Impressão (Representação A4) --- */
+#print-preview-area {
+    /* Estilos para fazer a área de preview parecer uma página A4 redimensionada */
+    width: 100%;
+    /* Largura padrão para preencher o espaço do dialog */
+    max-width: 600px;
+    /* Exemplo: Limitar largura no dialog */
+    aspect-ratio: 1 / 1.414;
+    /* Proporção A4 */
+    border: 1px solid #000;
+    /* Borda visual da "página" */
     margin: 20px auto;
-    /* Centraliza o tabuleiro principal */
+    /* Centralizar o preview no dialog */
+    overflow: hidden;
+    /* Esconder conteúdo fora dos limites A4 no preview */
+    /* Usar transform para redimensionar toda a área de preview para caber no dialog */
+    /* O fator de escala exato pode precisar de ajuste com base no tamanho do dialog e max-width */
+    transform: scale(0.7);
+    /* Exemplo: Redimensionar para 70% */
+    transform-origin: top center;
+    /* Redimensionar a partir do centro superior */
+    /* Ajustar margin-top após a escala se necessário para posicionar corretamente */
+    margin-top: 50px;
+    /* Exemplo: ajustar margem após a escala */
+    padding: 1cm;
+    /* Padding para simular margens da página */
+    box-sizing: border-box;
+    /* Incluir padding no tamanho total */
+}
+
+/* --- Estilos para os Tabuleiros de Impressão (Aparência Distinta) --- */
+
+/* Contêiner geral para ambos os tabuleiros - atua como a grid 9x9 */
+.print-board-container {
     display: grid;
     grid-template-columns: repeat(9, 1fr);
-    grid-template-rows: repeat(9, 1fr);
+    /* 9 colunas iguais */
+    /* grid-template-rows: repeat(9, 1fr); */
+    /* Não necessário se aspect-ratio estiver na célula */
+    gap: 0;
+    /* Sem espaçamento entre os itens da grid (células) */
+    width: 100%;
+    /* Ocupar toda a largura da área de preview */
+    max-width: 100%;
+    margin: 0 auto;
+    /* Centralizar na área de preview */
+    border-collapse: collapse;
+    /* Não se aplica a grid, gerenciar bordas nas células */
+    border: none;
+    /* Sem borda no contêiner */
+}
+
+/* Estilos específicos para o tabuleiro principal */
+.print-board-main {
+    border: 2px solid black;
+    /* Borda externa para o tabuleiro principal */
+}
+
+/* Contêiner para cada célula no preview - atua como um item da grid */
+.print-board-cell {
+    position: relative;
     aspect-ratio: 1 / 1;
-    width: 800px;
+    /* Manter células quadradas */
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    /* Centralizar conteúdo verticalmente */
+    justify-content: center;
+    /* Centralizar conteúdo horizontalmente */
+    overflow: hidden;
+    /* Esconder excesso de conteúdo (candidatos) */
+    padding: 2px;
+    /* Padding dentro da célula */
+    background-color: transparent;
+    user-select: none;
+    /* Impede seleção de texto */
+
+    /* Aplicando bordas individuais finas */
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
 }
 
-/* Estilos para a área do tabuleiro de respostas no preview */
-.answer-board-preview {
+/* --- Estilos para Bordas Grossas dos Blocos 3x3 e Bordas Externas --- */
+/* Aplicar bordas grossas e sobrescrever as finas onde necessário */
+
+/* Borda grossa à direita para as colunas 3 e 6 */
+.print-board-container>.print-board-cell:nth-child(9n+3) {
+    border-right-width: 2px !important;
+    border-right-color: black !important;
+}
+
+.print-board-container>.print-board-cell:nth-child(9n+6) {
+    border-right-width: 2px !important;
+    border-right-color: black !important;
+}
+
+/* Borda grossa embaixo para as linhas 3 e 6 */
+/* Células da linha 3: 19 a 27. Células da linha 6: 46 a 54. */
+.print-board-container>.print-board-cell:nth-child(n+19):nth-child(-n+27) {
+    border-bottom-width: 2px !important;
+    border-bottom-color: black !important;
+}
+
+/* Células da linha 3 */
+.print-board-container>.print-board-cell:nth-child(n+46):nth-child(-n+54) {
+    border-bottom-width: 2px !important;
+    border-bottom-color: black !important;
+}
+
+/* Células da linha 6 */
+
+/* Bordas externas grossas */
+.print-board-container>.print-board-cell:nth-child(9n+1) {
+    border-left-width: 2px !important;
+    border-left-color: black !important;
+}
+
+/* Primeira coluna */
+.print-board-container>.print-board-cell:nth-child(-n+9) {
+    border-top-width: 2px !important;
+    border-top-color: black !important;
+}
+
+/* Primeira linha */
+.print-board-container>.print-board-cell:nth-child(9n) {
+    border-right-width: 2px !important;
+    border-right-color: black !important;
+}
+
+/* Última coluna */
+.print-board-container>.print-board-cell:nth-last-child(-n+9) {
+    border-bottom-width: 2px !important;
+    border-bottom-color: black !important;
+}
+
+/* Última linha */
+
+/* Garantir a mesma lógica de borda para o tabuleiro de respostas */
+.print-board-answer.print-board-container>.print-board-cell {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
+
+.print-board-answer.print-board-container>.print-board-cell:nth-child(9n+3) {
+    border-right-width: 2px !important;
+    border-right-color: black !important;
+}
+
+.print-board-answer.print-board-container>.print-board-cell:nth-child(9n+6) {
+    border-right-width: 2px !important;
+    border-right-color: black !important;
+}
+
+.print-board-answer.print-board-container>.print-board-cell:nth-child(n+19):nth-child(-n+27) {
+    border-bottom-width: 2px !important;
+    border-bottom-color: black !important;
+}
+
+.print-board-answer.print-board-container>.print-board-cell:nth-child(n+46):nth-child(-n+54) {
+    border-bottom-width: 2px !important;
+    border-bottom-color: black !important;
+}
+
+.print-board-answer.print-board-container>.print-board-cell:nth-child(9n+1) {
+    border-left-width: 2px !important;
+    border-left-color: black !important;
+}
+
+.print-board-answer.print-board-container>.print-board-cell:nth-child(-n+9) {
+    border-top-width: 2px !important;
+    border-top-color: black !important;
+}
+
+.print-board-answer.print-board-container>.print-board-cell:nth-child(9n) {
+    border-right-width: 2px !important;
+    border-right-color: black !important;
+}
+
+.print-board-answer.print-board-container>.print-board-cell:nth-last-child(-n+9) {
+    border-bottom-width: 2px !important;
+    border-bottom-color: black !important;
+}
+
+
+/* Estilos para o número do valor */
+.print-cell-value {
+    font-size: 1.5em;
+    /* Fonte maior para valores */
+    font-weight: bold;
+    color: black;
+    user-select: none;
+}
+
+/* --- Estilos para Candidatos --- */
+
+/* Contêiner geral para candidatos (grid ou inline) */
+/* Aplicar flex para controlar alinhamento quando não for grid */
+.print-cell-candidates {
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    color: #555;
+    /* Padrão flex, será sobrescrito por display: grid */
+    display: flex;
+    flex-wrap: wrap;
+    /* Necessário para inline */
+    align-items: center;
+    /* Centraliza verticalmente */
+    justify-content: center;
+    /* Centraliza horizontalmente */
+}
+
+/* Estilos específicos para o Layout Grid */
+.print-cell-candidates.grid-layout {
+    display: grid;
+    /* Sobrescreve flex */
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    /* GARANTIR 3 LINHAS */
+    row-gap: 1px;
+    column-gap: 5px;
+    font-size: 0.5em;
+    /* Tamanho da fonte para candidatos */
+    padding: 2px;
+    align-items: center;
+    /* Centraliza itens DENTRO da grid */
+    justify-items: center;
+    /* Centraliza itens DENTRO da grid */
+    width: 100%;
+    /* Ocupar todo o espaço da célula */
+    height: 100%;
+    /* Ocupar todo o espaço da célula */
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+/* Estilos para cada spot de candidato no Layout Grid */
+.print-cell-candidates.grid-layout .print-candidate {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+/* Estilos específicos para o Layout Inline */
+.print-cell-candidates.inline-layout {
+    /* Display flex já definido no .print-cell-candidates */
+    /* flex-wrap: wrap; justify-content: center; align-items: flex-start; */
+    /* Já definidos no .print-cell-candidates */
+    font-size: 0.6em;
+    /* Fonte menor para inline */
+    padding: 2px;
+    line-height: 1.1;
+    /* Ajusta altura da linha */
+    /* Certificar que está no topo da célula */
+    position: absolute;
+    /* Posiciona absolutamente no topo */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    /* Altura automática */
+    align-items: flex-start;
+    /* Alinhar ao topo */
+    justify-content: flex-start;
+    /* Alinhar à esquerda (ou center) */
+}
+
+/* Estilos para cada número candidato no Layout Inline */
+.print-cell-candidates.inline-layout .print-candidate-inline {
+    margin: 0 1px;
+}
+
+
+/* Estilos para células vazias */
+.print-cell-empty {
+    user-select: none;
+}
+
+
+/* Estilos para o tabuleiro de respostas no preview */
+.print-board-answer {
     margin-top: 40px;
-    /* Espaço acima do board de respostas */
     text-align: center;
-    /* Centraliza o título "Respostas" */
 }
 
-/* Estilos para o contêiner do CONTEÚDO (células) do tabuleiro de respostas no preview */
-.answer-board-content {
-    /* Aplica as transformações de escala e rotação para o preview */
-    transform: scale(0.5) rotate(180deg);
-    /* Escala para 1/2 do tamanho, gira 180 graus */
+/* Wrapper para o conteúdo do tabuleiro de respostas (escala/rotação) */
+.answer-board-content-wrapper {
+    transform: scale(0.25) rotate(180deg);
     transform-origin: center center;
-    /* Aplica a transformação a partir do centro */
-    /* Ajuste a largura para que o contêiner ocupe o espaço correto APÓS a escala */
-    /* Se o board principal tem max-width de 500px, scaled 0.5 é 250px */
-    width: 250px;
-    /* Exemplo de largura após escala 0.5 */
-    margin: 20px auto;
-    /* Centraliza o board de respostas escalado */
+    width: 500px;
+    max-width: 100%;
+    margin: -20% -38% auto;
     border: 1px dashed #ddd;
-    /* Borda para visualização no preview */
     padding: 10px;
-    /* Espaçamento interno no preview */
     box-sizing: content-box;
-    /* Garante que padding/border não afetem o cálculo da largura se estiver usando border-box em outro lugar */
     opacity: 0.8;
-    /* Torna um pouco transparente no preview */
+    /* O grid layout está no .print-board-container */
+}
+
+/* Estilos para o valor no tabuleiro de respostas */
+.print-board-answer .print-cell-value {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: black;
+    user-select: none;
+}
+
+/* Oculta candidatos no tabuleiro de respostas */
+.print-board-answer .print-cell-candidates {
+    display: none;
 }
 
 
-/* --- Estilos para a Impressão (@media print) --- */
-@media print {
+/* Ajustar bordas para células do tabuleiro de respostas (mesma lógica do principal, mas direcionado com .print-board-answer) */
+.print-board-answer.print-board-container>.print-board-cell {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
 
-    /* Oculta todos os elementos do corpo que NÃO SÃO a área de preview */
-    /* Isso garante que apenas o conteúdo dentro de #print-preview-area seja impresso */
-    body>*:not(#print-preview-area) {
-        display: none !important;
-    }
+.print-board-answer.print-board-container>.print-board-cell:nth-child(9n+3) {
+    border-right-width: 2px !important;
+    border-right-color: black !important;
+}
 
-    /* Torna a área de preview visível e ocupa toda a largura disponível na impressão */
-    #print-preview-area {
-        display: block !important;
-        /* Garante que seja visível */
-        position: relative !important;
-        /* Ajusta posicionamento para print */
-        width: 100% !important;
-        /* Ocupa toda a largura da página */
-        margin: 0 !important;
-        /* Remove margens do preview */
-        padding: 0 !important;
-        /* Remove padding do preview */
-        border: none !important;
-        /* Remove a borda do preview */
-        background-color: transparent !important;
-        /* Remove o fundo do preview */
-        overflow: visible !important;
-        /* Garante que todo o conteúdo seja visível */
-        max-height: none !important;
-        /* Remove limite de altura */
-    }
+.print-board-answer.print-board-container>.print-board-cell:nth-child(9n+6) {
+    border-right-width: 2px !important;
+    border-right-color: black !important;
+}
 
-    /* Estilos para o contêiner do tabuleiro principal na impressão */
-    .board-preview {
-        width: 100%;
-        /* Permite que o board ocupe a largura total da área de impressão */
-        max-width: 100%;
-        /* Garante que não exceda a largura da página */
-        margin: 1cm auto !important;
-        /* Centraliza com margens de 1cm na impressão */
-        /* Remova quaisquer outros estilos de visualização de preview que não sejam desejados na impressão */
-    }
+.print-board-answer.print-board-container>.print-board-cell:nth-child(n+19):nth-child(-n+27) {
+    border-bottom-width: 2px !important;
+    border-bottom-color: black !important;
+}
 
-    /* Estilos para a área do tabuleiro de respostas na impressão */
-    .answer-board-preview {
-        margin-top: 2cm !important;
-        /* Espaço maior após o board principal na impressão */
-        /* Remova text-align: center se quiser o título alinhado à esquerda na impressão */
-    }
+.print-board-answer.print-board-container>.print-board-cell:nth-child(n+46):nth-child(-n+54) {
+    border-bottom-width: 2px !important;
+    border-bottom-color: black !important;
+}
 
-    /* Estilos para o contêiner do CONTEÚDO (células) do tabuleiro de respostas na impressão */
-    .answer-board-content {
-        /* Aplica as transformações de escala e rotação para a impressão (1/4 do tamanho) */
-        transform: scale(0.25) rotate(180deg) !important;
-        /* Escala para 1/4, gira 180deg */
-        transform-origin: center center !important;
-        /* Mantém a origem no centro */
-        /* Ajuste a largura para que o contêiner ocupe o espaço correto APÓS a escala para 1/4 */
-        /* Se o board principal tem max-width de 500px, scaled 0.25 é 125px */
-        width: 125px !important;
-        /* Exemplo de largura após escala 0.25 */
-        margin: 1cm auto !important;
-        /* Centraliza com margem de 1cm na impressão */
-        border: none !important;
-        /* Remove borda do preview */
-        padding: 0 !important;
-        /* Remove padding do preview */
-        opacity: 1 !important;
-        /* Garante que seja totalmente visível na impressão */
-        box-sizing: content-box !important;
-        /* Mantém o box-sizing se relevante */
-    }
+.print-board-answer.print-board-container>.print-board-cell:nth-child(9n+1) {
+    border-left-width: 2px !important;
+    border-left-color: black !important;
+}
 
-    .cell span {
-        font-size: 12pt !important;
-    }
+.print-board-answer.print-board-container>.print-board-cell:nth-child(-n+9) {
+    border-top-width: 2px !important;
+    border-top-color: black !important;
+}
 
-    .grid span {
-        font-size: 8pt !important;
-    }
+.print-board-answer.print-board-container>.print-board-cell:nth-child(9n) {
+    border-right-width: 2px !important;
+    border-right-color: black !important;
+}
+
+.print-board-answer.print-board-container>.print-board-cell:nth-last-child(-n+9) {
+    border-bottom-width: 2px !important;
+    border-bottom-color: black !important;
 }
 </style>

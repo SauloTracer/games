@@ -333,7 +333,10 @@
                     ></v-checkbox>
                 </div>
                 <div id="print-area">
-                    <div id="print-preview-area">
+                    <div
+                        id="print-preview-area"
+                        ref="printPreviewArea"
+                    >
                         <div class="print-board-container print-board-main">
                             <template
                                 v-for="(row, rowIndex) in boardDataForPrintPreview"
@@ -393,7 +396,7 @@
                                 class="print-board-container print-board-answer mt-8"
                             >
                                 <template
-                                    v-for="(row, rowIndex) in solution"
+                                    v-for="(row, rowIndex) in [...solution]"
                                     :key="'answer-preview-row-template-' + rowIndex"
                                 >
                                     <div
@@ -419,13 +422,12 @@
                         <img
                             src="/src/assets/images/banner.jpeg"
                             alt="puzzled.com.br"
-                            class="logo"
-                            style="height: 7%; position: absolute; top: 626px; right: 24px; z-index: 99;"
+                            class="print-logo"
                         />
                         <img
                             src="/src/assets/qrcode.png"
                             alt="puzzled.com.br"
-                            style="height: 15%; position: absolute; top: 671px; right: 50px; z-index: 98;"
+                            class="print-qrcode"
                         />
                     </div>
                 </div>
@@ -774,6 +776,7 @@ const dragStartY = ref(0);
 
 const boardElement = ref<HTMLElement | null>(null);
 const searchInputElement = ref<HTMLElement | null>(null);
+const printPreviewArea = ref<HTMLElement | null>(null);
 
 const showPrintDialog = ref(false); // Controla a visibilidade do dialog de impressão
 const includeAnswers = ref(false); // Estado do checkbox "Add answers"
@@ -3121,24 +3124,242 @@ const boardDataForPrintPreview = computed<Cell[][]>(() => {
     return data;
 });
 
-// --- Função para Lidar com o Botão de Impressão ---
 function handlePrint() {
-    // Esta função é chamada ao clicar no botão "Imprimir" dentro do dialog.
-    // O conteúdo visível no preview (o board principal e opcionalmente o board de respostas)
-    // será o conteúdo que será preparado para a impressão.
-    // Chamamos a função de impressão nativa do navegador.
-    // As regras CSS @media print definirão o que será visível na saída da impressão.
+    // Obtém o conteúdo HTML da área de preview usando a ref de template
+    // printPreviewArea.value terá a div #print-preview-area
+    const contentToPrint = printPreviewArea.value ? printPreviewArea.value.innerHTML : '';
 
-    var printContents = document.getElementById('print-area').innerHTML;
-    var originalContents = document.body.innerHTML;
+    if (!contentToPrint) {
+        alert('Não foi possível obter o conteúdo para imprimir.');
+        return;
+    }
 
-    document.body.innerHTML = printContents;
-    window.print();
-    document.body.innerHTML = originalContents;
+    // HTML completo para a nova janela
+    const printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Sudoku para Imprimir</title>
+            <style>
+                /* COPIAR AQUI SOMENTE OS ESTILOS CSS RELEVANTES PARA A IMPRESSÃO */
+                /* Incluindo bordas, layouts de candidatos, fontes, etc. */
+                /* Estes estilos devem ser os que fazem o preview parecer correto quando não escalado */
 
-    // Opcional: Fechar o dialog após disparar a impressão.
-    // Pode ser melhor deixar o usuário fechar manualmente após a janela de impressão aparecer.
-    // showPrintDialog.value = false;
+                /* Regra @page para margens de impressão */
+                 @page {
+                     size: A4; /* Define o tamanho do papel */
+                     margin: 1cm; /* Define as margens da página */
+                 }
+                 body {
+                     margin: 0;
+                     padding: 0;
+                     font-family: sans-serif; /* Fonte básica */
+                 }
+
+                /* Estilos para os contêineres dos tabuleiros (principal e respostas) */
+                .print-board-container {
+                    display: grid;
+                    grid-template-columns: repeat(9, 1fr);
+                    gap: 0;
+                    width: 98%; /* Ocupa toda a largura disponível */
+                    max-width: 98%;
+                    margin: -200 auto; /* Centraliza */
+                    border-collapse: collapse;
+                    border: none; /* Sem borda no contêiner */
+                }
+
+                /* Estilos específicos para o tabuleiro principal */
+                .print-board-main {
+                    border: 2px solid black; /* Borda externa */
+                    margin: 1cm auto; /* Margem do topo da página, centralizado */
+                }
+
+                /* Estilos específicos para o tabuleiro de respostas */
+                .print-board-answer {
+                     margin-top: 2cm; /* Espaço após o tabuleiro principal */
+                     text-align: center;
+                 }
+
+
+                /* Estilos para cada célula */
+                .print-board-cell {
+                    position: relative;
+                    aspect-ratio: 1 / 1; /* Manter células quadradas */
+                    box-sizing: border-box;
+                    display: flex;
+                    align-items: center; /* Centralizar conteúdo */
+                    justify-content: center; /* Centralizar conteúdo */
+                    overflow: hidden;
+                    padding: 2px; /* Padding dentro da célula */
+                    background-color: transparent;
+                    user-select: none;
+
+                    /* Bordas finas */
+                    border-top: 1px solid #ccc;
+                    border-bottom: 1px solid #ccc;
+                    border-left: 1px solid #ccc;
+                    border-right: 1px solid #ccc;
+                }
+
+                /* Bordas grossas para blocos 3x3 e bordas externas */
+                /* Usar !important para garantir que sobrescrevam as bordas finas */
+                .print-board-container > .print-board-cell:nth-child(9n+3) { border-right-width: 2px !important; border-right-color: black !important; }
+                .print-board-container > .print-board-cell:nth-child(9n+6) { border-right-width: 2px !important; border-right-color: black !important; }
+                .print-board-container > .print-board-cell:nth-child(n+19):nth-child(-n+27) { border-bottom-width: 2px !important; border-bottom-color: black !important; }
+                .print-board-container > .print-board-cell:nth-child(n+46):nth-child(-n+54) { border-bottom-width: 2px !important; border-bottom-color: black !important; }
+                .print-board-container > .print-board-cell:nth-child(9n+1) { border-left-width: 2px !important; border-left-color: black !important; }
+                .print-board-container > .print-board-cell:nth-child(-n+9) { border-top-width: 2px !important; border-top-color: black !important; }
+                .print-board-container > .print-board-cell:nth-child(9n) { border-right-width: 2px !important; border-right-color: black !important; }
+                .print-board-container > .print-board-cell:nth-last-child(-n+9) { border-bottom-width: 2px !important; border-bottom-color: black !important; }
+
+                /* Garantir lógica de borda para células do tabuleiro de respostas */
+                 .print-board-answer.print-board-container > .print-board-cell {
+                     border-top: 1px solid #ccc !important;
+                     border-bottom: 1px solid #ccc !important;
+                     border-left: 1px solid #ccc !important;
+                     border-right: 1px solid #ccc !important;
+                 }
+                 .print-board-answer.print-board-container > .print-board-cell:nth-child(9n+3) { border-right-width: 2px !important; border-right-color: black !important; }
+                 .print-board-answer.print-board-container > .print-board-cell:nth-child(9n+6) { border-right-width: 2px !important; border-right-color: black !important; }
+                 .print-board-answer.print-board-container > .print-board-cell:nth-child(n+19):nth-child(-n+27) { border-bottom-width: 2px !important; border-bottom-color: black !important; }
+                 .print-board-answer.print-board-container > .print-board-cell:nth-child(n+46):nth-child(-n+54) { border-bottom-width: 2px !important; border-bottom-color: black !important; }
+                 .print-board-answer.print-board-container > .print-board-cell:nth-child(9n+1) { border-left-width: 2px !important; border-left-color: black !important; }
+                 .print-board-answer.print-board-container > .print-board-cell:nth-child(-n+9) { border-top-width: 2px !important; border-top-color: black !important; }
+                 .print-board-answer.print-board-container > .print-board-cell:nth-child(9n) { border-right-width: 2px !important; border-right-color: black !important; }
+                 .print-board-answer.print-board-container > .print-board-cell:nth-last-child(-n+9) { border-bottom-width: 2px !important; border-bottom-color: black !important; }
+
+
+                /* Estilos para o número do valor */
+                .print-cell-value {
+                    font-size: 12pt; /* Tamanho da fonte na impressão */
+                    font-weight: bold;
+                    color: black;
+                    user-select: none;
+                }
+
+                /* --- Estilos para Candidatos --- */
+                /* Contêiner geral para candidatos (grid ou inline) */
+                .print-cell-candidates {
+                    width: 100%;
+                    height: 100%;
+                    user-select: none;
+                    color: #555;
+                     /* Padrão flex, será sobrescrito por display: grid */
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                /* Layout Grid */
+                .print-cell-candidates.grid-layout {
+                    display: grid; /* Sobrescreve flex */
+                    grid-template-columns: repeat(3, 1fr);
+                    grid-template-rows: repeat(3, 1fr); /* GARANTIR 3 LINHAS */
+                    gap: 1px;
+                    font-size: 8pt; /* Tamanho da fonte na impressão */
+                    padding: 1px;
+                    align-items: center; /* Centraliza itens DENTRO da grid */
+                    justify-items: center; /* Centraliza itens DENTRO da grid */
+                    width: 100%;
+                    height: 100%;
+                }
+
+                /* Layout Inline */
+                 .print-cell-candidates.inline-layout {
+                      display: flex;
+                      flex-wrap: wrap;
+                      justify-content: center;
+                      align-items: flex-start;
+                      font-size: 8pt; /* Tamanho da fonte na impressão */
+                      padding: 1px;
+                      line-height: 1.1;
+                      position: absolute; /* Posiciona no topo */
+                      top: 0;
+                      left: 0;
+                      width: 100%;
+                      height: auto;
+                 }
+                 .print-cell-candidates.inline-layout .print-candidate-inline {
+                      margin: 0 1px;
+                 }
+
+                /* Oculta candidatos no tabuleiro de respostas */
+                .print-board-answer .print-cell-candidates { display: none; }
+
+                 /* Estilos para o wrapper do tabuleiro de respostas (sem escala/rotação) */
+                 .answer-board-content-wrapper {
+                    transform: rotate(180deg);
+                    transform-origin: center center;
+                    width: 125px;
+                    position: absolute;
+                    top: 840px;
+                    left: 75px;
+                    z-index: 99;
+                    box-sizing: content-box;
+                    opacity: 0.8;
+                }
+
+                .answer-board-content-wrapper *{
+                    font-size: 4pt !important;
+                }
+
+                 /* Estilos para o valor no tabuleiro de respostas */
+                 .print-board-answer .print-cell-value {
+                      font-size: 12pt;
+                      font-weight: bold;
+                      color: black;
+                      user-select: none;
+                 }
+
+                .print-logo {
+                    height: 7%;
+                    position: absolute;
+                    top: 785px;
+                    right: 30px;
+                    z-index: 99;
+                }
+
+                .print-qrcode {
+                    height: 15%;
+                    position: absolute;
+                    top: 845px;
+                    right: 50px;
+                    z-index: 98;
+                }
+
+            </style>
+        </head>
+        <body>
+            ${contentToPrint}
+        </body>
+        </html>
+    `;
+
+    // Abrir nova janela
+    const newWindow = window.open('', '_blank');
+    if (!newWindow) {
+        alert('Não foi possível abrir a janela para impressão. Por favor, permita pop-ups para este site.');
+        return;
+    }
+
+    // Escrever conteúdo na nova janela
+    newWindow.document.write(printContent);
+    newWindow.document.close(); // Fechar o stream do documento
+
+    // Esperar o conteúdo carregar e então imprimir
+    // Um pequeno delay é comum para garantir que o navegador renderize antes de abrir o dialog de impressão
+    setTimeout(() => {
+        newWindow.print();
+        // Opcional: Fechar a janela após a impressão ser iniciada.
+        // Um delay extra pode ajudar em alguns navegadores.
+        setTimeout(() => {
+            newWindow.close();
+        }, 100); // Ajuste o delay se necessário
+    }, 500); // Ajuste o delay se necessário (e.g., 250ms, 500ms)
+
+    // Fechar o dialog na janela principal
+    showPrintDialog.value = false;
 }
 
 watch(() => board.value.map(row => row.map(cell => cell.value ? [cell.value].join(', ') : cell.candidates.join(', '))), () => {
@@ -3152,19 +3373,6 @@ watch(searchQuery, () => {
 // watch(selectedCell, () => {
 //     console.log('selectedCell mudou:', selectedCell.value);
 // });
-
-// function printDiv(divId) {
-//     var printContents = document.getElementById(divId).innerHTML;
-//     var originalContents = document.body.innerHTML;
-
-//     document.body.innerHTML = printContents;
-
-//     window.print();
-
-//     document.body.innerHTML = originalContents;
-// }
-
-// printDiv('print-preview-area');
 
 </script>
 
@@ -3701,7 +3909,7 @@ watch(searchQuery, () => {
     overflow: hidden;
     /* Esconder conteúdo fora dos limites A4 no preview */
     /* Usar transform para redimensionar toda a área de preview para caber no dialog */
-    /* O fator de escala exato pode precisar de ajuste com base no tamanho do dialog e max-width */
+    /* O fator de escala exato pode precisar de ajuste com base no tamanho do dialog e max-width 
     transform: scale(0.7);
     /* Exemplo: Redimensionar para 70% */
     transform-origin: top center;
@@ -3872,7 +4080,6 @@ watch(searchQuery, () => {
     border-bottom-color: black !important;
 }
 
-
 /* Estilos para o número do valor */
 .print-cell-value {
     font-size: 1.5em;
@@ -3961,12 +4168,10 @@ watch(searchQuery, () => {
     margin: 0 1px;
 }
 
-
 /* Estilos para células vazias */
 .print-cell-empty {
     user-select: none;
 }
-
 
 /* Estilos para o tabuleiro de respostas no preview */
 .print-board-answer {
@@ -3986,6 +4191,22 @@ watch(searchQuery, () => {
     box-sizing: content-box;
     opacity: 0.8;
     /* O grid layout está no .print-board-container */
+}
+
+.print-logo {
+    height: 7%;
+    position: absolute;
+    top: 856px;
+    right: 125px;
+    z-index: 99;
+}
+
+.print-qrcode {
+    height: 15%;
+    position: absolute;
+    top: 901px;
+    right: 150px;
+    z-index: 98;
 }
 
 /* Estilos para o valor no tabuleiro de respostas */

@@ -242,18 +242,18 @@
                     @click="showNewGameDialog = true"
                 >New Game</button>
             </div>
+            <div class="tools">
+                <v-btn
+                    @click="showPrintDialog = true"
+                    color="secondary"
+                    class="ml-4"
+                >
+                    <v-icon left>mdi-printer</v-icon> Imprimir
+                </v-btn>
+            </div>
         </v-col>
     </v-row>
 
-    <div class="tools">
-        <v-btn
-            @click="showPrintDialog = true"
-            color="secondary"
-            class="ml-4"
-        >
-            <v-icon left>mdi-printer</v-icon> Imprimir
-        </v-btn>
-    </div>
 
     <v-dialog
         v-model="showPrintDialog"
@@ -3294,7 +3294,7 @@ function handlePrint() {
                     width: 125px;
                     position: absolute;
                     top: 840px;
-                    left: 75px;
+                    left: 55px;
                     z-index: 99;
                     box-sizing: content-box;
                     opacity: 0.8;
@@ -3355,7 +3355,7 @@ function handlePrint() {
         // Um delay extra pode ajudar em alguns navegadores.
         setTimeout(() => {
             newWindow.close();
-        }, 100); // Ajuste o delay se necessário
+        }, 200); // Ajuste o delay se necessário
     }, 500); // Ajuste o delay se necessário (e.g., 250ms, 500ms)
 
     // Fechar o dialog na janela principal
@@ -3527,6 +3527,13 @@ watch(searchQuery, () => {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 10px;
     padding: 10px;
+}
+
+.tools {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
 }
 
 #numbers {

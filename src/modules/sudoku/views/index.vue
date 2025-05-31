@@ -1,30 +1,17 @@
 <template>
     <div id="game-header">
-        <Title class="game-title">
-            Sudoku
-        </Title>
         <button
             id="play-button"
             @click="showNewGameDialog = true"
         >
             <v-icon id="play-button-icon">mdi-play</v-icon>
         </button>
+        <Title class="game-title">
+            Sudoku
+        </Title>
         <div id="gameMode">
-            <v-radio-group
-                v-model="gameMode"
-                @update:modelValue="changeMode($event)"
-                inline
-                hide-details
-            >
-                <v-radio
-                    label="Zen"
-                    :value="GameMode.Zen"
-                ></v-radio>
-                <v-radio
-                    label="3 Strikes"
-                    :value="GameMode.ThreeStrikes"
-                ></v-radio>
-            </v-radio-group>
+            <label>{{ gameMode == GameMode.Zen ? "Zen" : "3-Strikes" }}</label>
+            <label>{{ difficulty?.charAt(0).toUpperCase() }}{{ difficulty?.slice(1) }}</label>
             <div
                 id="hearts"
                 v-if="gameMode == GameMode.ThreeStrikes"
@@ -242,7 +229,7 @@
                     @click="showNewGameDialog = true"
                 >New Game</button>
             </div>
-            <div class="tools">
+            <!-- <div class="tools">
                 <v-btn
                     @click="showPrintDialog = true"
                     color="secondary"
@@ -250,7 +237,7 @@
                 >
                     <v-icon left>mdi-printer</v-icon> Imprimir
                 </v-btn>
-            </div>
+            </div> -->
         </v-col>
     </v-row>
 
@@ -475,14 +462,31 @@
     </v-dialog>
 
     <v-dialog
-        max-width="200"
+        max-width="300"
         v-model="showNewGameDialog"
     >
         <v-card>
             <v-card-title style="text-align: center;">
                 New Game
             </v-card-title>
-            <v-card-text class="d-flex flex-column">
+            <v-card-text class="d-flex flex-column align-center">
+                <div id="gameMode">
+                    <v-radio-group
+                        v-model="gameMode"
+                        @update:modelValue="changeMode($event)"
+                        inline
+                        hide-details
+                    >
+                        <v-radio
+                            label="Zen"
+                            :value="GameMode.Zen"
+                        ></v-radio>
+                        <v-radio
+                            label="3 Strikes"
+                            :value="GameMode.ThreeStrikes"
+                        ></v-radio>
+                    </v-radio-group>
+                </div>
                 <template v-for="[k, v] of Object.entries(Difficulty)">
                     <v-btn
                         class="button difficulty-button justify-center align-center"
@@ -773,6 +777,7 @@ const dragStartCell = ref<Cell | null>(null);
 const lastDraggedCell = ref<Cell | null>(null);
 const dragStartX = ref(0);
 const dragStartY = ref(0);
+const difficulty = ref(Difficulty.Easy); // Dificuldade do jogo
 
 const boardElement = ref<HTMLElement | null>(null);
 const searchInputElement = ref<HTMLElement | null>(null);
@@ -920,8 +925,9 @@ function changeMode(mode: GameMode) {
     }
 }
 
-function newGame(difficulty: string = Difficulty.EASY) {
-    sudokuStore.getBoard(difficulty);
+function newGame(level: string = Difficulty.EASY) {
+    sudokuStore.getBoard(level);
+    difficulty.value = level;
     reset();
 }
 
@@ -1491,11 +1497,13 @@ function save() {
     let localSave: any = {
         board: board.value,
         errors: errors.value,
+
     };
     localStorage.setItem('sudoku-currentGame', btoa(JSON.stringify(localSave)));
     let sudokuConfig = {
         autoCheckCells: autoCheckCells.value,
         gameMode: gameMode.value,
+        difficulty: difficulty.value, // Salva a dificuldade atual
     };
     localStorage.setItem('sudoku-config', JSON.stringify(sudokuConfig));
 }
@@ -1561,6 +1569,7 @@ function loadConfig() {
     let sudokuConfig = JSON.parse(localStorage.getItem('sudoku-config') ?? '{}');
     autoCheckCells.value = sudokuConfig.autoCheckCells;
     gameMode.value = sudokuConfig.gameMode;
+    difficulty.value = sudokuConfig.difficulty || Difficulty.EASY; // Carrega a dificuldade salva
 }
 
 function saveChanges() {
@@ -3411,7 +3420,7 @@ watch(searchQuery, () => {
     font-size: 1.2em;
     cursor: pointer;
     border: solid 2px black;
-    margin-left: 5px;
+    margin-right: 5px;
     padding: 0 5px;
 }
 
@@ -3423,6 +3432,8 @@ watch(searchQuery, () => {
 
 #gameMode label {
     margin: 0 8px;
+    font-size: 1.2em;
+    font-weight: bold;
 }
 
 #hearts {
@@ -3516,10 +3527,6 @@ watch(searchQuery, () => {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-}
-
-#hearts {
-    margin-left: 15px;
 }
 
 #actions {
@@ -3871,7 +3878,7 @@ watch(searchQuery, () => {
 
     #game-header {
         justify-content: space-between;
-        align-items: flex-end;
+        align-items: center;
     }
 
     .game-title {
@@ -3879,7 +3886,11 @@ watch(searchQuery, () => {
     }
 
     #gameMode {
-        margin-bottom: -5px;
+        margin-bottom: 5px;
+    }
+
+    #gameMode label {
+        margin: 0 0 -8px 5px;
     }
 
     #play-button {

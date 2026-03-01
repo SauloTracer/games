@@ -19,15 +19,10 @@ const visibleAds = ref([])
 const AD_HEIGHT = 260 // altura média estimada do anúncio (px)
 
 const calcularQuantidade = () => {
-    console.log("CALCULCANDO...")
   if (!columnRef.value) return
 
   const altura = columnRef.value.clientHeight
   const quantidade = Math.floor(altura / AD_HEIGHT)
-
-  console.log("Altura", altura)
-  console.log("Quantidade", quantidade)
-
 
   // embaralha e pega N anúncios
   const embaralhados = [...ads].sort(() => 0.5 - Math.random())

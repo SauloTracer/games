@@ -705,6 +705,8 @@
             </v-card-actions>
         </v-card>
     </v-dialog>
+
+    <MobileAdModal v-if="isMobile" ref="mobileAdRef" />
 </template>
 
 <script setup lang='ts'>
@@ -728,12 +730,16 @@ enum GameMode {
 
 import { ref, onBeforeMount, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useSudokuStore, Difficulty } from '../stores/SudokuStore';
+import { useDevice } from '@/composables/useDevice'
 
 import Title from '../../../components/Title.vue';
 import Cell from '../components/Cell.vue';
+import MobileAdModal from '../../../components/MobileAdModal.vue';
 
+const { isMobile } = useDevice()
 const sudokuStore = useSudokuStore();
 
+const mobileAdRef = ref(null)
 const autoCheckCells = ref(false);
 const defaultCell = { selected: false, highlight: false, check: autoCheckCells.value, value: null, candidates: [1, 2, 3, 4, 5, 6, 7, 8, 9], type: "candidate", coordinates: { row: 0, col: 0 }, answer: 0, color: "#FFFFFF" } as Cell;
 const board = ref<Cell[][]>([
@@ -3377,6 +3383,12 @@ watch(() => board.value.map(row => row.map(cell => cell.value ? [cell.value].joi
 
 watch(searchQuery, () => {
     filterCandidates(); // Refiltrar quando a query mudar
+});
+
+watch(showNewGameDialog, (old, current) => {
+    if (current && isMobile) {
+        mobileAdRef.value.showNewAd();
+    }
 });
 
 // watch(selectedCell, () => {

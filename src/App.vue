@@ -1,10 +1,13 @@
 <script setup>
 import { ref } from 'vue'
-import AdSense from './components/AdSense.vue';
+import AdColumn from './components/AdColumn.vue';
+import MobileAdModal from './components/MobileAdModal.vue';
 import { useIsMobileStore } from './stores/isMobile';
+import { useDevice } from '@/composables/useDevice'
 
 const drawer = ref(false);
 const isMobileStore = useIsMobileStore();
+const { isMobile } = useDevice()
 
 const handleResize = () => {
   isMobileStore.setIsMobile(window.innerWidth < 768); // Ajuste o valor conforme necessário
@@ -44,26 +47,12 @@ handleResize(); // Chame a função inicialmente para definir o valor correto
 
     <div>
       <div style="display: flex;">
-        <AdSense
-          adUnit="left"
-          :width="isMobileStore.isMobile ? 300 : 160"
-          :height="isMobileStore.isMobile ? 250 : 600"
-        />
+        <AdColumn v-if="!isMobile" />
         <div>
           <router-view />
         </div>
-        <AdSense
-          v-if="!isMobileStore.isMobile"
-          adUnit="right"
-          width="160"
-          height="600"
-        />
+        <AdColumn v-if="!isMobile" />
       </div>
-      <!-- <AdSense
-        adUnit="top"
-        width="728"
-        height="90"
-      /> -->
     </div>
   </v-app>
 </template>

@@ -13,6 +13,5 @@ import { ref } from 'vue'
     font-size: 2rem;
     font-weight: 800;
     text-align: center;
-    margin: .5rem 0;
 }
 </style>

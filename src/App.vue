@@ -1,39 +1,71 @@
 <script setup>
+import { ref } from 'vue'
+import AdSense from './components/AdSense.vue';
+import { useIsMobileStore } from './stores/isMobile';
+
+const drawer = ref(false);
+const isMobileStore = useIsMobileStore();
+
+const handleResize = () => {
+  isMobileStore.setIsMobile(window.innerWidth < 768); // Ajuste o valor conforme necessário
+};
+
+window.addEventListener('resize', handleResize);
+handleResize(); // Chame a função inicialmente para definir o valor correto
+
 </script>
 
 <template>
-  <div>
-    <a
-      href="https://vitejs.dev"
-      target="_blank"
+  <v-icon
+    @click="drawer = !drawer"
+    class="burguer-menu"
+    color="black"
+    style="z-index: 9999;"
+  >mdi-menu</v-icon>
+  <v-app>
+    <v-navigation-drawer
+      v-model="drawer"
+      app
     >
-      <img
-        src="
-      /vite.svg"
-        class="logo"
-        alt="Vite logo"
-      />
-    </a>
-    <div style="display: inline; vertical-align: super;">
-      <nav id="menu">
-        <router-link to="/">Home</router-link> |
-        <router-link to="/sudoku">Sudoku</router-link>
-      </nav>
-    </div>
-    <a
-      href="https://vuejs.org/"
-      target="_blank"
-    >
-      <img
-        src="
-    ./assets/vue.svg"
-        class="logo vue"
-        alt="Vue logo"
-      />
-    </a>
-  </div>
+      <v-list dense>
+        <v-list-item>
+          <v-list-item-title>
+            <router-link to="/">Home</router-link>
+          </v-list-item-title>
+        </v-list-item>
 
-  <router-view />
+        <v-list-item>
+          <v-list-item-title>
+            <router-link to="/sudoku">Sudoku</router-link>
+          </v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <div>
+      <div style="display: flex;">
+        <AdSense
+          adUnit="left"
+          :width="isMobileStore.isMobile ? 300 : 160"
+          :height="isMobileStore.isMobile ? 250 : 600"
+        />
+        <div>
+          <router-view />
+        </div>
+        <AdSense
+          v-if="!isMobileStore.isMobile"
+          adUnit="right"
+          width="160"
+          height="600"
+        />
+      </div>
+      <!-- <AdSense
+        adUnit="top"
+        width="728"
+        height="90"
+      /> -->
+    </div>
+  </v-app>
 </template>
 
 <style scoped>

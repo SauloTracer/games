@@ -27,7 +27,6 @@ body {
   display: flex;
   place-items: center;
   min-width: 320px;
-  min-height: 100vh;
 }
 
 h1 {
@@ -59,15 +58,24 @@ button:focus-visible {
 }
 
 #app {
-  max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
+}
+
+.about {
+  padding-top: -50px;
+}
+
+.burguer-menu {
+  position:fixed !important;
+  top: 5px; 
+  left: 5px;
+  z-index: 9999;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
+    color: #334a5f;
     background-color: #ffffff;
   }
   a:hover {

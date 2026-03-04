@@ -16,7 +16,7 @@ import ads from '@/assets/ads.json'
 const columnRef = ref(null)
 const visibleAds = ref([])
 
-const AD_HEIGHT = 260 // altura média estimada do anúncio (px)
+const AD_HEIGHT = 300 // altura média estimada do anúncio (px)
 
 const calcularQuantidade = () => {
   if (!columnRef.value) return
@@ -26,7 +26,7 @@ const calcularQuantidade = () => {
 
   // embaralha e pega N anúncios
   const embaralhados = [...ads].sort(() => 0.5 - Math.random())
-  visibleAds.value = embaralhados.slice(0, quantidade)
+  visibleAds.value = embaralhados.slice(0, Math.max(1,quantidade-1))
 }
 
 const handleResize = () => {
@@ -50,6 +50,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   gap: 16px;
   height: 100vh;
+  max-height: 100vh;
   width: 300px;
   padding: 0 20px;
 }

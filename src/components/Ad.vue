@@ -37,6 +37,7 @@ onMounted(() => {
 
 .ad-img {
   max-width: 100%;
+  max-height: 250px;
   border-radius: 8px;
 }
 

@@ -1,16 +1,25 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { AdCard } from "@/components/ad-card";
-import { pickRandomAds } from "@/lib/ads";
+import { ads, pickRandomAds } from "@/lib/ads";
 
 export function AdColumn() {
-  const ads = useMemo(() => pickRandomAds(3), []);
+  const [items, setItems] = useState(() => ads.slice(0, 3));
+
+  useEffect(() => {
+    setItems(pickRandomAds(3));
+    const interval = window.setInterval(() => {
+      setItems(pickRandomAds(3));
+    }, 30000);
+
+    return () => window.clearInterval(interval);
+  }, []);
 
   return (
     <aside className="sticky top-24 hidden h-fit w-[280px] shrink-0 xl:block">
       <div className="flex flex-col gap-4">
-        {ads.map((ad) => (
+        {items.map((ad) => (
           <AdCard key={ad.id} ad={ad} />
         ))}
       </div>

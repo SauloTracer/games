@@ -1,13 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { AdCard } from "@/components/ad-card";
-import { pickRandomAds } from "@/lib/ads";
+import { useLanguage } from "@/components/language-provider";
+import { ads, pickRandomAds } from "@/lib/ads";
 
 export function MobileAdModal() {
   const [open, setOpen] = useState(false);
-  const ad = useMemo(() => pickRandomAds(1)[0], []);
+  const [ad, setAd] = useState(() => ads[0] ?? null);
+  const { t } = useLanguage();
+
+  useEffect(() => {
+    setAd(pickRandomAds(1)[0] ?? null);
+  }, []);
 
   useEffect(() => {
     if (window.innerWidth >= 768) {
@@ -41,7 +47,7 @@ export function MobileAdModal() {
           type="button"
           onClick={() => setOpen(false)}
           className="absolute right-3 top-3 z-10 rounded-full bg-white/90 p-2 text-stone-700"
-          aria-label="Close ad"
+          aria-label={t("ads.close")}
         >
           <X size={18} />
         </button>

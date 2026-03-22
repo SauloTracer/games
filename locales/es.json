@@ -1,0 +1,118 @@
+{
+  "chrome": {
+    "home": "Inicio",
+    "sudoku": "Sudoku",
+    "toggleNavigation": "Alternar navegacion",
+    "language": "Idioma",
+    "languageNames": {
+      "en": "Ingles",
+      "pt": "Portugues",
+      "es": "Espanol"
+    }
+  },
+  "home": {
+    "title": "Sudoku, rehecho en Next.js",
+    "description": "La aplicacion Vue fue traducida a una base React con App Router, TypeScript, Tailwind, anuncios responsivos y un tablero de Sudoku totalmente jugable.",
+    "play": "Jugar Sudoku",
+    "contact": "Contacto Tr@c3r",
+    "bannerAlt": "Banner de Puzzled",
+    "iconAlt": "Icono de Puzzled"
+  },
+  "ads": {
+    "recommendation": "Recomendacion",
+    "close": "Cerrar anuncio"
+  },
+  "sudoku": {
+    "title": "Sudoku",
+    "difficulty": {
+      "easy": "Facil",
+      "medium": "Medio",
+      "hard": "Dificil",
+      "expert": "Experto"
+    },
+    "mode": {
+      "zen": "Zen",
+      "threeStrikes": "3-Strikes"
+    },
+    "selectedCells": "{count} celdas seleccionadas",
+    "lives": "Vidas {count}/3",
+    "answer": "Respuesta",
+    "candidates": "Candidatos",
+    "emptyState": "Elige el modo y la dificultad para iniciar un juego nuevo.",
+    "boardAriaLabel": "Tablero de Sudoku",
+    "erase": "Borrar",
+    "autoCheck": "Revision automatica",
+    "checkCell": "Revisar celda",
+    "checkCellTitle": "Verifica si el valor ingresado es correcto.",
+    "autoCandidate": "Rellenar candidatos",
+    "autoCandidateTitle": "Rellena automaticamente los candidatos posibles de cada celda",
+    "promoteSingles": "Promover singles",
+    "multiselect": "Multiseleccion",
+    "markCells": "Marcar celdas",
+    "revealCell": "Revelar celda",
+    "solve": "Resolver",
+    "reset": "Reiniciar",
+    "undo": "Deshacer",
+    "newGame": "Nuevo juego",
+    "chooseColor": "Elegir color",
+    "clearSelected": "Limpiar seleccionadas",
+    "clearAllMarks": "Limpiar todas las marcas",
+    "filterPlaceholder": "xWing(candidate=7) && lines(2,5)",
+    "filterHelpers": "Helpers disponibles: `unique`, `hiddenPairs`, `xWing`, `swordfish`, `contains`, `containsAll`, `only`, `count`, `lines`, `columns`, `blocks`.",
+    "controlsTitle": "Controles",
+    "controlsBoardNavigation": "Navega y selecciona celdas con el mouse o con las flechas del teclado. Mantén Shift/Ctrl o usa multiseleccion para ampliar la seleccion.",
+    "controlsNumberInput": "Completa las celdas con los botones numericos o con las teclas 1-9. Usa Delete o Borrar para limpiar las celdas seleccionadas.",
+    "controlsModeSwitch": "Alterna entre respuesta y borrador con la barra espaciadora o con los botones Respuesta/Candidatos.",
+    "controlsHoverHighlight": "Al pasar el mouse sobre los botones numericos, se resaltan las celdas y candidatos de ese numero.",
+    "controlsSearch": "Usa el campo de busqueda para resaltar patrones, candidatos y regiones con helpers como contains, unique, hiddenPairs, xWing y swordfish.",
+    "loadingPuzzle": "Cargando puzzle...",
+    "status": {
+      "loadFailed": "No se pudo cargar un juego nuevo.",
+      "unsolved": "El puzzle seleccionado no pudo resolverse.",
+      "solved": "Puzzle resuelto.",
+      "gameOver": "Fin del juego."
+    },
+    "gameOver": {
+      "title": "Fin del juego",
+      "description": "Te quedaste sin 3 vidas en el modo 3-Strikes. Revisa el tablero o inicia una partida nueva.",
+      "reviewBoard": "Revisar tablero",
+      "newGame": "Nuevo juego"
+    },
+    "success": {
+      "title": "Puzzle completado",
+      "description": "El tablero fue completado con exito. Puedes revisar la solucion o iniciar un juego nuevo.",
+      "reviewBoard": "Revisar tablero",
+      "newGame": "Nuevo juego"
+    },
+    "newGameModal": {
+      "title": "Nuevo juego",
+      "mode": "Modo",
+      "difficulty": "Dificultad",
+      "cancel": "Cancelar",
+      "startGame": "Iniciar juego"
+    },
+    "autoCandidatesModal": {
+      "title": "Candidatos automaticos",
+      "description": "Aplicar candidatos automaticos solo a la seleccion actual o a todo el tablero?",
+      "selectedCells": "Celdas seleccionadas",
+      "wholeBoard": "Todo el tablero",
+      "cancel": "Cancelar"
+    },
+    "filterHelp": {
+      "title": "Manual del filtro",
+      "close": "Cerrar",
+      "line1": "Usa `&&` para combinar comandos y `;` para crear grupos independientes.",
+      "line2": "`contains(2,3)` resalta celdas que contienen cualquiera de esos candidatos.",
+      "line3": "`contains(candidate=2|3)` hace lo mismo con argumentos nombrados.",
+      "line4": "`containsAll(1,5)` exige todos los candidatos indicados.",
+      "line5": "`only(1,2)` resalta celdas cuyo conjunto es exactamente ese.",
+      "line6": "`count(2)` o `count(size=2)` encuentra celdas con exactamente dos candidatos.",
+      "line7": "`unique()` resalta hidden singles dentro del universo filtrado.",
+      "line8": "`hiddenPairs()` o `hp()` resalta pares ocultos; `hiddenPairs(pair=1|2)` filtra un par especifico.",
+      "line9": "`xWing()` o `xw()` resalta las celdas que forman un X-Wing; `xWing(candidate=7)` filtra por candidato.",
+      "line10": "`swordfish()` o `sf()` resalta las celdas que forman un Swordfish; `swordfish(candidate=3)` filtra por candidato.",
+      "line11": "`lines(1,3)`, `columns(4,8)` y `blocks(2,5)` restringen el universo.",
+      "line12": "Ejemplos: `lines(2) && contains(7)`, `blocks(1,4); unique()`, `columns(2,8) && xWing(candidate=7)`."
+    }
+  }
+}

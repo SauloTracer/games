@@ -4,17 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
+import { useLanguage } from "@/components/language-provider";
 import { AdColumn } from "@/components/ad-column";
 import { MobileAdModal } from "@/components/mobile-ad-modal";
-
-const links = [
-  { href: "/", label: "Home" },
-  { href: "/sudoku", label: "Sudoku" },
-];
 
 export function SiteChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
+  const links = [
+    { href: "/", label: t("chrome.home") },
+    { href: "/sudoku", label: t("chrome.sudoku") },
+  ];
 
   useEffect(() => {
     setMenuOpen(false);
@@ -46,11 +47,27 @@ export function SiteChrome({ children }: { children: ReactNode }) {
             })}
           </nav>
 
+          <div className="hidden items-center gap-2 md:flex">
+            <label htmlFor="language" className="text-sm font-semibold text-stone-600">
+              {t("chrome.language")}
+            </label>
+            <select
+              id="language"
+              value={language}
+              onChange={(event) => setLanguage(event.target.value as "en" | "pt" | "es")}
+              className="rounded-full border border-stone-300 bg-white px-3 py-2 text-sm font-semibold text-stone-700"
+            >
+              <option value="en">{t("chrome.languageNames.en")}</option>
+              <option value="pt">{t("chrome.languageNames.pt")}</option>
+              <option value="es">{t("chrome.languageNames.es")}</option>
+            </select>
+          </div>
+
           <button
             type="button"
             onClick={() => setMenuOpen((value) => !value)}
             className="rounded-full border border-stone-300 bg-white p-2 text-stone-800 md:hidden"
-            aria-label="Toggle navigation"
+            aria-label={t("chrome.toggleNavigation")}
           >
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -71,6 +88,21 @@ export function SiteChrome({ children }: { children: ReactNode }) {
                 </Link>
               ))}
             </nav>
+            <div className="mt-3">
+              <label htmlFor="language-mobile" className="mb-2 block text-sm font-semibold text-stone-600">
+                {t("chrome.language")}
+              </label>
+              <select
+                id="language-mobile"
+                value={language}
+                onChange={(event) => setLanguage(event.target.value as "en" | "pt" | "es")}
+                className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm font-semibold text-stone-700"
+              >
+                <option value="en">{t("chrome.languageNames.en")}</option>
+                <option value="pt">{t("chrome.languageNames.pt")}</option>
+                <option value="es">{t("chrome.languageNames.es")}</option>
+              </select>
+            </div>
           </div>
         ) : null}
       </header>

@@ -15,8 +15,6 @@ export default function HomePage() {
 
       <div className="space-y-4 text-center">
         <p className="text-sm uppercase tracking-[0.35em] text-amber-700">Puzzled</p>
-        <h1 className="text-4xl font-black tracking-tight text-stone-900 md:text-6xl">{t("home.title")}</h1>
-        <p className="mx-auto max-w-2xl text-base leading-7 text-stone-600 md:text-lg">{t("home.description")}</p>
       </div>
 
       <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">

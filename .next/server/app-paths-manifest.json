@@ -1,3 +1,4 @@
 {
+  "/page": "app/page.js",
   "/sudoku/page": "app/sudoku/page.js"
 }

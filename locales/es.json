@@ -89,7 +89,8 @@
       "mode": "Modo",
       "difficulty": "Dificultad",
       "cancel": "Cancelar",
-      "startGame": "Iniciar juego"
+      "startGame": "Iniciar juego",
+      "startingGame": "Cargando..."
     },
     "autoCandidatesModal": {
       "title": "Candidatos automáticos",

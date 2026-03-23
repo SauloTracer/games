@@ -784,8 +784,8 @@ export function SudokuGame() {
                 <div key={blockIndex} className="sudoku-block">
                   {blockCells.map((cell) => {
                     const isSelected = selectedSet.has(coordKey(cell.row, cell.col));
-                    const isSameValue = selectedValue !== null && cell.value === selectedValue;
-                    const isHoveredDigitValue = hoveredDigit !== null && cell.value === hoveredDigit;
+                    const activeHighlightDigit = hoveredDigit ?? selectedValue;
+                    const isActiveDigitValue = activeHighlightDigit !== null && cell.value === activeHighlightDigit;
                     const filterGroupIndex = filterState.matchedCells.get(coordKey(cell.row, cell.col));
                     const filtered = filterGroupIndex !== undefined;
                     const filterCandidates = filterState.candidateHighlights.get(coordKey(cell.row, cell.col)) ?? new Map<number, number>();
@@ -808,16 +808,16 @@ export function SudokuGame() {
                                 "sudoku-cell",
                                 cell.given ? "given" : "filled",
                                 isSelected ? "selected" : "",
-                                !isSelected && isHoveredDigitValue ? "highlightValueCell" : "",
+                                !isSelected && isActiveDigitValue ? "highlightValueCell" : "",
                               ]
                                 .filter(Boolean)
                                 .join(" ")}
-                              style={!isSelected && filtered && !isHoveredDigitValue ? { backgroundColor: filterColor } : undefined}
+                              style={!isSelected && filtered && !isActiveDigitValue ? { backgroundColor: filterColor } : undefined}
                             >
                               <span
                               className={[
                                 "sudoku-value-content",
-                                isSameValue ? "highlightValue" : "",
+                                selectedValue !== null && cell.value === selectedValue ? "highlightValue" : "",
                                 cell.status === "wrong" ? "wrong" : "",
                                 cell.status === "correct" && !cell.given ? "correct" : "",
                               ]
@@ -852,8 +852,8 @@ export function SudokuGame() {
                                       <span
                                       className={[
                                         "sudoku-candidate-value",
-                                        cell.candidates.includes(digit) && isSameValue && digit === selectedValue ? "highlightValue" : "",
-                                        cell.candidates.includes(digit) && hoveredDigit === digit ? "hoverMatch" : "",
+                                        cell.candidates.includes(digit) && selectedValue === digit ? "highlightValue" : "",
+                                        cell.candidates.includes(digit) && activeHighlightDigit === digit ? "hoverMatch" : "",
                                       ]
                                         .filter(Boolean)
                                         .join(" ")}
@@ -1222,7 +1222,8 @@ export function SudokuGame() {
                 <button
                   type="button"
                   onClick={() => setShowNewGameModal(false)}
-                  className="w-full rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700"
+                  disabled={loading}
+                  className="w-full rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {t("sudoku.newGameModal.cancel")}
                 </button>
@@ -1230,9 +1231,10 @@ export function SudokuGame() {
               <button
                 type="button"
                 onClick={() => void startNewGame(pendingDifficulty, pendingMode)}
-                className="w-full rounded-2xl bg-amber-600 px-4 py-3 font-semibold text-white"
+                disabled={loading}
+                className="w-full rounded-2xl bg-amber-600 px-4 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {t("sudoku.newGameModal.startGame")}
+                {loading ? t("sudoku.newGameModal.startingGame") : t("sudoku.newGameModal.startGame")}
               </button>
             </div>
           </div>

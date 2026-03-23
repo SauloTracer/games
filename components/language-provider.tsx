@@ -33,7 +33,7 @@ function getMessage(messages: Messages, key: string) {
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>("en");
+  const [language, setLanguage] = useState<Language>("pt");
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);

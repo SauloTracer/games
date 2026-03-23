@@ -733,8 +733,8 @@ export function SudokuGame() {
 
   return (
     <section className="mx-auto flex w-full max-w-[calc(18cm+8cm+4rem)] flex-col gap-6 rounded-[2rem] border border-white/60 bg-white/90 p-4 shadow-panel backdrop-blur md:p-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-3 lg:justify-between">
+        <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-3xl font-black tracking-tight text-stone-900 md:text-5xl">{t("sudoku.title")}</h1>
           <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-stone-600">
             <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">{difficultyLabel[difficulty]}</span>
@@ -750,7 +750,7 @@ export function SudokuGame() {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 lg:ml-auto">
           <button
             type="button"
             onClick={() => setCandidateMode(false)}
@@ -777,8 +777,8 @@ export function SudokuGame() {
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[max-content_8cm] xl:items-start xl:justify-center">
-        <div className="w-fit justify-self-center space-y-4">
-          <div className="rounded-[1.75rem] border border-amber-100 bg-[#fffdf8] p-3 shadow-inner md:p-4 xl:overflow-visible">
+        <div className="w-full max-w-[18cm] justify-self-center xl:w-fit xl:max-w-none xl:space-y-4">
+          <div className="w-full rounded-[1.75rem] border border-amber-100 bg-[#fffdf8] p-3 shadow-inner md:p-4 xl:w-fit xl:max-w-full xl:overflow-visible">
             <div className="sudoku-board" role="grid" aria-label={t("sudoku.boardAriaLabel")}>
               {boardBlocks.map((blockCells, blockIndex) => (
                 <div key={blockIndex} className="sudoku-block">
@@ -815,17 +815,17 @@ export function SudokuGame() {
                               style={!isSelected && filtered && !isHoveredDigitValue ? { backgroundColor: filterColor } : undefined}
                             >
                               <span
-                                className={[
-                                  isSameValue ? "highlightValue" : "",
-                                  cell.status === "wrong" ? "wrong" : "",
-                                  cell.status === "correct" && !cell.given ? "correct" : "",
-                                ]
-                                  .filter(Boolean)
-                                  .join(" ")}
-                                style={{ aspectRatio: "1 / 1", margin: "5px", padding: "0 10px" }}
-                              >
-                                {cell.value}
-                              </span>
+                              className={[
+                                "sudoku-value-content",
+                                isSameValue ? "highlightValue" : "",
+                                cell.status === "wrong" ? "wrong" : "",
+                                cell.status === "correct" && !cell.given ? "correct" : "",
+                              ]
+                                .filter(Boolean)
+                                .join(" ")}
+                            >
+                              {cell.value}
+                            </span>
                             </div>
                           ) : (
                             <div
@@ -850,18 +850,18 @@ export function SudokuGame() {
                                   return (
                                     <div key={digit} className="candidate-spot">
                                       <span
-                                        className={[
-                                          cell.candidates.includes(digit) && isSameValue && digit === selectedValue ? "highlightValue" : "",
-                                          cell.candidates.includes(digit) && hoveredDigit === digit ? "hoverMatch" : "",
-                                        ]
-                                          .filter(Boolean)
-                                          .join(" ")}
-                                        style={{
-                                          fontWeight: "bold",
-                                          padding: "0 5px 0 5px",
-                                          color: cell.candidates.includes(digit)
-                                            ? candidateGroupIndex !== undefined
-                                              ? "#111827"
+                                      className={[
+                                        "sudoku-candidate-value",
+                                        cell.candidates.includes(digit) && isSameValue && digit === selectedValue ? "highlightValue" : "",
+                                        cell.candidates.includes(digit) && hoveredDigit === digit ? "hoverMatch" : "",
+                                      ]
+                                        .filter(Boolean)
+                                        .join(" ")}
+                                      style={{
+                                        fontWeight: "bold",
+                                        color: cell.candidates.includes(digit)
+                                          ? candidateGroupIndex !== undefined
+                                            ? "#111827"
                                               : "#555"
                                             : "transparent",
                                           backgroundColor:
@@ -885,7 +885,7 @@ export function SudokuGame() {
             </div>
           </div>
 
-          <div className="max-w-[18cm] rounded-[1.5rem] border border-amber-100 bg-amber-50 p-4 text-sm leading-6 text-amber-900 ml-5">
+          <div className="hidden w-fit max-w-[calc(18cm+2rem)] rounded-[1.5rem] border border-amber-100 bg-amber-50 p-4 text-sm leading-6 text-amber-900 xl:block">
             <p className="font-semibold">{t("sudoku.controlsTitle")}</p>
             <div className="mt-3 grid gap-3">
               <ControlRow
@@ -908,32 +908,23 @@ export function SudokuGame() {
               />
               <ControlRow
                 visual={
-                  <>
-                    <div className="flex flex-col gap-1">
-                      <div className="grid grid-cols-3 gap-1">
-                        {Array.from({ length: 9 }, (_, index) => (
-                          <ControlKey key={index}>{index + 1}</ControlKey>
-                        ))}
-                      </div>
-                      <ControlKey wide>Apagar</ControlKey>
+                  <div className="flex flex-col gap-1">
+                    <div className="grid grid-cols-3 gap-1">
+                      {Array.from({ length: 9 }, (_, index) => (
+                        <ControlKey key={index}>{index + 1}</ControlKey>
+                      ))}
                     </div>
-                  </>
+                    <ControlKey wide>{t("sudoku.erase")}</ControlKey>
+                  </div>
                 }
                 text={t("sudoku.controlsNumberInput")}
               />
-              <ControlRow
-                visual={
-                  <>
-                    <ControlKey wide>Space</ControlKey>
-                  </>
-                }
-                text={t("sudoku.controlsModeSwitch")}
-              />
+              <ControlRow visual={<ControlKey wide>Space</ControlKey>} text={t("sudoku.controlsModeSwitch")} />
               <ControlRow
                 visual={
                   <>
                     <ControlKey>1</ControlKey>
-                    ..
+                    <span className="px-1 text-stone-500">...</span>
                     <ControlKey>9</ControlKey>
                   </>
                 }
@@ -956,7 +947,31 @@ export function SudokuGame() {
 
         <aside className="space-y-4">
           <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4">
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-5 gap-2 md:hidden">
+              {Array.from({ length: 9 }, (_, index) => index + 1).map((digit) => (
+                <button
+                  key={digit}
+                  type="button"
+                  onClick={() => setCellValue(digit)}
+                  onMouseEnter={() => setHoveredDigit(digit)}
+                  onMouseLeave={() => setHoveredDigit(null)}
+                  disabled={boardCounts[digit - 1] >= 9 || loading}
+                  className="rounded-xl border border-stone-200 bg-white px-1 py-2 text-center font-bold text-stone-800 transition hover:border-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <span className="block text-base leading-none">{digit}</span>
+                  <span className="mt-1 block text-[10px] leading-none text-stone-500">{boardCounts[digit - 1]}/9</span>
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={clearCell}
+                className="rounded-xl border border-stone-300 bg-white px-1 py-2 text-center text-xs font-semibold text-stone-700"
+              >
+                {t("sudoku.erase")}
+              </button>
+            </div>
+
+            <div className="hidden grid-cols-3 gap-2 md:grid">
               {Array.from({ length: 9 }, (_, index) => index + 1).map((digit) => (
                 <button
                   key={digit}
@@ -973,7 +988,7 @@ export function SudokuGame() {
               ))}
             </div>
 
-            <div className="mt-3">
+            <div className="mt-3 hidden md:block">
               <button type="button" onClick={clearCell} className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 font-semibold text-stone-700">
                 {t("sudoku.erase")}
               </button>
@@ -1095,6 +1110,7 @@ export function SudokuGame() {
             </p>
           </div>
         </aside>
+
       </div>
 
       {isGameOver ? (

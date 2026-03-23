@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import { LanguageProvider } from "@/components/language-provider";
 import { SiteChrome } from "@/components/site-chrome";
 import "./globals.css";
@@ -20,6 +21,7 @@ export default function RootLayout({
         <LanguageProvider>
           <SiteChrome>{children}</SiteChrome>
         </LanguageProvider>
+        <Analytics />
       </body>
     </html>
   );

@@ -1,4 +1,4 @@
 {
-  "/api/sudoku/route": "app/api/sudoku/route.js",
-  "/sudoku/page": "app/sudoku/page.js"
+  "/sudoku/page": "app/sudoku/page.js",
+  "/page": "app/page.js"
 }

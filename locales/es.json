@@ -53,6 +53,7 @@
     "solve": "Resolver",
     "reset": "Reiniciar",
     "undo": "Deshacer",
+    "print": "Imprimir",
     "newGame": "Nuevo juego",
     "share": "Compartir",
     "shareCopied": "Enlace de compartido copiado.",
@@ -94,6 +95,17 @@
       "cancel": "Cancelar",
       "startGame": "Iniciar juego",
       "startingGame": "Cargando..."
+    },
+    "printModal": {
+      "title": "Versión para imprimir",
+      "description": "Imprime el puzzle en su estado inicial con el enlace compartible y el QR del juego.",
+      "documentTitle": "Sudoku para imprimir",
+      "qrAlt": "Código QR del juego",
+      "qrCaption": "Ábrelo en tu celular para jugar en línea\no revisar las respuestas",
+      "close": "Cerrar",
+      "cancel": "Cancelar",
+      "print": "Imprimir",
+      "unavailable": "No fue posible abrir la ventana de impresión."
     },
     "autoCandidatesModal": {
       "title": "Candidatos automáticos",

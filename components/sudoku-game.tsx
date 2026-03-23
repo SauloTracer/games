@@ -94,6 +94,36 @@ function ControlRow({ visual, text }: { visual: ReactNode; text: string }) {
   );
 }
 
+function InitialBoardPreview({ puzzle }: { puzzle: string }) {
+  const grid = parsePuzzle(puzzle);
+
+  return (
+    <div className="grid aspect-square w-full grid-cols-9 border-2 border-stone-900 bg-white">
+      {grid.flatMap((row, rowIndex) =>
+        row.map((value, colIndex) => {
+          const thickTop = rowIndex > 0 && rowIndex % 3 === 0;
+          const thickLeft = colIndex > 0 && colIndex % 3 === 0;
+
+          return (
+            <div
+              key={`${rowIndex}-${colIndex}`}
+              className="flex items-center justify-center border border-stone-300 text-xl font-bold text-stone-900 sm:text-2xl"
+              style={{
+                borderTopWidth: thickTop ? "2px" : undefined,
+                borderLeftWidth: thickLeft ? "2px" : undefined,
+                borderTopColor: thickTop ? "#111827" : undefined,
+                borderLeftColor: thickLeft ? "#111827" : undefined,
+              }}
+            >
+              {value === 0 ? <span className="text-transparent">0</span> : value}
+            </div>
+          );
+        }),
+      )}
+    </div>
+  );
+}
+
 export function SudokuGame() {
   const { t } = useLanguage();
   const [board, setBoard] = useState<Cell[][]>([]);
@@ -113,6 +143,7 @@ export function SudokuGame() {
   const [pendingMode, setPendingMode] = useState<GameMode>("zen");
   const [showMarkPanel, setShowMarkPanel] = useState(false);
   const [showFilterHelp, setShowFilterHelp] = useState(false);
+  const [showPrintModal, setShowPrintModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [multiselectMode, setMultiselectMode] = useState(false);
   const [showAutoCandidateDialog, setShowAutoCandidateDialog] = useState(false);
@@ -154,6 +185,11 @@ export function SudokuGame() {
   );
   const selectedCellsLabel = t("sudoku.selectedCells").replace("{count}", String(selectedCells.length));
   const livesLabel = t("sudoku.lives").replace("{count}", String(Math.max(0, 3 - errors)));
+  const printableBoard = useMemo(
+    () => (initialPuzzle && isShareablePuzzle(initialPuzzle) ? initialPuzzle : ""),
+    [initialPuzzle],
+  );
+  const printTitle = useMemo(() => `Sudoku - ${difficultyLabel[difficulty]}`, [difficulty, difficultyLabel]);
 
   useEffect(() => {
     boardRef.current = board;
@@ -636,7 +672,7 @@ export function SudokuGame() {
   }, []);
 
   const shareGame = useCallback(async () => {
-    if (!initialPuzzle || !isShareablePuzzle(initialPuzzle)) {
+    if (!printableBoard) {
       setStatus(t("sudoku.shareUnavailable"));
       return;
     }
@@ -644,7 +680,7 @@ export function SudokuGame() {
     try {
       const url = new URL(window.location.href);
       url.search = "";
-      url.searchParams.set("p", initialPuzzle);
+      url.searchParams.set("p", printableBoard);
       url.searchParams.set("d", difficulty);
       url.searchParams.set("m", gameMode);
       await navigator.clipboard.writeText(url.toString());
@@ -652,7 +688,188 @@ export function SudokuGame() {
     } catch {
       setStatus(t("sudoku.shareUnavailable"));
     }
-  }, [difficulty, gameMode, initialPuzzle, t]);
+  }, [difficulty, gameMode, printableBoard, t]);
+
+  const buildShareUrl = useCallback(() => {
+    if (!printableBoard) {
+      return "";
+    }
+
+    const url = new URL(window.location.href);
+    url.search = "";
+    url.searchParams.set("p", printableBoard);
+    url.searchParams.set("d", difficulty);
+    url.searchParams.set("m", gameMode);
+    return url.toString();
+  }, [difficulty, gameMode, printableBoard]);
+
+  const printGame = useCallback(() => {
+    const shareUrl = buildShareUrl();
+    if (!shareUrl || !printableBoard) {
+      setStatus(t("sudoku.shareUnavailable"));
+      return;
+    }
+
+    const qrUrl = `https://quickchart.io/qr?size=220&margin=1&text=${encodeURIComponent(shareUrl)}`;
+    const grid = parsePuzzle(printableBoard);
+    const boardMarkup = grid
+      .flatMap((row, rowIndex) =>
+        row.map((value, colIndex) => {
+          const thickTop = rowIndex > 0 && rowIndex % 3 === 0;
+          const thickLeft = colIndex > 0 && colIndex % 3 === 0;
+
+          return `<div class="cell${thickTop ? " thick-top" : ""}${thickLeft ? " thick-left" : ""}">${value === 0 ? "&nbsp;" : value}</div>`;
+        }),
+      )
+      .join("");
+
+    const printFrame = document.createElement("iframe");
+    printFrame.setAttribute("aria-hidden", "true");
+    printFrame.style.position = "fixed";
+    printFrame.style.right = "0";
+    printFrame.style.bottom = "0";
+    printFrame.style.width = "0";
+    printFrame.style.height = "0";
+    printFrame.style.border = "0";
+    document.body.appendChild(printFrame);
+
+    const frameWindow = printFrame.contentWindow;
+    const frameDocument = printFrame.contentDocument;
+    if (!frameWindow || !frameDocument) {
+      document.body.removeChild(printFrame);
+      setStatus(t("sudoku.printModal.unavailable"));
+      return;
+    }
+
+    frameDocument.open();
+    frameDocument.write(`<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>${printTitle}</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #ffffff;
+        color: #111827;
+      }
+      .page {
+        width: 100%;
+        min-height: 100vh;
+        padding: 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+      .board {
+        width: min(100%, 720px);
+        aspect-ratio: 1 / 1;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(9, minmax(0, 1fr));
+        border: 3px solid #111827;
+      }
+      .cell {
+        border: 1px solid #a8a29e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 700;
+      }
+      .thick-top { border-top: 3px solid #111827; }
+      .thick-left { border-left: 3px solid #111827; }
+      .footer {
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        border-top: 2px solid #e7e5e4;
+        padding-top: 24px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+      }
+      .brand img {
+        width: 180px;
+        height: 180px;
+        border-radius: 18px;
+        object-fit: cover;
+      }
+      .caption {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 24px;
+      }
+      .caption-text {
+        max-width: 260px;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.4;
+        color: #57534e;
+        text-align: center;
+        white-space: pre-line;
+      }
+      .qr {
+        text-align: center;
+        width: 180px;
+      }
+      .qr img {
+        width: 180px;
+        height: 180px;
+        display: block;
+      }
+      @media print {
+        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .page { padding: 20px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <h1 style="margin:0;font-size:28px;font-weight:800;letter-spacing:0.04em;">${printTitle}</h1>
+      <section class="board">${boardMarkup}</section>
+      <footer class="footer">
+        <div class="brand">
+          <img src="${window.location.origin}/icon.jpeg" alt="Puzzled" />
+        </div>
+        <div class="caption">
+          <div class="caption-text">${t("sudoku.printModal.qrCaption")}</div>
+        </div>
+        <div class="qr">
+          <img src="${qrUrl}" alt="${t("sudoku.printModal.qrAlt")}" />
+        </div>
+      </footer>
+    </main>
+    <script>
+      window.addEventListener("load", () => {
+        window.print();
+      });
+    </script>
+  </body>
+</html>`);
+    frameDocument.close();
+
+    const cleanup = () => {
+      window.setTimeout(() => {
+        if (document.body.contains(printFrame)) {
+          document.body.removeChild(printFrame);
+        }
+      }, 1000);
+    };
+
+    frameWindow.addEventListener("afterprint", cleanup, { once: true });
+    window.setTimeout(() => {
+      frameWindow.focus();
+      frameWindow.print();
+    }, 250);
+  }, [buildShareUrl, printTitle, printableBoard, t]);
 
   useEffect(() => {
     const stopDragSelection = () => {
@@ -1106,6 +1323,13 @@ export function SudokuGame() {
               <button type="button" onClick={undo} className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">
                 {t("sudoku.undo")}
               </button>
+              <button
+                type="button"
+                onClick={() => setShowPrintModal(true)}
+                className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700"
+              >
+                {t("sudoku.print")}
+              </button>
               <button type="button" onClick={() => void shareGame()} className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">
                 {t("sudoku.share")}
               </button>
@@ -1336,6 +1560,71 @@ export function SudokuGame() {
                 className="rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700"
               >
                 {t("sudoku.autoCandidatesModal.cancel")}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {showPrintModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4">
+          <div className="w-full max-w-3xl rounded-[2rem] bg-white p-6 shadow-panel">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-black text-stone-900">{t("sudoku.printModal.title")}</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPrintModal(false)}
+                className="rounded-full bg-stone-100 px-3 py-2 text-sm font-semibold text-stone-700"
+              >
+                {t("sudoku.printModal.close")}
+              </button>
+            </div>
+
+            <div className="mt-6 rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4">
+              <div className="mx-auto max-w-2xl">
+                {printableBoard ? <InitialBoardPreview puzzle={printableBoard} /> : null}
+              </div>
+
+              <div className="mt-6 flex flex-col gap-6 border-t border-stone-200 pt-6 md:flex-row md:items-center md:justify-between">
+                <div className="shrink-0 rounded-2xl bg-white p-3 shadow-sm">
+                  <img src="/icon.jpeg" alt={t("home.iconAlt")} className="h-32 w-32 rounded-2xl object-cover" />
+                </div>
+                <div className="flex flex-1 items-center justify-center px-2">
+                  <p className="max-w-[16rem] whitespace-pre-line text-center text-xs font-semibold leading-5 text-stone-500">
+                    {t("sudoku.printModal.qrCaption")}
+                  </p>
+                </div>
+                {printableBoard ? (
+                  <div className="shrink-0 rounded-2xl bg-white p-3 shadow-sm">
+                    <img
+                      src={`https://quickchart.io/qr?size=220&margin=1&text=${encodeURIComponent(buildShareUrl())}`}
+                      alt={t("sudoku.printModal.qrAlt")}
+                      className="h-32 w-32"
+                    />
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="mt-6 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setShowPrintModal(false)}
+                className="w-full rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700"
+              >
+                {t("sudoku.printModal.cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  printGame();
+                  setShowPrintModal(false);
+                }}
+                className="w-full rounded-2xl bg-stone-900 px-4 py-3 font-semibold text-white"
+              >
+                {t("sudoku.printModal.print")}
               </button>
             </div>
           </div>

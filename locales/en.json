@@ -53,6 +53,7 @@
     "solve": "Solve",
     "reset": "Reset",
     "undo": "Undo",
+    "print": "Print",
     "newGame": "New game",
     "share": "Share",
     "shareCopied": "Share link copied.",
@@ -94,6 +95,17 @@
       "cancel": "Cancel",
       "startGame": "Start game",
       "startingGame": "Loading..."
+    },
+    "printModal": {
+      "title": "Print version",
+      "description": "Print the puzzle in its initial state with the share link and the game QR code.",
+      "documentTitle": "Sudoku print version",
+      "qrAlt": "Game QR code",
+      "qrCaption": "Open on your phone to play online\nor check the answers",
+      "close": "Close",
+      "cancel": "Cancel",
+      "print": "Print",
+      "unavailable": "Unable to open the print window."
     },
     "autoCandidatesModal": {
       "title": "Auto Candidates",

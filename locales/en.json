@@ -2,6 +2,7 @@
   "chrome": {
     "home": "Home",
     "sudoku": "Sudoku",
+    "snake": "Snake",
     "toggleNavigation": "Toggle navigation",
     "language": "Language",
     "languageNames": {
@@ -14,6 +15,7 @@
     "title": "Sudoku, rebuilt in Next.js",
     "description": "The Vue application has been translated into a React-based app with App Router, TypeScript, Tailwind, responsive ads, and a fully playable Sudoku board.",
     "play": "Play Sudoku",
+    "playSnake": "Play Snake",
     "contact": "Contact Tr@c3r",
     "bannerAlt": "Puzzled banner",
     "iconAlt": "Puzzled icon"
@@ -129,6 +131,61 @@
       "line10": "`swordfish()` or `sf()` highlights the cells that form a Swordfish; `swordfish(candidate=3)` filters by candidate.",
       "line11": "`lines(1,3)`, `columns(4,8)` and `blocks(2,5)` restrict the universe.",
       "line12": "Examples: `lines(2) && contains(7)`, `blocks(1,4); unique()`, `columns(2,8) && xWing(candidate=7)`."
+    }
+  },
+  "snake": {
+    "title": "Snake",
+    "menu": {
+      "subtitle": "Control the snake on canvas, survive longer, increase the speed, and chase the highest score you can.",
+      "play": "Play",
+      "settings": "Settings",
+      "share": "Share score"
+    },
+    "hud": {
+      "score": "Score {score}",
+      "bestScore": "Best {score}",
+      "pause": "Pause",
+      "resume": "Resume",
+      "share": "Share"
+    },
+    "settings": {
+      "title": "Settings",
+      "back": "Back",
+      "wallMode": "Wall mode",
+      "wallWrap": "Wrap",
+      "wallWrapTitle": "Teleports to the opposite side.",
+      "wallCollision": "Collision",
+      "swipeSensitivity": "Swipe sensitivity",
+      "initialSpeed": "Initial speed",
+      "volume": "Volume",
+      "mute": "Mute"
+    },
+    "food": {
+      "title": "Food",
+      "common": "Common",
+      "rare": "Rare",
+      "special": "Special"
+    },
+    "quickActions": {
+      "title": "Quick actions"
+    },
+    "pause": {
+      "title": "Game paused",
+      "description": "Resume whenever you are ready to continue the run.",
+      "resume": "Continue"
+    },
+    "gameOver": {
+      "title": "Game Over",
+      "description": "You scored {score} points.",
+      "retry": "Play again",
+      "menu": "Back to menu"
+    },
+    "help": {
+      "desktop": "Desktop: use the arrow keys to move the snake, P to pause or resume, and the space bar to trigger the speed boost.",
+      "mobile": "Mobile: swipe across the game area to change direction and hold your touch to trigger the speed boost. The swipe respects the configured sensitivity."
+    },
+    "share": {
+      "message": "Fiz {score} pontos no Snake! 🐍🔥"
     }
   }
 }

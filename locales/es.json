@@ -2,6 +2,7 @@
   "chrome": {
     "home": "Inicio",
     "sudoku": "Sudoku",
+    "snake": "Snake",
     "toggleNavigation": "Alternar navegación",
     "language": "Idioma",
     "languageNames": {
@@ -14,6 +15,7 @@
     "title": "Sudoku, rehecho en Next.js",
     "description": "La aplicación Vue fue traducida a una base React con App Router, TypeScript, Tailwind, anuncios responsivos y un tablero de Sudoku totalmente jugable.",
     "play": "Jugar Sudoku",
+    "playSnake": "Jugar Snake",
     "contact": "Contacto Tr@c3r",
     "bannerAlt": "Banner de Puzzled",
     "iconAlt": "Ícono de Puzzled"
@@ -129,6 +131,61 @@
       "line10": "`swordfish()` o `sf()` resalta las celdas que forman un Swordfish; `swordfish(candidate=3)` filtra por candidato.",
       "line11": "`lines(1,3)`, `columns(4,8)` y `blocks(2,5)` restringen el universo.",
       "line12": "Ejemplos: `lines(2) && contains(7)`, `blocks(1,4); unique()`, `columns(2,8) && xWing(candidate=7)`."
+    }
+  },
+  "snake": {
+    "title": "Snake",
+    "menu": {
+      "subtitle": "Controla la serpiente en canvas, sobrevive más tiempo, aumenta la velocidad y persigue la mayor puntuación posible.",
+      "play": "Jugar",
+      "settings": "Configuración",
+      "share": "Compartir puntuación"
+    },
+    "hud": {
+      "score": "Puntos {score}",
+      "bestScore": "Récord {score}",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "share": "Compartir"
+    },
+    "settings": {
+      "title": "Configuración",
+      "back": "Volver",
+      "wallMode": "Tipo de pared",
+      "wallWrap": "Cíclica",
+      "wallWrapTitle": "Teletransporta al lado opuesto.",
+      "wallCollision": "Colisión",
+      "swipeSensitivity": "Sensibilidad del swipe",
+      "initialSpeed": "Velocidad inicial",
+      "volume": "Volumen",
+      "mute": "Silenciar"
+    },
+    "food": {
+      "title": "Comidas",
+      "common": "Común",
+      "rare": "Rara",
+      "special": "Especial"
+    },
+    "quickActions": {
+      "title": "Acciones rápidas"
+    },
+    "pause": {
+      "title": "Juego en pausa",
+      "description": "Reanuda cuando estés listo para continuar la partida.",
+      "resume": "Continuar"
+    },
+    "gameOver": {
+      "title": "Game Over",
+      "description": "Hiciste {score} puntos.",
+      "retry": "Jugar de nuevo",
+      "menu": "Volver al menú"
+    },
+    "help": {
+      "desktop": "Desktop: usa las flechas del teclado para mover la serpiente, P para pausar o reanudar y la barra espaciadora para activar el boost de velocidad.",
+      "mobile": "Mobile: desliza sobre el área del juego para cambiar de dirección y mantén el toque para activar el boost de velocidad. El swipe respeta la sensibilidad configurada."
+    },
+    "share": {
+      "message": "Fiz {score} pontos no Snake! 🐍🔥"
     }
   }
 }

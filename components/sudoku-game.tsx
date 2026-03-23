@@ -52,6 +52,9 @@ type DragSelectionState = {
   visited: Coord[];
 };
 
+const shareableDifficulties = new Set<Difficulty>(["easy", "medium", "hard", "expert"]);
+const shareableModes = new Set<GameMode>(["zen", "three-strikes"]);
+
 function coordKey(row: number, col: number) {
   return `${row}-${col}`;
 }
@@ -65,6 +68,10 @@ function clearTransientState(board: Cell[][]) {
       storedCandidates: cell.storedCandidates ?? [],
     })),
   );
+}
+
+function isShareablePuzzle(puzzle: string) {
+  return /^[1-9.]{81}$/.test(puzzle);
 }
 
 function ControlKey({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
@@ -156,28 +163,16 @@ export function SudokuGame() {
     setHistory((previous) => [...previous.slice(-59), cloneBoard(current)]);
   }, []);
 
-  const startNewGame = useCallback(async (nextDifficulty: Difficulty, nextMode: GameMode) => {
-    setLoading(true);
-    setStatus("");
-
-    const response = await fetch(`/api/sudoku?difficulty=${nextDifficulty}`, { cache: "no-store" });
-    if (!response.ok) {
-      setStatus(t("sudoku.status.loadFailed"));
-      setLoading(false);
-      return;
-    }
-
-    const data = (await response.json()) as RemotePuzzle;
-    const solved = solveGrid(parsePuzzle(data.puzzle));
+  const loadBoardFromPuzzle = useCallback((puzzle: string, nextDifficulty: Difficulty, nextMode: GameMode) => {
+    const solved = solveGrid(parsePuzzle(puzzle));
     if (!solved) {
       setStatus(t("sudoku.status.unsolved"));
-      setLoading(false);
-      return;
+      return false;
     }
 
-    const nextBoard = createBoard(data.puzzle, solved);
+    const nextBoard = createBoard(puzzle, solved);
     boardRef.current = nextBoard;
-    setInitialPuzzle(data.puzzle);
+    setInitialPuzzle(puzzle);
     setBoard(nextBoard);
     setDifficulty(nextDifficulty);
     setGameMode(nextMode);
@@ -188,10 +183,58 @@ export function SudokuGame() {
     setHistory([]);
     setShowSuccessModal(false);
     setShowNewGameModal(false);
-    setLoading(false);
-  }, []);
+    setStatus("");
+    return true;
+  }, [t]);
+
+  const startNewGame = useCallback(async (nextDifficulty: Difficulty, nextMode: GameMode) => {
+    setLoading(true);
+    setStatus("");
+
+    try {
+      const response = await fetch(`/api/sudoku?difficulty=${nextDifficulty}`, { cache: "no-store" });
+      if (!response.ok) {
+        setStatus(t("sudoku.status.loadFailed"));
+        return;
+      }
+
+      const data = (await response.json()) as RemotePuzzle;
+      if (!loadBoardFromPuzzle(data.puzzle, nextDifficulty, nextMode)) {
+        return;
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [loadBoardFromPuzzle, t]);
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const sharedPuzzle = searchParams.get("p");
+    const sharedDifficulty = searchParams.get("d");
+    const sharedMode = searchParams.get("m");
+
+    if (
+      sharedPuzzle &&
+      isShareablePuzzle(sharedPuzzle) &&
+      sharedDifficulty &&
+      shareableDifficulties.has(sharedDifficulty as Difficulty) &&
+      sharedMode &&
+      shareableModes.has(sharedMode as GameMode)
+    ) {
+      const restored = loadBoardFromPuzzle(
+        sharedPuzzle,
+        sharedDifficulty as Difficulty,
+        sharedMode as GameMode,
+      );
+      setPendingDifficulty(sharedDifficulty as Difficulty);
+      setPendingMode(sharedMode as GameMode);
+      setLoading(false);
+      if (!restored) {
+        setShowNewGameModal(true);
+      }
+      return;
+    }
+
     const raw = localStorage.getItem("sudoku-save");
     if (!raw) {
       setLoading(false);
@@ -218,7 +261,7 @@ export function SudokuGame() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loadBoardFromPuzzle]);
 
   useEffect(() => {
     if (!board.length || !initialPuzzle) {
@@ -591,6 +634,25 @@ export function SudokuGame() {
     setShowMarkPanel(false);
     setMultiselectMode(false);
   }, []);
+
+  const shareGame = useCallback(async () => {
+    if (!initialPuzzle || !isShareablePuzzle(initialPuzzle)) {
+      setStatus(t("sudoku.shareUnavailable"));
+      return;
+    }
+
+    try {
+      const url = new URL(window.location.href);
+      url.search = "";
+      url.searchParams.set("p", initialPuzzle);
+      url.searchParams.set("d", difficulty);
+      url.searchParams.set("m", gameMode);
+      await navigator.clipboard.writeText(url.toString());
+      setStatus(t("sudoku.shareCopied"));
+    } catch {
+      setStatus(t("sudoku.shareUnavailable"));
+    }
+  }, [difficulty, gameMode, initialPuzzle, t]);
 
   useEffect(() => {
     const stopDragSelection = () => {
@@ -1044,6 +1106,9 @@ export function SudokuGame() {
               <button type="button" onClick={undo} className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">
                 {t("sudoku.undo")}
               </button>
+              <button type="button" onClick={() => void shareGame()} className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">
+                {t("sudoku.share")}
+              </button>
               <button
                 type="button"
                 onClick={() => {
@@ -1056,6 +1121,8 @@ export function SudokuGame() {
                 {t("sudoku.newGame")}
               </button>
             </div>
+
+            {status ? <p className="mt-3 text-sm font-semibold text-stone-600">{status}</p> : null}
 
             {showMarkPanel ? (
               <div className="mt-4 rounded-2xl border border-stone-200 bg-white p-3">

@@ -665,10 +665,10 @@ export function SudokuGame() {
       }
 
       const moves: Record<string, Coord> = {
-        ArrowUp: { row: Math.max(0, selectionAnchor.row - 1), col: selectionAnchor.col },
-        ArrowDown: { row: Math.min(8, selectionAnchor.row + 1), col: selectionAnchor.col },
-        ArrowLeft: { row: selectionAnchor.row, col: Math.max(0, selectionAnchor.col - 1) },
-        ArrowRight: { row: selectionAnchor.row, col: Math.min(8, selectionAnchor.col + 1) },
+        ArrowUp: { row: selectionAnchor.row === 0 ? 8 : selectionAnchor.row - 1, col: selectionAnchor.col },
+        ArrowDown: { row: selectionAnchor.row === 8 ? 0 : selectionAnchor.row + 1, col: selectionAnchor.col },
+        ArrowLeft: { row: selectionAnchor.row, col: selectionAnchor.col === 0 ? 8 : selectionAnchor.col - 1 },
+        ArrowRight: { row: selectionAnchor.row, col: selectionAnchor.col === 8 ? 0 : selectionAnchor.col + 1 },
       };
 
       if (!moves[event.key]) {

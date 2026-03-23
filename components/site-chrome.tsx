@@ -15,6 +15,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
   const links = [
     { href: "/", label: t("chrome.home") },
     { href: "/sudoku", label: t("chrome.sudoku") },
+    { href: "/snake", label: t("chrome.snake") },
   ];
 
   useEffect(() => {

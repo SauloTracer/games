@@ -11,10 +11,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/page.js"
     ],
-    "/slide/page": [
+    "/tetris/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/slide/page.js"
+      "static/chunks/app/tetris/page.js"
     ],
     "/snake/page": [
       "static/chunks/webpack.js",

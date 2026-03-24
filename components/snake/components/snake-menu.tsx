@@ -1,5 +1,7 @@
 "use client";
 
+import { Share2 } from "lucide-react";
+
 type SnakeMenuProps = {
   title: string;
   subtitle: string;
@@ -55,7 +57,10 @@ export function SnakeMenu({
           onClick={onShare}
           className="rounded-2xl border border-stone-300 bg-white px-6 py-4 text-base font-semibold text-stone-700 transition hover:border-stone-400"
         >
-          {shareLabel}
+          <span className="inline-flex items-center gap-2">
+            <Share2 size={18} />
+            {shareLabel}
+          </span>
         </button>
       </div>
       {statusMessage ? (

@@ -4,6 +4,7 @@
     "sudoku": "Sudoku",
     "snake": "Snake",
     "slide": "Slide",
+    "tetris": "Tetris",
     "toggleNavigation": "Alternar navegación",
     "language": "Idioma",
     "languageNames": {
@@ -18,6 +19,7 @@
     "play": "Jugar Sudoku",
     "playSnake": "Jugar Snake",
     "playSlide": "Jugar Slide",
+    "playTetris": "Jugar Tetris",
     "contact": "Contacto Tr@c3r",
     "bannerAlt": "Banner de Puzzled",
     "iconAlt": "Ícono de Puzzled"
@@ -236,6 +238,103 @@
     "share": {
       "message": "Resolví el Slide Puzzle {size} en {time} con {moves} movimientos.",
       "copied": "Texto de compartido copiado al portapapeles (Ctrl + C)."
+    }
+  },
+  "tetris": {
+    "title": "Tetris",
+    "menu": {
+      "subtitle": "A veces la vida parece un juego de Tetris: las piezas caen rápido, fuera de orden, y no siempre como queremos.\n\nPero cada encaje es una oportunidad para organizar el caos, transformando la presión en estrategia.\n\nNo todas las piezas van a ser perfectas, y está bien.\n\nEl secreto no es esperar la pieza ideal, sino aprender a jugar bien con lo que tienes.\n\nRespira, enfócate, gira las posibilidades... y sigue jugando. 🎮✨",
+      "play": "▶ Jugar",
+      "settings": "⚙ Configuración",
+      "bestScore": "Récord local",
+      "controlsTitle": "Controles",
+      "goalTitle": "Objetivo",
+      "goalBody": "Limpia líneas en secuencia, sube el nivel y mantén el ritmo cuando el tiempo se acelere."
+    },
+    "help": {
+      "desktop": "Desktop: usa las flechas para mover y rotar, la barra espaciadora para hard drop, C para hold y P para pausar o reanudar.",
+      "mobile": "Mobile: desliza a la izquierda o derecha para mover, desliza hacia abajo para hard drop, toca para rotar y usa el botón de pausa en la esquina superior izquierda."
+    },
+    "settings": {
+      "kicker": "Configuración",
+      "description": "Ajusta el ritmo de la partida, el comportamiento de las piezas y la capa sonora sin dispersar opciones desconectadas por la pantalla.",
+      "summaryTitle": "Resumen",
+      "summaryTheme": "Tema: {value}",
+      "summaryHold": "Hold: {value}",
+      "summaryPreview": "Preview: {value}",
+      "themeDark": "Oscuro",
+      "themeLight": "Claro",
+      "enabled": "Activo",
+      "disabled": "Desactivado",
+      "previewVisible": "{count} pieza(s)",
+      "previewHidden": "Oculto",
+      "back": "Volver",
+      "audioTitle": "Audio",
+      "masterVolume": "Volumen general",
+      "musicVolume": "Música",
+      "effectsVolume": "Efectos",
+      "muteMusic": "Silenciar música",
+      "muteEffects": "Silenciar efectos",
+      "pacingTitle": "Ritmo de la Partida",
+      "initialSpeed": "Velocidad inicial",
+      "initialLevel": "Nivel inicial",
+      "gameplayTitle": "Jugabilidad",
+      "holdEnabled": "Habilitar hold",
+      "showNextQueue": "Mostrar próximas piezas",
+      "ghostPiece": "Pieza fantasma",
+      "previewCount": "Piezas en el preview",
+      "appearanceTitle": "Apariencia"
+    },
+    "hud": {
+      "score": "Puntuación",
+      "bestScore": "Récord",
+      "lines": "Líneas",
+      "level": "Nivel",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "nextPieces": "Próximas piezas",
+      "hold": "Hold",
+      "localRanking": "Ranking local",
+      "rankingScore": "{score} pts",
+      "rankingLines": "{lines} líneas",
+      "noRanking": "Aún no hay partidas guardadas."
+    },
+    "canvas": {
+      "local": "local",
+      "remote": "remoto"
+    },
+    "game": {
+      "kicker": "Arcade Canvas",
+      "title": "Tetris Canvas",
+      "menu": "Menú",
+      "settings": "Configuración",
+      "controlsTitle": "Controles",
+      "controlMove": "Desktop: ← → mover",
+      "controlRotate": "Desktop: ↑ rotar",
+      "controlHardDrop": "Desktop: espacio hard drop",
+      "controlHold": "Desktop: C hold",
+      "controlPause": "Desktop: P pausar",
+      "strategyTitle": "Estrategia",
+      "strategyHold": "Usa hold para guardar piezas críticas.",
+      "strategyPreview": "Usa el preview para planificar tus movimientos.",
+      "strategyHardDrop": "Marca el ritmo con Hard drop.",
+      "strategyTetris": "Limpia 4 líneas de una vez para maximizar tus puntos.",
+      "drop": "Drop"
+    },
+    "pause": {
+      "title": "Juego en pausa",
+      "description": "Reanuda cuando estés listo para continuar la partida.",
+      "resume": "Continuar"
+    },
+    "gameOver": {
+      "title": "Game Over",
+      "description": "Puntuación final {score}.",
+      "retry": "Jugar de nuevo"
+    },
+    "share": {
+      "action": "Compartir",
+      "message": "Hice {score} puntos en Tetris, limpié {lines} líneas y llegué al nivel {level}.",
+      "copied": "Texto para compartir copiado al portapapeles (Ctrl + C)."
     }
   }
 }

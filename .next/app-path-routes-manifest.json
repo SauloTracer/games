@@ -1,0 +1,10 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/sudoku/route": "/api/sudoku",
+  "/mathwiz/page": "/mathwiz",
+  "/page": "/",
+  "/slide/page": "/slide",
+  "/snake/page": "/snake",
+  "/sudoku/page": "/sudoku",
+  "/tetris/page": "/tetris"
+}

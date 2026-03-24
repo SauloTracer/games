@@ -5,6 +5,7 @@
     "snake": "Snake",
     "slide": "Slide",
     "tetris": "Tetris",
+    "mathwiz": "MathWiz",
     "toggleNavigation": "Toggle navigation",
     "language": "Language",
     "languageNames": {
@@ -20,6 +21,7 @@
     "playSnake": "Play Snake",
     "playSlide": "Play Slide",
     "playTetris": "Play Tetris",
+    "playMathWiz": "Play MathWiz",
     "contact": "Contact Tr@c3r",
     "bannerAlt": "Puzzled banner",
     "iconAlt": "Puzzled icon"
@@ -339,6 +341,109 @@
       "action": "Share",
       "message": "I scored {score} points in Tetris, cleared {lines} lines, and reached level {level}.",
       "copied": "Share text copied to the clipboard (Ctrl + C)."
+    }
+  },
+  "mathwiz": {
+    "kicker": "Discrete Spellcraft",
+    "title": "MathWiz",
+    "menu": {
+      "subtitle": "Build equations with limited resources, turn chaos into calculation, and survive while the stacks grow every turn.",
+      "play": "Start run",
+      "bestRun": "Best run",
+      "bestRunLabel": "Lv.{level} • {casts} casts • combo {combo}",
+      "noBestRun": "No saved run",
+      "loopTitle": "Core loop",
+      "loopBody": "Receive new numbers and operators, build a valid equation, cast it, and choose how to survive the next turn.",
+      "rulesTitle": "Core rules",
+      "rulesBody": "Integers only, exact division, perfect square roots, and limited factorials. Fractional magic fails."
+    },
+    "top": {
+      "hp": "HP",
+      "mana": "Mana",
+      "combo": "Combo",
+      "comboCount": "{count} casts in a row"
+    },
+    "sections": {
+      "numberStacks": "Number Stacks",
+      "operatorStacks": "Operator Stacks",
+      "builder": "Equation Builder",
+      "spells": "Spells",
+      "feedback": "Feedback"
+    },
+    "status": {
+      "idleTitle": "Stable Spell",
+      "idleDetail": "Build an equation and cast.",
+      "readyTitle": "Spell Ready",
+      "readyDetail": "Magic bends to your will.",
+      "successTitle": "Stable Spell",
+      "failedTitle": "Spell Failed",
+      "unstableTitle": "Unstable",
+      "upgradeForged": "Upgrade forged.",
+      "comboFaded": "Your combo faded with time.",
+      "stacksFed": "The stacks absorbed a new pulse of magic."
+    },
+    "messages": {
+      "incompleteSpell": "Incomplete spell.",
+      "invalidStructure": "Spell structure is unstable.",
+      "invalidFactorial": "Unstable factorial.",
+      "invalidDoubleFactorial": "Unstable double factorial.",
+      "wholeMagicRequired": "This spell requires whole magic.",
+      "noFractions": "No fractions in my spellbook.",
+      "wholePowersOnly": "Only whole powers are allowed.",
+      "zeroCollapse": "Spell collapsed on zero.",
+      "invalidDivision": "Unstable division.",
+      "invalidDivisionWizard": "I'm a Math Wizard... I don't deal with reasons!",
+      "bothSidesNeeded": "Unstable spell: both sides need power.",
+      "operatorRequired": "At least one side needs an operator.",
+      "spellFailed": "Spell Failed"
+    },
+    "stacks": {
+      "number": "Number {index}",
+      "operator": "Operator {index}"
+    },
+    "builder": {
+      "left": "Left side",
+      "right": "Right side",
+      "empty": "Empty slot",
+      "preview": "Result: {value}"
+    },
+    "spells": {
+      "cost": "{cost} mana",
+      "flip": {
+        "name": "Flip"
+      },
+      "clearTop": {
+        "name": "Clear Top"
+      },
+      "freeze": {
+        "name": "Freeze"
+      }
+    },
+    "cast": {
+      "ready": "Stable Spell",
+      "incomplete": "Unstable",
+      "action": "CAST"
+    },
+    "settings": {
+      "previewOn": "Preview on",
+      "previewOff": "Preview off"
+    },
+    "upgrade": {
+      "kicker": "Level Up",
+      "title": "Choose an upgrade",
+      "addNumberStack": "Add a number stack",
+      "addOperatorStack": "Add an operator stack",
+      "unlock": "Unlock operator {operator}"
+    },
+    "game": {
+      "menu": "Menu",
+      "reset": "Clear equation"
+    },
+    "gameOver": {
+      "title": "Spellbook Collapsed",
+      "description": "You reached level {level} and cast {casts} stable spells.",
+      "retry": "Try again",
+      "menu": "Back to menu"
     }
   }
 }

@@ -5,6 +5,7 @@
     "snake": "Snake",
     "slide": "Slide",
     "tetris": "Tetris",
+    "mathwiz": "MathWiz",
     "toggleNavigation": "Alternar navegación",
     "language": "Idioma",
     "languageNames": {
@@ -20,6 +21,7 @@
     "playSnake": "Jugar Snake",
     "playSlide": "Jugar Slide",
     "playTetris": "Jugar Tetris",
+    "playMathWiz": "Jugar MathWiz",
     "contact": "Contacto Tr@c3r",
     "bannerAlt": "Banner de Puzzled",
     "iconAlt": "Ícono de Puzzled"
@@ -339,6 +341,109 @@
       "action": "Compartir",
       "message": "Hice {score} puntos en Tetris, limpié {lines} líneas y llegué al nivel {level}.",
       "copied": "Texto para compartir copiado al portapapeles (Ctrl + C)."
+    }
+  },
+  "mathwiz": {
+    "kicker": "Discrete Spellcraft",
+    "title": "MathWiz",
+    "menu": {
+      "subtitle": "Construye ecuaciones con recursos limitados, convierte el caos en cálculo y sobrevive mientras las pilas crecen en cada turno.",
+      "play": "Iniciar run",
+      "bestRun": "Mejor run",
+      "bestRunLabel": "Nv.{level} • {casts} casts • combo {combo}",
+      "noBestRun": "Sin run guardada",
+      "loopTitle": "Core loop",
+      "loopBody": "Recibe nuevos números y operadores, arma una ecuación válida, lánzala y elige cómo sobrevivir al siguiente turno.",
+      "rulesTitle": "Reglas centrales",
+      "rulesBody": "Solo enteros, división exacta, raíces perfectas y factoriales limitados. La magia fraccionaria falla."
+    },
+    "top": {
+      "hp": "HP",
+      "mana": "Mana",
+      "combo": "Combo",
+      "comboCount": "{count} casts seguidos"
+    },
+    "sections": {
+      "numberStacks": "Pilas Numéricas",
+      "operatorStacks": "Pilas de Operadores",
+      "builder": "Constructor de Ecuaciones",
+      "spells": "Hechizos",
+      "feedback": "Feedback"
+    },
+    "status": {
+      "idleTitle": "Hechizo Estable",
+      "idleDetail": "Construye una ecuación y lánzala.",
+      "readyTitle": "Hechizo Listo",
+      "readyDetail": "La magia cede a tu voluntad.",
+      "successTitle": "Hechizo Estable",
+      "failedTitle": "Hechizo Fallido",
+      "unstableTitle": "Inestable",
+      "upgradeForged": "Mejora forjada.",
+      "comboFaded": "Tu combo se desvaneció con el tiempo.",
+      "stacksFed": "Las pilas absorbieron un nuevo pulso de magia."
+    },
+    "messages": {
+      "incompleteSpell": "Hechizo incompleto.",
+      "invalidStructure": "La estructura del hechizo es inestable.",
+      "invalidFactorial": "Factorial inestable.",
+      "invalidDoubleFactorial": "Doble factorial inestable.",
+      "wholeMagicRequired": "Este hechizo requiere magia entera.",
+      "noFractions": "No hay fracciones en mi libro de hechizos.",
+      "wholePowersOnly": "Solo se permiten potencias enteras.",
+      "zeroCollapse": "El hechizo colapsó en cero.",
+      "invalidDivision": "División inestable.",
+      "invalidDivisionWizard": "Soy un mago matemático... ¡no trato con razones!",
+      "bothSidesNeeded": "Hechizo inestable: ambos lados necesitan poder.",
+      "operatorRequired": "Al menos un lado necesita un operador.",
+      "spellFailed": "Hechizo Fallido"
+    },
+    "stacks": {
+      "number": "Número {index}",
+      "operator": "Operador {index}"
+    },
+    "builder": {
+      "left": "Lado izquierdo",
+      "right": "Lado derecho",
+      "empty": "Slot vacío",
+      "preview": "Resultado: {value}"
+    },
+    "spells": {
+      "cost": "{cost} mana",
+      "flip": {
+        "name": "Invertir"
+      },
+      "clearTop": {
+        "name": "Limpiar Tope"
+      },
+      "freeze": {
+        "name": "Congelar"
+      }
+    },
+    "cast": {
+      "ready": "Hechizo Estable",
+      "incomplete": "Inestable",
+      "action": "CAST"
+    },
+    "settings": {
+      "previewOn": "Preview activado",
+      "previewOff": "Preview desactivado"
+    },
+    "upgrade": {
+      "kicker": "Subiste de Nivel",
+      "title": "Elige una mejora",
+      "addNumberStack": "Agregar una pila numérica",
+      "addOperatorStack": "Agregar una pila de operadores",
+      "unlock": "Desbloquear operador {operator}"
+    },
+    "game": {
+      "menu": "Menú",
+      "reset": "Limpiar ecuación"
+    },
+    "gameOver": {
+      "title": "El Grimorio Colapsó",
+      "description": "Llegaste al nivel {level} y lanzaste {casts} hechizos estables.",
+      "retry": "Intentar de nuevo",
+      "menu": "Volver al menú"
     }
   }
 }

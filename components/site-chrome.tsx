@@ -18,6 +18,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
     { href: "/snake", label: t("chrome.snake") },
     { href: "/slide", label: t("chrome.slide") },
     { href: "/tetris", label: t("chrome.tetris") },
+    { href: "/mathwiz", label: t("chrome.mathwiz") },
   ];
 
   useEffect(() => {

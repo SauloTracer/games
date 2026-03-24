@@ -5,6 +5,7 @@
     "snake": "Snake",
     "slide": "Racha Cuca",
     "tetris": "Tetris",
+    "mathwiz": "MathWiz",
     "toggleNavigation": "Alternar navegação",
     "language": "Idioma",
     "languageNames": {
@@ -20,6 +21,7 @@
     "playSnake": "Jogar Snake",
     "playSlide": "Jogar Racha Cuca",
     "playTetris": "Jogar Tetris",
+    "playMathWiz": "Jogar MathWiz",
     "contact": "Contato Tr@c3r",
     "bannerAlt": "Banner do Puzzled",
     "iconAlt": "Ícone do Puzzled"
@@ -339,6 +341,109 @@
       "action": "Compartilhar",
       "message": "Fiz {score} pontos no Tetris, limpei {lines} linhas e cheguei ao nível {level}.",
       "copied": "Texto de compartilhamento copiado para a área de transferência; use Ctrl + V para compartilhar."
+    }
+  },
+  "mathwiz": {
+    "kicker": "Discrete Spellcraft",
+    "title": "MathWiz",
+    "menu": {
+      "subtitle": "Monte equações com recursos limitados, converta caos em cálculo e sobreviva enquanto as pilhas crescem a cada turno.",
+      "play": "Iniciar run",
+      "bestRun": "Melhor run",
+      "bestRunLabel": "Nv.{level} • {casts} casts • combo {combo}",
+      "noBestRun": "Nenhuma run salva",
+      "loopTitle": "Core loop",
+      "loopBody": "Receba novos números e operadores, monte uma equação válida, conjure e escolha como sobreviver ao próximo turno.",
+      "rulesTitle": "Regras centrais",
+      "rulesBody": "Só inteiros, divisão exata, raiz perfeita e fatoriais limitados. Magia fracionada falha."
+    },
+    "top": {
+      "hp": "HP",
+      "mana": "Mana",
+      "combo": "Combo",
+      "comboCount": "{count} casts seguidos"
+    },
+    "sections": {
+      "numberStacks": "Pilhas Numéricas",
+      "operatorStacks": "Pilhas de Operadores",
+      "builder": "Construtor de Equações",
+      "spells": "Feitiços",
+      "feedback": "Feedback"
+    },
+    "status": {
+      "idleTitle": "Feitiço Estável",
+      "idleDetail": "Monte uma equação e lance o feitiço.",
+      "readyTitle": "Feitiço Pronto",
+      "readyDetail": "A magia cede ao seu comando.",
+      "successTitle": "Feitiço Estável",
+      "failedTitle": "Feitiço Falhou",
+      "unstableTitle": "Instável",
+      "upgradeForged": "Melhoria forjada.",
+      "comboFaded": "Seu combo se dissipou com o tempo.",
+      "stacksFed": "As pilhas absorveram um novo pulso de magia."
+    },
+    "messages": {
+      "incompleteSpell": "Feitiço incompleto.",
+      "invalidStructure": "A estrutura do feitiço está instável.",
+      "invalidFactorial": "Fatorial instável.",
+      "invalidDoubleFactorial": "Duplo fatorial instável.",
+      "wholeMagicRequired": "Este feitiço exige magia inteira.",
+      "noFractions": "Não há frações no meu grimório.",
+      "wholePowersOnly": "Apenas potências inteiras são permitidas.",
+      "zeroCollapse": "O feitiço colapsou no zero.",
+      "invalidDivision": "Divisão instável.",
+      "invalidDivisionWizard": "Sou um mago da matemática... não lido com razões!",
+      "bothSidesNeeded": "Feitiço instável: os dois lados precisam de poder.",
+      "operatorRequired": "Pelo menos um lado precisa de um operador.",
+      "spellFailed": "Feitiço Falhou"
+    },
+    "stacks": {
+      "number": "Número {index}",
+      "operator": "Operador {index}"
+    },
+    "builder": {
+      "left": "Lado esquerdo",
+      "right": "Lado direito",
+      "empty": "Slot vazio",
+      "preview": "Resultado: {value}"
+    },
+    "spells": {
+      "cost": "{cost} mana",
+      "flip": {
+        "name": "Inverter"
+      },
+      "clearTop": {
+        "name": "Limpar Topo"
+      },
+      "freeze": {
+        "name": "Congelar"
+      }
+    },
+    "cast": {
+      "ready": "Feitiço Estável",
+      "incomplete": "Instável",
+      "action": "CAST"
+    },
+    "settings": {
+      "previewOn": "Preview ligado",
+      "previewOff": "Preview desligado"
+    },
+    "upgrade": {
+      "kicker": "Subiu de Nível",
+      "title": "Escolha uma melhoria",
+      "addNumberStack": "Adicionar uma pilha numérica",
+      "addOperatorStack": "Adicionar uma pilha de operadores",
+      "unlock": "Desbloquear operador {operator}"
+    },
+    "game": {
+      "menu": "Menu",
+      "reset": "Limpar equação"
+    },
+    "gameOver": {
+      "title": "O Grimório Colapsou",
+      "description": "Você chegou ao nível {level} e lançou {casts} feitiços estáveis.",
+      "retry": "Tentar novamente",
+      "menu": "Voltar ao menu"
     }
   }
 }

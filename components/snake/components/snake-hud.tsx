@@ -1,5 +1,7 @@
 "use client";
 
+import { Share2 } from "lucide-react";
+
 type SnakeHudProps = {
   scoreLabel: string;
   bestScoreLabel: string;
@@ -40,7 +42,10 @@ export function SnakeHud({
           onClick={onShare}
           className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700"
         >
-          {shareLabel}
+          <span className="inline-flex items-center gap-2">
+            <Share2 size={16} />
+            {shareLabel}
+          </span>
         </button>
       </div>
     </div>

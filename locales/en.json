@@ -239,5 +239,102 @@
       "message": "I solved the {size} Slide Puzzle in {time} with {moves} moves.",
       "copied": "Share text copied to the clipboard (Ctrl + C)."
     }
+  },
+  "tetris": {
+    "title": "Tetris",
+    "menu": {
+      "subtitle": "Sometimes life feels like a game of Tetris: pieces fall fast, out of order, and not always the way we want.\n\nBut every fit is a chance to organize the chaos, turning pressure into strategy.\n\nNot every piece will be perfect, and that is okay.\n\nThe secret is not waiting for the ideal piece, it is learning to play well with what you have.\n\nTake a breath, focus, rotate the possibilities, and keep playing. 🎮✨",
+      "play": "▶ Play",
+      "settings": "⚙ Settings",
+      "bestScore": "Local best",
+      "controlsTitle": "Controls",
+      "goalTitle": "Goal",
+      "goalBody": "Clear lines in sequence, raise the level, and hold your pace as time speeds up."
+    },
+    "help": {
+      "desktop": "Desktop: use the arrow keys to move and rotate, the space bar for hard drop, C for hold, and P to pause or resume.",
+      "mobile": "Mobile: swipe left or right to move, swipe down to hard drop, tap to rotate, and use the pause button in the top-left corner."
+    },
+    "settings": {
+      "kicker": "Settings",
+      "description": "Adjust pacing, piece behavior, and the sound layer without scattering disconnected options across the screen.",
+      "summaryTitle": "Summary",
+      "summaryTheme": "Theme: {value}",
+      "summaryHold": "Hold: {value}",
+      "summaryPreview": "Preview: {value}",
+      "themeDark": "Dark",
+      "themeLight": "Light",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "previewVisible": "{count} piece(s)",
+      "previewHidden": "Hidden",
+      "back": "Back",
+      "audioTitle": "Audio",
+      "masterVolume": "Master volume",
+      "musicVolume": "Music",
+      "effectsVolume": "Effects",
+      "muteMusic": "Mute music",
+      "muteEffects": "Mute effects",
+      "pacingTitle": "Game Pace",
+      "initialSpeed": "Initial speed",
+      "initialLevel": "Initial level",
+      "gameplayTitle": "Gameplay",
+      "holdEnabled": "Enable hold",
+      "showNextQueue": "Show next pieces",
+      "ghostPiece": "Ghost piece",
+      "previewCount": "Preview pieces",
+      "appearanceTitle": "Appearance"
+    },
+    "hud": {
+      "score": "Score",
+      "bestScore": "Best",
+      "lines": "Lines",
+      "level": "Level",
+      "pause": "Pause",
+      "resume": "Resume",
+      "nextPieces": "Next pieces",
+      "hold": "Hold",
+      "localRanking": "Local ranking",
+      "rankingScore": "{score} pts",
+      "rankingLines": "{lines} lines",
+      "noRanking": "No saved matches yet."
+    },
+    "canvas": {
+      "local": "local",
+      "remote": "remote"
+    },
+    "game": {
+      "kicker": "Arcade Canvas",
+      "title": "Tetris Canvas",
+      "menu": "Menu",
+      "settings": "Settings",
+      "controlsTitle": "Controls",
+      "controlMove": "Desktop: ← → move",
+      "controlRotate": "Desktop: ↑ rotate",
+      "controlHardDrop": "Desktop: space hard drop",
+      "controlHold": "Desktop: C hold",
+      "controlPause": "Desktop: P pause",
+      "strategyTitle": "Strategy",
+      "strategyHold": "Use hold to save critical pieces.",
+      "strategyPreview": "Use the preview to plan your moves.",
+      "strategyHardDrop": "Set the pace with Hard drop.",
+      "strategyTetris": "Clear 4 lines at once to maximize your score.",
+      "drop": "Drop"
+    },
+    "pause": {
+      "title": "Game paused",
+      "description": "Resume when you are ready to continue the run.",
+      "resume": "Continue"
+    },
+    "gameOver": {
+      "title": "Game Over",
+      "description": "Final score {score}.",
+      "retry": "Play again"
+    },
+    "share": {
+      "action": "Share",
+      "message": "I scored {score} points in Tetris, cleared {lines} lines, and reached level {level}.",
+      "copied": "Share text copied to the clipboard (Ctrl + C)."
+    }
   }
 }

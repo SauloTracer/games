@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { Share2 } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { SlideHud } from "@/components/slide/components/slide-hud";
 import { SlideMenu } from "@/components/slide/components/slide-menu";
@@ -172,7 +173,10 @@ export function SlideGame() {
                 {t("slide.menu.settings")}
               </button>
               <button type="button" onClick={() => void shareResult(shareTemplate, copiedMessage)} className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">
-                {t("slide.menu.share")}
+                <span className="inline-flex items-center gap-2">
+                  <Share2 size={18} />
+                  {t("slide.menu.share")}
+                </span>
               </button>
               <button type="button" onClick={goToMenu} className="rounded-2xl bg-rose-600 px-4 py-3 font-semibold text-white">
                 {t("slide.victory.menu")}

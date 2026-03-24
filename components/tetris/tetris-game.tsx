@@ -1,95 +1,149 @@
 "use client";
 
+import { useRef } from "react";
+import { Share2 } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 import { TetrisCanvas } from "@/components/tetris/components/tetris-canvas";
 import { TetrisHud } from "@/components/tetris/components/tetris-hud";
 import { TetrisMenu } from "@/components/tetris/components/tetris-menu";
 import { TetrisSettingsPanel } from "@/components/tetris/components/tetris-settings-panel";
-import type { ThemeMode } from "@/components/tetris/game/types";
+import { getPieceMatrix, TETROMINO_COLORS } from "@/components/tetris/game/tetrominos";
+import type { TetrominoType } from "@/components/tetris/game/types";
 import { useTetrisGame } from "@/components/tetris/hooks/use-tetris-game";
 
-function MobileControls({
-  onLeft,
-  onRight,
-  onRotate,
-  onSoftDrop,
-  onHardDrop,
-  onHold,
-  theme,
+function CompactPiece({
+  type,
 }: {
-  onLeft: () => void;
-  onRight: () => void;
-  onRotate: () => void;
-  onSoftDrop: () => void;
-  onHardDrop: () => void;
-  onHold: () => void;
-  theme: ThemeMode;
+  type: TetrominoType | null;
 }) {
-  const buttonClassName =
-    theme === "arcade-dark"
-      ? "rounded-2xl border border-white/15 bg-white/10 px-4 py-4 text-sm font-bold text-white transition active:scale-[0.98]"
-      : "rounded-2xl border border-stone-200 bg-white px-4 py-4 text-sm font-bold text-stone-900 transition active:scale-[0.98]";
+  if (!type) {
+    return <div className="h-9 w-9 rounded-xl border border-dashed border-white/20 bg-white/5" />;
+  }
+
+  const matrix = getPieceMatrix(type);
+  const cells: Array<{ row: number; column: number }> = [];
+  matrix.forEach((row, rowIndex) => {
+    row.forEach((cell, columnIndex) => {
+      if (cell) {
+        cells.push({ row: rowIndex, column: columnIndex });
+      }
+    });
+  });
+
+  const minRow = Math.min(...cells.map((cell) => cell.row));
+  const maxRow = Math.max(...cells.map((cell) => cell.row));
+  const minColumn = Math.min(...cells.map((cell) => cell.column));
+  const maxColumn = Math.max(...cells.map((cell) => cell.column));
+  const width = maxColumn - minColumn + 1;
+  const height = maxRow - minRow + 1;
 
   return (
-    <div className="grid gap-3 md:hidden">
-      <div className="grid grid-cols-3 gap-3">
-        <button type="button" onClick={onLeft} className={buttonClassName}>
-          ←
-        </button>
-        <button type="button" onClick={onRotate} className={buttonClassName}>
-          ↻
-        </button>
-        <button type="button" onClick={onRight} className={buttonClassName}>
-          →
-        </button>
-      </div>
-      <div className="grid grid-cols-3 gap-3">
-        <button type="button" onClick={onHold} className={buttonClassName}>
-          Hold
-        </button>
-        <button type="button" onClick={onSoftDrop} className={buttonClassName}>
-          ↓
-        </button>
-        <button type="button" onClick={onHardDrop} className={buttonClassName}>
-          Drop
-        </button>
+    <div className="flex min-h-9 min-w-9 items-center justify-center rounded-xl border border-white/15 bg-white/5 p-1.5">
+      <div className="grid gap-px" style={{ gridTemplateColumns: `repeat(${width}, minmax(0, 1fr))` }}>
+        {Array.from({ length: width * height }, (_, index) => {
+          const row = Math.floor(index / width);
+          const column = index % width;
+          const filled = matrix[minRow + row]?.[minColumn + column] === 1;
+          return (
+            <span
+              key={index}
+              className="h-2.5 w-2.5 rounded-[0.2rem]"
+              style={{
+                background: filled ? TETROMINO_COLORS[type] : "rgba(255,255,255,0.04)",
+                opacity: filled ? 1 : 0.25,
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );
 }
 
 export function TetrisGame() {
+  const { t } = useLanguage();
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const {
     activeInstance,
     bestScore,
     ranking,
-    roomDraft,
     screen,
     settings,
     statusMessage,
     closeSettings,
     goToMenu,
-    handleMultiplayerPlaceholder,
     hardDrop,
-    hold,
     moveLeft,
     moveRight,
     openSettings,
     restartGame,
     rotate,
-    softDrop,
+    shareResult,
     startGame,
     togglePause,
     updateSettingsField,
   } = useTetrisGame();
 
+  const swipeThreshold = 28;
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (event.touches.length !== 1) {
+      touchStartRef.current = null;
+      return;
+    }
+
+    const touch = event.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (event.touches.length === 1) {
+      event.preventDefault();
+    }
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (!touchStartRef.current) {
+      return;
+    }
+
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+    touchStartRef.current = null;
+
+    if (Math.abs(deltaX) < swipeThreshold && Math.abs(deltaY) < swipeThreshold) {
+      rotate();
+      return;
+    }
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX > swipeThreshold) {
+        moveRight();
+      } else if (deltaX < -swipeThreshold) {
+        moveLeft();
+      }
+      return;
+    }
+
+    if (deltaY > swipeThreshold) {
+      hardDrop();
+      return;
+    }
+
+    rotate();
+  };
+
+  const handleTouchCancel = () => {
+    touchStartRef.current = null;
+  };
+
   if (screen === "menu") {
     return (
       <TetrisMenu
         bestScore={bestScore}
-        statusMessage={statusMessage}
         onPlay={() => void startGame()}
         onSettings={openSettings}
-        onMultiplayer={handleMultiplayerPlaceholder}
       />
     );
   }
@@ -102,128 +156,172 @@ export function TetrisGame() {
     return null;
   }
 
+  const mobilePreview = settings.showNextQueue ? activeInstance.board.nextQueue.slice(0, settings.previewCount) : [];
+
   return (
     <section
-      className={`rounded-[2rem] border p-4 shadow-panel backdrop-blur md:p-6 ${
-        settings.theme === "arcade-dark"
+      className={`rounded-[2rem] border p-4 shadow-panel backdrop-blur md:p-6 ${settings.theme === "arcade-dark"
           ? "border-cyan-200/10 bg-[radial-gradient(circle_at_top,#1d4ed8_0%,#0f172a_42%,#020617_100%)] text-white"
           : "border-amber-200/70 bg-[radial-gradient(circle_at_top,#fef3c7_0%,#fff7ed_48%,#fffbeb_100%)] text-stone-900"
-      }`}
+        }`}
     >
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className={`text-sm font-semibold uppercase tracking-[0.35em] ${settings.theme === "arcade-dark" ? "text-cyan-300" : "text-amber-700"}`}>
-            Single Player Ready for Multiplayer
-          </p>
-          <h1 className="mt-2 text-4xl font-black tracking-tight md:text-5xl">Tetris Canvas</h1>
+          <h1 className="mt-2 text-4xl font-black tracking-tight md:text-5xl">{t("tetris.game.title")}</h1>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={goToMenu}
-            className={`rounded-full px-4 py-3 text-sm font-bold transition ${
-              settings.theme === "arcade-dark" ? "bg-white/10 text-white hover:bg-white/15" : "bg-white text-stone-800 hover:bg-stone-100"
-            }`}
+            className={`rounded-full px-4 py-3 text-sm font-bold transition ${settings.theme === "arcade-dark" ? "bg-white/10 text-white hover:bg-white/15" : "bg-white text-stone-800 hover:bg-stone-100"
+              }`}
           >
-            Menu
+            {t("tetris.game.menu")}
           </button>
           <button
             type="button"
             onClick={openSettings}
-            className={`rounded-full px-4 py-3 text-sm font-bold transition ${
-              settings.theme === "arcade-dark" ? "bg-cyan-400/15 text-cyan-50 hover:bg-cyan-400/25" : "bg-amber-500 text-white hover:bg-amber-600"
-            }`}
+            className={`rounded-full px-4 py-3 text-sm font-bold transition ${settings.theme === "arcade-dark" ? "bg-cyan-400/15 text-cyan-50 hover:bg-cyan-400/25" : "bg-amber-500 text-white hover:bg-amber-600"
+              }`}
           >
-            Configurações
+            {t("tetris.game.settings")}
           </button>
         </div>
       </div>
 
-      {statusMessage ? (
-        <p
-          className={`mt-4 rounded-2xl border px-4 py-3 text-sm ${
-            settings.theme === "arcade-dark" ? "border-fuchsia-300/25 bg-fuchsia-500/10 text-fuchsia-100" : "border-amber-300 bg-amber-100 text-amber-900"
-          }`}
-        >
-          {statusMessage}
-        </p>
-      ) : null}
-
       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_21rem]">
         <div className="grid gap-5">
+          <div className="grid gap-3 rounded-[1.25rem] border border-white/10 bg-black/20 p-3 text-white md:hidden">
+            <div className="flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={togglePause}
+                className={`rounded-full px-4 py-2 text-xs font-bold ${settings.theme === "arcade-dark" ? "bg-slate-950/80 text-white" : "bg-white/90 text-stone-900"
+                  }`}
+              >
+                {screen === "paused" ? t("tetris.hud.resume") : t("tetris.hud.pause")}
+              </button>
+
+              <div className="rounded-xl bg-white/8 px-3 py-2 text-lg font-black">{activeInstance.board.score}</div>
+
+              {settings.holdEnabled ? (
+                <div className="flex items-center gap-2 rounded-xl bg-white/8 px-2 py-1.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">{t("tetris.hud.hold")}</span>
+                  <CompactPiece type={activeInstance.board.holdPiece} />
+                </div>
+              ) : null}
+            </div>
+
+            {mobilePreview.length ? (
+              <div className="flex items-center gap-2 rounded-xl bg-white/8 px-2 py-1.5">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-200">{t("tetris.hud.nextPieces")}</span>
+                <div className="flex items-center gap-1">
+                  {mobilePreview.map((type, index) => (
+                    <CompactPiece key={`${type}-${index}`} type={type} />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_14rem]">
-            <TetrisCanvas instance={activeInstance} settings={{ theme: settings.theme, showGhostPiece: settings.showGhostPiece }} />
-            <div className="grid gap-4">
+            <div
+              className="relative"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchCancel}
+            >
+              <TetrisCanvas instance={activeInstance} settings={{ theme: settings.theme, showGhostPiece: settings.showGhostPiece }} />
+            </div>
+            <div className="hidden gap-4 lg:grid">
               <div className={`rounded-[1.75rem] border p-4 ${settings.theme === "arcade-dark" ? "border-white/10 bg-black/25" : "border-amber-200 bg-white/80"}`}>
-                <p className="text-sm font-bold">Controles</p>
+                <p className="text-sm font-bold">{t("tetris.game.controlsTitle")}</p>
                 <div className="mt-3 grid gap-2 text-sm leading-6">
-                  <p>← → mover</p>
-                  <p>↑ rotacionar</p>
-                  <p>↓ queda rápida</p>
-                  <p>Espaço hard drop</p>
-                  <p>C hold</p>
-                  <p>P pausar</p>
+                  <p>{t("tetris.game.controlMove")}</p>
+                  <p>{t("tetris.game.controlRotate")}</p>
+                  <p>{t("tetris.game.controlHardDrop")}</p>
+                  {settings.holdEnabled ? <p>{t("tetris.game.controlHold")}</p> : null}
+                  <p>{t("tetris.game.controlPause")}</p>
                 </div>
               </div>
               <div className={`rounded-[1.75rem] border p-4 ${settings.theme === "arcade-dark" ? "border-white/10 bg-black/25" : "border-amber-200 bg-white/80"}`}>
-                <p className="text-sm font-bold">Multiplayer draft</p>
+                <p className="text-sm font-bold">{t("tetris.game.strategyTitle")}</p>
                 <div className="mt-3 grid gap-2 text-sm leading-6">
-                  <p>Sala: {roomDraft.roomId ?? "offline/local"}</p>
-                  <p>Jogadores: {roomDraft.players.length}</p>
-                  <p>Linha de lixo: {roomDraft.garbageQueueEnabled ? "preparada" : "desligada"}</p>
+                  <p>{t("tetris.game.strategyHold")}</p>
+                  <p>{t("tetris.game.strategyPreview")}</p>
+                  <p>{t("tetris.game.strategyHardDrop")}</p>
+                  <p>{t("tetris.game.strategyTetris")}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <MobileControls onLeft={moveLeft} onRight={moveRight} onRotate={rotate} onSoftDrop={softDrop} onHardDrop={hardDrop} onHold={hold} theme={settings.theme} />
-
           {(screen === "paused" || screen === "game-over") && (
             <div
-              className={`rounded-[1.75rem] border p-5 ${
-                settings.theme === "arcade-dark" ? "border-white/10 bg-black/30 text-white" : "border-amber-200 bg-white/90 text-stone-900"
-              }`}
+              className={`rounded-[1.75rem] border p-5 ${settings.theme === "arcade-dark" ? "border-white/10 bg-black/30 text-white" : "border-amber-200 bg-white/90 text-stone-900"
+                }`}
             >
-              <h2 className="text-3xl font-black">{screen === "paused" ? "Jogo pausado" : "Game Over"}</h2>
+              <h2 className="text-3xl font-black">{screen === "paused" ? t("tetris.pause.title") : t("tetris.gameOver.title")}</h2>
               <p className="mt-3 text-sm leading-6">
                 {screen === "paused"
-                  ? "Retome quando estiver pronto para continuar a sequência."
-                  : `Pontuação final ${activeInstance.board.score}.`}
+                  ? t("tetris.pause.description")
+                  : t("tetris.gameOver.description").replace("{score}", String(activeInstance.board.score))}
               </p>
               <div className="mt-4 flex flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={screen === "paused" ? togglePause : () => void restartGame()}
-                  className={`rounded-full px-5 py-3 font-bold transition ${
-                    settings.theme === "arcade-dark" ? "bg-cyan-400 text-slate-950 hover:bg-cyan-300" : "bg-amber-500 text-white hover:bg-amber-600"
-                  }`}
+                  className={`rounded-full px-5 py-3 font-bold transition ${settings.theme === "arcade-dark" ? "bg-cyan-400 text-slate-950 hover:bg-cyan-300" : "bg-amber-500 text-white hover:bg-amber-600"
+                    }`}
                 >
-                  {screen === "paused" ? "Continuar" : "Jogar novamente"}
+                  {screen === "paused" ? t("tetris.pause.resume") : t("tetris.gameOver.retry")}
                 </button>
                 <button
                   type="button"
                   onClick={goToMenu}
-                  className={`rounded-full px-5 py-3 font-bold transition ${
-                    settings.theme === "arcade-dark" ? "bg-white/10 text-white hover:bg-white/15" : "bg-white text-stone-800 hover:bg-stone-100"
-                  }`}
+                  className={`rounded-full px-5 py-3 font-bold transition ${settings.theme === "arcade-dark" ? "bg-white/10 text-white hover:bg-white/15" : "bg-white text-stone-800 hover:bg-stone-100"
+                    }`}
                 >
-                  Menu
+                  {t("tetris.game.menu")}
                 </button>
                 <button
                   type="button"
                   onClick={openSettings}
-                  className={`rounded-full px-5 py-3 font-bold transition ${
-                    settings.theme === "arcade-dark" ? "bg-fuchsia-500/15 text-fuchsia-100 hover:bg-fuchsia-500/25" : "bg-stone-900 text-white hover:bg-stone-800"
-                  }`}
+                  className={`rounded-full px-5 py-3 font-bold transition ${settings.theme === "arcade-dark" ? "bg-fuchsia-500/15 text-fuchsia-100 hover:bg-fuchsia-500/25" : "bg-stone-900 text-white hover:bg-stone-800"
+                    }`}
                 >
-                  Configurações
+                  {t("tetris.game.settings")}
                 </button>
+                {screen === "game-over" ? (
+                  <button
+                    type="button"
+                    onClick={() => void shareResult(t("tetris.share.message"), t("tetris.share.copied"))}
+                    className={`rounded-full px-5 py-3 font-bold transition ${settings.theme === "arcade-dark" ? "bg-white/10 text-white hover:bg-white/15" : "bg-white text-stone-800 hover:bg-stone-100"
+                      }`}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <Share2 size={16} />
+                      {t("tetris.share.action")}
+                    </span>
+                  </button>
+                ) : null}
               </div>
+              {statusMessage ? <p className="mt-4 text-sm font-semibold text-cyan-200">{statusMessage}</p> : null}
             </div>
           )}
         </div>
 
-        <TetrisHud board={activeInstance.board} bestScore={bestScore} ranking={ranking} paused={screen === "paused"} onPauseToggle={togglePause} />
+        <TetrisHud
+          board={activeInstance.board}
+          bestScore={bestScore}
+          ranking={ranking}
+          paused={screen === "paused"}
+          onPauseToggle={togglePause}
+          holdEnabled={settings.holdEnabled}
+          showNextQueue={settings.showNextQueue}
+          previewCount={settings.previewCount}
+        />
       </div>
     </section>
   );

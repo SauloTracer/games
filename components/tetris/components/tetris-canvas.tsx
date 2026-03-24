@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useLanguage } from "@/components/language-provider";
 import { getGhostPiece, TETRIS_COLUMNS, TETRIS_ROWS } from "@/components/tetris/game/engine";
 import { TETROMINO_COLORS } from "@/components/tetris/game/tetrominos";
 import type { GameInstance, PlayerBoardState, ThemeMode } from "@/components/tetris/game/types";
@@ -15,7 +16,7 @@ function drawCell(context: CanvasRenderingContext2D, x: number, y: number, size:
   context.restore();
 }
 
-function paintBoard(context: CanvasRenderingContext2D, board: PlayerBoardState, cellSize: number, theme: ThemeMode, showGhostPiece: boolean) {
+function paintBoard(context: CanvasRenderingContext2D, board: PlayerBoardState, cellSize: number, theme: ThemeMode, showGhostPiece: boolean, gameOverLabel: string) {
   const background = theme === "arcade-dark" ? "#020617" : "#fff7ed";
   const gridStroke = theme === "arcade-dark" ? "rgba(255,255,255,0.07)" : "rgba(15,23,42,0.08)";
   const emptyFill = theme === "arcade-dark" ? "#07111f" : "#fffdf8";
@@ -76,7 +77,7 @@ function paintBoard(context: CanvasRenderingContext2D, board: PlayerBoardState, 
     context.fillStyle = textColor;
     context.font = "700 28px 'Trebuchet MS', sans-serif";
     context.textAlign = "center";
-    context.fillText("GAME OVER", (cellSize * TETRIS_COLUMNS) / 2, (cellSize * TETRIS_ROWS) / 2);
+    context.fillText(gameOverLabel, (cellSize * TETRIS_COLUMNS) / 2, (cellSize * TETRIS_ROWS) / 2);
   }
 }
 
@@ -87,7 +88,37 @@ export function TetrisCanvas({
   instance: GameInstance;
   settings: { theme: ThemeMode; showGhostPiece: boolean };
 }) {
+  const { t } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const frameRef = useRef<HTMLDivElement | null>(null);
+  const [boardWidth, setBoardWidth] = useState(340);
+
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) {
+      return;
+    }
+
+    const updateBoardWidth = () => {
+      const isMobile = window.innerWidth < 768;
+      const containerWidth = frame.clientWidth;
+      const mobileMaxHeight = Math.max(320, window.innerHeight - 250);
+      const nextWidth = isMobile
+        ? Math.max(180, Math.min(containerWidth, mobileMaxHeight / 2, 340))
+        : Math.max(260, Math.min(containerWidth, 340));
+      setBoardWidth(Math.floor(nextWidth));
+    };
+
+    updateBoardWidth();
+    const observer = new ResizeObserver(() => updateBoardWidth());
+    observer.observe(frame);
+    window.addEventListener("resize", updateBoardWidth);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateBoardWidth);
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -98,25 +129,26 @@ export function TetrisCanvas({
     if (!context) {
       return;
     }
-    const width = 340;
-    const height = 680;
+    const width = boardWidth;
+    const height = boardWidth * 2;
     const ratio = window.devicePixelRatio || 1;
     canvas.width = width * ratio;
     canvas.height = height * ratio;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    paintBoard(context, instance.board, width / TETRIS_COLUMNS, settings.theme, settings.showGhostPiece);
-  }, [instance, settings]);
+    paintBoard(context, instance.board, width / TETRIS_COLUMNS, settings.theme, settings.showGhostPiece, t("tetris.gameOver.title").toUpperCase());
+  }, [boardWidth, instance, settings, t]);
 
   return (
-    <div className="rounded-[1.75rem] border border-white/10 bg-black/25 p-3 backdrop-blur">
-      <div className="mb-3 flex items-center justify-between gap-3 text-sm font-semibold text-slate-200">
+    <div ref={frameRef} className="rounded-[1.75rem] border border-white/10 bg-black/25 p-3 backdrop-blur">
+      <div className="mb-3 hidden items-center justify-between gap-3 text-sm font-semibold text-slate-200 md:flex">
         <span>{instance.board.name}</span>
-        <span className="rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.28em]">{instance.controlMode}</span>
+        <span className="rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.28em]">
+          {instance.controlMode === "local" ? t("tetris.canvas.local") : t("tetris.canvas.remote")}
+        </span>
       </div>
       <canvas ref={canvasRef} width={340} height={680} className="mx-auto block max-w-full rounded-[1.25rem] shadow-2xl" />
     </div>
   );
 }
-

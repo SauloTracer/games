@@ -239,5 +239,102 @@
       "message": "Resolvi o Slide Puzzle {size} em {time} com {moves} movimentos.",
       "copied": "Texto de compartilhamento copiado para a área de transferência; use o atalho Ctrl + V ou o menu de contexto \"Colar\" no local onde deseja compartilhar!"
     }
+  },
+  "tetris": {
+    "title": "Tetris",
+    "menu": {
+      "subtitle": "Às vezes a vida parece um jogo de Tetris: as peças caem rápido, fora de ordem, e nem sempre do jeito que a gente quer.\n\nMas cada encaixe é uma chance de organizar o caos, transformando pressão em estratégia.\n\nNem todas as peças vão ser perfeitas — e tá tudo bem.\n\nO segredo não é esperar pela peça ideal, é aprender a jogar bem com o que você tem.\n\nRespira, foca, gira as possibilidades… e segue jogando. 🎮✨",
+      "play": "▶ Jogar",
+      "settings": "⚙ Configurações",
+      "bestScore": "Recorde local",
+      "controlsTitle": "Controles",
+      "goalTitle": "Objetivo",
+      "goalBody": "Limpe linhas em sequência, aumente o nível e segure o ritmo quando o tempo acelerar."
+    },
+    "help": {
+      "desktop": "Desktop: use as setas para mover e rotacionar, barra de espaço para hard drop, C para hold e P para pausar ou retomar.",
+      "mobile": "Mobile: deslize para a esquerda ou direita para mover, deslize para baixo para hard drop, toque para rotacionar e use o botão de pausa no canto superior esquerdo."
+    },
+    "settings": {
+      "kicker": "Configuração",
+      "description": "Ajuste o ritmo da partida, o comportamento das peças e a camada sonora sem espalhar opções desconectadas pela tela.",
+      "summaryTitle": "Resumo",
+      "summaryTheme": "Tema: {value}",
+      "summaryHold": "Hold: {value}",
+      "summaryPreview": "Preview: {value}",
+      "themeDark": "Escuro",
+      "themeLight": "Claro",
+      "enabled": "Ativo",
+      "disabled": "Desligado",
+      "previewVisible": "{count} peça(s)",
+      "previewHidden": "Oculto",
+      "back": "Voltar",
+      "audioTitle": "Áudio",
+      "masterVolume": "Volume geral",
+      "musicVolume": "Música",
+      "effectsVolume": "Efeitos",
+      "muteMusic": "Mutar música",
+      "muteEffects": "Mutar efeitos",
+      "pacingTitle": "Ritmo da Partida",
+      "initialSpeed": "Velocidade inicial",
+      "initialLevel": "Nível inicial",
+      "gameplayTitle": "Jogabilidade",
+      "holdEnabled": "Habilitar hold",
+      "showNextQueue": "Mostrar próximas peças",
+      "ghostPiece": "Peça fantasma",
+      "previewCount": "Peças no preview",
+      "appearanceTitle": "Aparência"
+    },
+    "hud": {
+      "score": "Pontuação",
+      "bestScore": "Recorde",
+      "lines": "Linhas",
+      "level": "Nível",
+      "pause": "Pausar",
+      "resume": "Retomar",
+      "nextPieces": "Próximas peças",
+      "hold": "Hold",
+      "localRanking": "Ranking local",
+      "rankingScore": "{score} pts",
+      "rankingLines": "{lines} linhas",
+      "noRanking": "Ainda sem partidas salvas."
+    },
+    "canvas": {
+      "local": "local",
+      "remote": "remoto"
+    },
+    "game": {
+      "kicker": "Arcade Canvas",
+      "title": "Tetris Canvas",
+      "menu": "Menu",
+      "settings": "Configurações",
+      "controlsTitle": "Controles",
+      "controlMove": "Desktop: ← → mover",
+      "controlRotate": "Desktop: ↑ rotacionar",
+      "controlHardDrop": "Desktop: espaço hard drop",
+      "controlHold": "Desktop: C hold",
+      "controlPause": "Desktop: P pausar",
+      "strategyTitle": "Estratégia",
+      "strategyHold": "Use hold para guardar peças críticas.",
+      "strategyPreview": "Utilize o preview para planejar seus movimentos.",
+      "strategyHardDrop": "Dite o ritmo com Hard drop.",
+      "strategyTetris": "Limpe 4 linhas de uma vez para maximizar seus pontos.",
+      "drop": "Drop"
+    },
+    "pause": {
+      "title": "Jogo pausado",
+      "description": "Retome quando estiver pronto para continuar a sequência.",
+      "resume": "Continuar"
+    },
+    "gameOver": {
+      "title": "Game Over",
+      "description": "Pontuação final {score}.",
+      "retry": "Jogar novamente"
+    },
+    "share": {
+      "action": "Compartilhar",
+      "message": "Fiz {score} pontos no Tetris, limpei {lines} linhas e cheguei ao nível {level}.",
+      "copied": "Texto de compartilhamento copiado para a área de transferência; use Ctrl + V para compartilhar."
+    }
   }
 }

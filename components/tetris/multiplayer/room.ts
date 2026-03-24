@@ -8,14 +8,13 @@ export function createLocalRoom(settings: TetrisSettings): { instances: GameInst
       {
         id: localId,
         controlMode: "local",
-        board: createPlayerBoard("Jogador 1", settings, localId),
+        board: createPlayerBoard("P1", settings, localId),
       },
     ],
     room: {
       roomId: null,
-      players: [{ id: localId, name: "Jogador 1", connected: true }],
+      players: [{ id: localId, name: "P1", connected: true }],
       garbageQueueEnabled: true,
     },
   };
 }
-

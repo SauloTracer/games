@@ -14,6 +14,9 @@ export const defaultTetrisSettings: TetrisSettings = {
   initialLevel: 0,
   theme: "arcade-dark",
   showGhostPiece: true,
+  holdEnabled: true,
+  showNextQueue: true,
+  previewCount: 3,
 };
 
 export function loadTetrisSettings() {
@@ -84,4 +87,3 @@ export function saveTetrisResult(entry: TetrisRankingEntry) {
     .slice(0, 5);
   window.localStorage.setItem(RANKING_KEY, JSON.stringify(nextRanking));
 }
-

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { applyHold, hardDrop, movePiece, rotatePiece, softDrop, tickBoard } from "@/components/tetris/game/engine";
-import type { GameInstance, MultiplayerRoomDraft, TetrisRankingEntry, TetrisScreen, TetrisSettings } from "@/components/tetris/game/types";
+import type { GameInstance, TetrisRankingEntry, TetrisScreen, TetrisSettings } from "@/components/tetris/game/types";
 import { createLocalRoom } from "@/components/tetris/multiplayer/room";
 import { TetrisAudioController } from "@/components/tetris/services/audio";
 import {
@@ -23,7 +23,6 @@ export function useTetrisGame() {
   const [screen, setScreen] = useState<TetrisScreen>("menu");
   const [settings, setSettings] = useState<TetrisSettings>(defaultTetrisSettings);
   const [instances, setInstances] = useState<GameInstance[]>(() => createLocalRoom(defaultTetrisSettings).instances);
-  const [roomDraft, setRoomDraft] = useState<MultiplayerRoomDraft>(() => createLocalRoom(defaultTetrisSettings).room);
   const [bestScore, setBestScore] = useState(0);
   const [ranking, setRanking] = useState<TetrisRankingEntry[]>([]);
   const [statusMessage, setStatusMessage] = useState("");
@@ -38,7 +37,6 @@ export function useTetrisGame() {
     const room = createLocalRoom(nextSettings);
     setSettings(nextSettings);
     setInstances(room.instances);
-    setRoomDraft(room.room);
     setBestScore(loadTetrisHighScore());
     setRanking(loadTetrisRanking());
   }, []);
@@ -141,7 +139,6 @@ export function useTetrisGame() {
     audioRef.current?.startMusic();
     const room = createLocalRoom(settings);
     setInstances(room.instances);
-    setRoomDraft(room.room);
     setStatusMessage("");
     setScreen("playing");
   }, [settings]);
@@ -178,13 +175,34 @@ export function useTetrisGame() {
     });
   }, []);
 
-  const handleMultiplayerPlaceholder = useCallback(() => {
-    setStatusMessage("Placeholder pronto: cada board já é uma instância separada para futura sincronização via WebSocket.");
-  }, []);
-
   const updateSettingsField = useCallback(<K extends keyof TetrisSettings>(field: K, value: TetrisSettings[K]) => {
     setSettings((current) => ({ ...current, [field]: value }));
   }, []);
+
+  const shareResult = useCallback(async (template: string, copiedMessage: string) => {
+    const localBoard = getLocalBoard(instances)?.board;
+    if (!localBoard) {
+      return;
+    }
+
+    const text = template
+      .replace("{score}", String(localBoard.score))
+      .replace("{lines}", String(localBoard.lines))
+      .replace("{level}", String(localBoard.level));
+    const url = typeof window !== "undefined" ? `${window.location.origin}/tetris` : "";
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ text, url });
+        setStatusMessage(text);
+      } else {
+        await navigator.clipboard.writeText(`${text} ${url}`.trim());
+        setStatusMessage(copiedMessage);
+      }
+    } catch {
+      setStatusMessage(copiedMessage);
+    }
+  }, [instances]);
 
   const performSoftDrop = useCallback(() => {
     updateLocalBoard((instance) => {
@@ -228,8 +246,11 @@ export function useTetrisGame() {
   );
 
   const performHold = useCallback(() => {
+    if (!settings.holdEnabled) {
+      return;
+    }
     updateLocalBoard((instance) => ({ ...instance, board: applyHold(instance.board) }));
-  }, [updateLocalBoard]);
+  }, [settings.holdEnabled, updateLocalBoard]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -238,7 +259,7 @@ export function useTetrisGame() {
         setScreen("menu");
         return;
       }
-      if (event.key === "p" || event.key === "P") {
+      if (event.key === "p" || event.key === "P" || event.key === "Pause") {
         event.preventDefault();
         togglePause();
         return;
@@ -261,7 +282,7 @@ export function useTetrisGame() {
       } else if (event.key === " " || event.code === "Space") {
         event.preventDefault();
         performHardDrop();
-      } else if (event.key === "c" || event.key === "C" || event.key === "Shift") {
+      } else if (settings.holdEnabled && (event.key === "c" || event.key === "C" || event.key === "Shift")) {
         event.preventDefault();
         performHold();
       }
@@ -269,7 +290,7 @@ export function useTetrisGame() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [performHardDrop, performHold, performMove, performRotate, performSoftDrop, screen, togglePause]);
+  }, [performHardDrop, performHold, performMove, performRotate, performSoftDrop, screen, settings.holdEnabled, togglePause]);
 
   const activeInstance = getLocalBoard(instances);
 
@@ -277,7 +298,6 @@ export function useTetrisGame() {
     screen,
     settings,
     instances,
-    roomDraft,
     activeInstance,
     bestScore,
     ranking,
@@ -289,7 +309,7 @@ export function useTetrisGame() {
     closeSettings,
     updateSettingsField,
     togglePause,
-    handleMultiplayerPlaceholder,
+    shareResult,
     moveLeft: () => performMove(-1),
     moveRight: () => performMove(1),
     rotate: performRotate,

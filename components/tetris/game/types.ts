@@ -51,6 +51,9 @@ export type TetrisSettings = {
   initialLevel: number;
   theme: ThemeMode;
   showGhostPiece: boolean;
+  holdEnabled: boolean;
+  showNextQueue: boolean;
+  previewCount: 1 | 2 | 3;
 };
 
 export type TetrisRankingEntry = {
@@ -72,4 +75,3 @@ export type TetrisTickResult = {
   pieceLocked: boolean;
   gameOver: boolean;
 };
-

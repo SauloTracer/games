@@ -11,6 +11,7 @@ type SlideMenuProps = {
   onPlay: () => void;
   onSettings: () => void;
   onShare: () => void;
+  statusMessage?: string;
 };
 
 export function SlideMenu({
@@ -24,6 +25,7 @@ export function SlideMenu({
   onPlay,
   onSettings,
   onShare,
+  statusMessage,
 }: SlideMenuProps) {
   return (
     <section className="rounded-[2rem] border border-white/60 bg-white/90 p-6 shadow-panel backdrop-blur md:p-8">
@@ -47,6 +49,11 @@ export function SlideMenu({
           {shareLabel}
         </button>
       </div>
+      {statusMessage ? (
+        <p className="mx-auto mt-4 max-w-xl text-center text-sm font-semibold leading-6 text-rose-700">
+          {statusMessage}
+        </p>
+      ) : null}
     </section>
   );
 }

@@ -138,7 +138,7 @@
   "snake": {
     "title": "Snake",
     "menu": {
-      "subtitle": "Controla la serpiente en canvas, sobrevive más tiempo, aumenta la velocidad y persigue la mayor puntuación posible.",
+      "subtitle": "🐍🔥 Desafía tus reflejos y supera tus límites!\nCada movimiento cuenta, cada punto es una conquista!\n¿Hasta dónde puedes llegar sin equivocarte?",
       "play": "Jugar",
       "settings": "Configuración",
       "share": "Compartir puntuación"
@@ -194,7 +194,7 @@
   "slide": {
     "title": "Slide Puzzle",
     "menu": {
-      "subtitle": "Ordena las piezas en orden ascendente y resuelve el rompecabezas en el menor tiempo posible.",
+      "subtitle": "🧠🔥 Pon a prueba tu mente y supera tus límites!\nOrdena las piezas en orden ascendente — piensa rápido y demuestra que puedes dominar el Racha Cuca!",
       "play": "Jugar",
       "settings": "Configuración",
       "share": "Compartir resultado",

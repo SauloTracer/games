@@ -138,7 +138,7 @@
   "snake": {
     "title": "Snake",
     "menu": {
-      "subtitle": "Control the snake on canvas, survive longer, increase the speed, and chase the highest score you can.",
+      "subtitle": "🐍🔥 Challenge your reflexes and push past your limits!\nEvery move matters, every point is a win!\nHow far can you go without making a mistake?",
       "play": "Play",
       "settings": "Settings",
       "share": "Share score"
@@ -194,7 +194,7 @@
   "slide": {
     "title": "Slide Puzzle",
     "menu": {
-      "subtitle": "Arrange the tiles in ascending order and solve the puzzle in the shortest time possible.",
+      "subtitle": "🧠🔥 Test your mind and push beyond your limits!\nArrange the tiles in ascending order — think fast and prove you can master the sliding puzzle!",
       "play": "Play",
       "settings": "Settings",
       "share": "Share result",

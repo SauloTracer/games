@@ -10,6 +10,7 @@ type SnakeMenuProps = {
   onSettings: () => void;
   onShare: () => void;
   bestScoreLabel: string;
+  statusMessage?: string;
 };
 
 export function SnakeMenu({
@@ -22,6 +23,7 @@ export function SnakeMenu({
   onSettings,
   onShare,
   bestScoreLabel,
+  statusMessage,
 }: SnakeMenuProps) {
   return (
     <section className="rounded-[2rem] border border-white/60 bg-white/90 p-6 shadow-panel backdrop-blur md:p-8">
@@ -56,6 +58,11 @@ export function SnakeMenu({
           {shareLabel}
         </button>
       </div>
+      {statusMessage ? (
+        <p className="mx-auto mt-4 max-w-xl text-center text-sm font-semibold leading-6 text-emerald-700">
+          {statusMessage}
+        </p>
+      ) : null}
     </section>
   );
 }

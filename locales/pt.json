@@ -188,13 +188,13 @@
     },
     "share": {
       "message": "Fiz {score} pontos no Snake! 🐍🔥",
-      "copied": "Texto de compartilhamento copiado para a área de transferência (Ctrl + C)."
+      "copied": "Texto de compartilhamento copiado para a área de transferência; use o atalho Ctrl + V ou o menu de contexto \"Colar\" no local onde deseja compartilhar!"
     }
   },
   "slide": {
     "title": "Racha Cuca",
     "menu": {
-      "subtitle": "Organize as peças em ordem crescente e resolva o quebra-cabeça no menor tempo possível.",
+      "subtitle": "🧠🔥 Teste sua mente e supere seus limites!\nOrganize as peças em ordem crescente — pense rápido e prove que você consegue dominar o Racha-Cuca!",
       "play": "Jogar",
       "settings": "Configurações",
       "share": "Compartilhar resultado",
@@ -235,7 +235,7 @@
     },
     "share": {
       "message": "Resolvi o Slide Puzzle {size} em {time} com {moves} movimentos.",
-      "copied": "Texto de compartilhamento copiado para a área de transferência (Ctrl + C)."
+      "copied": "Texto de compartilhamento copiado para a área de transferência; use o atalho Ctrl + V ou o menu de contexto \"Colar\" no local onde deseja compartilhar!"
     }
   }
 }

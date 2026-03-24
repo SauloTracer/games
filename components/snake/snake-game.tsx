@@ -211,6 +211,7 @@ export function SnakeGame() {
         onSettings={openSettings}
         onShare={() => void shareScore(shareMessage, copiedMessage)}
         bestScoreLabel={bestScoreLabel}
+        statusMessage={statusMessage}
       />
     );
   }

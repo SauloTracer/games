@@ -68,6 +68,7 @@ export function SlideGame() {
         onPlay={() => void startGame()}
         onSettings={openSettings}
         onShare={() => void shareResult(shareTemplate, copiedMessage)}
+        statusMessage={statusMessage}
       />
     );
   }

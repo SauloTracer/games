@@ -16,10 +16,10 @@
   "home": {
     "title": "Sudoku, refeito em Next.js",
     "description": "A aplicação Vue foi traduzida para uma base React com App Router, TypeScript, Tailwind, anúncios responsivos e um tabuleiro de Sudoku totalmente jogável.",
-    "play": "Jogar Sudoku",
-    "playSnake": "Jogar Snake",
-    "playSlide": "Jogar Racha Cuca",
-    "playTetris": "Jogar Tetris",
+    "play": "Sudoku",
+    "playSnake": "Snake",
+    "playSlide": "Racha Cuca",
+    "playTetris": "Tetris",
     "contact": "Contato Tr@c3r",
     "bannerAlt": "Banner do Puzzled",
     "iconAlt": "Ícone do Puzzled"

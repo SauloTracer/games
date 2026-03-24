@@ -17,7 +17,7 @@ export default function HomePage() {
         <p className="text-sm uppercase tracking-[0.35em] text-amber-700">Puzzled</p>
       </div>
 
-      <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+      <div className="grid grid-cols-3 items-center justify-around gap-4 sm:flex-row">
         <Link
           href="/sudoku"
           className="inline-flex items-center justify-center rounded-full bg-amber-600 px-6 py-3 font-semibold text-white transition hover:bg-amber-700"

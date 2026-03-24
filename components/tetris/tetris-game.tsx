@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Share2 } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { TetrisCanvas } from "@/components/tetris/components/tetris-canvas";
@@ -63,6 +63,8 @@ function CompactPiece({
 export function TetrisGame() {
   const { t } = useLanguage();
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const touchHoldTriggeredRef = useRef(false);
+  const longPressTimerRef = useRef<number | null>(null);
   const {
     activeInstance,
     bestScore,
@@ -86,24 +88,63 @@ export function TetrisGame() {
   } = useTetrisGame();
 
   const swipeThreshold = 28;
+  const longPressMs = 240;
 
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     if (event.touches.length !== 1) {
       touchStartRef.current = null;
+      touchHoldTriggeredRef.current = false;
       return;
     }
 
     const touch = event.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    touchHoldTriggeredRef.current = false;
+
+    if (longPressTimerRef.current !== null) {
+      window.clearTimeout(longPressTimerRef.current);
+    }
+
+    longPressTimerRef.current = window.setTimeout(() => {
+      if (settings.holdEnabled && touchStartRef.current) {
+        hold();
+        touchHoldTriggeredRef.current = true;
+        touchStartRef.current = null;
+      }
+    }, longPressMs);
   };
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
     if (event.touches.length === 1) {
       event.preventDefault();
     }
+
+    if (!touchStartRef.current || event.touches.length !== 1) {
+      return;
+    }
+
+    const touch = event.touches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+    if (Math.abs(deltaX) >= swipeThreshold || Math.abs(deltaY) >= swipeThreshold) {
+      if (longPressTimerRef.current !== null) {
+        window.clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = null;
+      }
+    }
   };
 
   const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (longPressTimerRef.current !== null) {
+      window.clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+
+    if (touchHoldTriggeredRef.current) {
+      touchHoldTriggeredRef.current = false;
+      return;
+    }
+
     if (!touchStartRef.current) {
       return;
     }
@@ -141,8 +182,21 @@ export function TetrisGame() {
   };
 
   const handleTouchCancel = () => {
+    if (longPressTimerRef.current !== null) {
+      window.clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
     touchStartRef.current = null;
+    touchHoldTriggeredRef.current = false;
   };
+
+  useEffect(() => {
+    return () => {
+      if (longPressTimerRef.current !== null) {
+        window.clearTimeout(longPressTimerRef.current);
+      }
+    };
+  }, []);
 
   if (screen === "menu") {
     return (
@@ -237,6 +291,7 @@ export function TetrisGame() {
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
               onTouchCancel={handleTouchCancel}
+              style={{ touchAction: "none" }}
             >
               <TetrisCanvas instance={activeInstance} settings={{ theme: settings.theme, showGhostPiece: settings.showGhostPiece }} />
             </div>

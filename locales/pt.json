@@ -4,6 +4,7 @@
     "sudoku": "Sudoku",
     "snake": "Snake",
     "slide": "Racha Cuca",
+    "tetris": "Tetris",
     "toggleNavigation": "Alternar navegação",
     "language": "Idioma",
     "languageNames": {
@@ -18,6 +19,7 @@
     "play": "Jogar Sudoku",
     "playSnake": "Jogar Snake",
     "playSlide": "Jogar Racha Cuca",
+    "playTetris": "Jogar Tetris",
     "contact": "Contato Tr@c3r",
     "bannerAlt": "Banner do Puzzled",
     "iconAlt": "Ícone do Puzzled"

@@ -4,6 +4,7 @@
     "sudoku": "Sudoku",
     "snake": "Snake",
     "slide": "Slide",
+    "tetris": "Tetris",
     "toggleNavigation": "Toggle navigation",
     "language": "Language",
     "languageNames": {
@@ -18,6 +19,7 @@
     "play": "Play Sudoku",
     "playSnake": "Play Snake",
     "playSlide": "Play Slide",
+    "playTetris": "Play Tetris",
     "contact": "Contact Tr@c3r",
     "bannerAlt": "Puzzled banner",
     "iconAlt": "Puzzled icon"

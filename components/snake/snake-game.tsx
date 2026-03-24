@@ -182,6 +182,10 @@ export function SnakeGame() {
     swipeStartRef.current = null;
   };
 
+  const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  };
+
   const handleTouchCancel = () => {
     if (longPressTimerRef.current !== null) {
       window.clearTimeout(longPressTimerRef.current);
@@ -269,9 +273,11 @@ export function SnakeGame() {
           <div
             ref={boardRef}
             onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
             onTouchCancel={handleTouchCancel}
             className="relative flex min-h-[320px] items-center justify-center overflow-hidden rounded-[2rem] border border-emerald-200 bg-[radial-gradient(circle_at_top,#1f2937,#020617)] p-4 shadow-inner"
+            style={{ touchAction: "none" }}
           >
             <canvas ref={canvasRef} className="max-w-full border border-white/10 shadow-2xl" />
 

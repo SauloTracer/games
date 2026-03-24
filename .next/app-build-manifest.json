@@ -11,20 +11,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/page.js"
     ],
-    "/sudoku/page": [
+    "/slide/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/sudoku/page.js"
-    ],
-    "/api/sudoku/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/sudoku/route.js"
-    ],
-    "/snake/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/snake/page.js"
+      "static/chunks/app/slide/page.js"
     ]
   }
 }

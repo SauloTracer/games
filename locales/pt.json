@@ -3,6 +3,7 @@
     "home": "Inicio",
     "sudoku": "Sudoku",
     "snake": "Snake",
+    "slide": "Racha Cuca",
     "toggleNavigation": "Alternar navegação",
     "language": "Idioma",
     "languageNames": {
@@ -16,6 +17,7 @@
     "description": "A aplicação Vue foi traduzida para uma base React com App Router, TypeScript, Tailwind, anúncios responsivos e um tabuleiro de Sudoku totalmente jogável.",
     "play": "Jogar Sudoku",
     "playSnake": "Jogar Snake",
+    "playSlide": "Jogar Racha Cuca",
     "contact": "Contato Tr@c3r",
     "bannerAlt": "Banner do Puzzled",
     "iconAlt": "Ícone do Puzzled"
@@ -185,7 +187,55 @@
       "mobile": "Mobile: deslize sobre a área do jogo para mudar a direção e mantenha o toque pressionado para ativar o boost de velocidade. O swipe respeita a sensibilidade configurada."
     },
     "share": {
-      "message": "Fiz {score} pontos no Snake! 🐍🔥"
+      "message": "Fiz {score} pontos no Snake! 🐍🔥",
+      "copied": "Texto de compartilhamento copiado para a área de transferência (Ctrl + C)."
+    }
+  },
+  "slide": {
+    "title": "Racha Cuca",
+    "menu": {
+      "subtitle": "Organize as peças em ordem crescente e resolva o quebra-cabeça no menor tempo possível.",
+      "play": "Jogar",
+      "settings": "Configurações",
+      "share": "Compartilhar resultado",
+      "bestTime": "Melhor tempo {value}",
+      "bestMoves": "Menos movimentos {value}"
+    },
+    "settings": {
+      "title": "Configurações",
+      "back": "Voltar",
+      "boardSize": "Tamanho do tabuleiro",
+      "sound": "Som de movimento",
+      "animations": "Animações",
+      "soundOn": "Som ligado",
+      "soundOff": "Som desligado"
+    },
+    "hud": {
+      "time": "Tempo {value}",
+      "moves": "Movimentos {value}",
+      "restart": "Reiniciar",
+      "size": "Tabuleiro {size}"
+    },
+    "records": {
+      "title": "Recordes",
+      "none": "--"
+    },
+    "quickActions": {
+      "title": "Ações rápidas"
+    },
+    "help": {
+      "line1": "Clique ou toque em uma peça adjacente ao espaço vazio para movê-la.",
+      "line2": "Complete os números em ordem crescente, do 1 até o último bloco, deixando o espaço vazio no canto final."
+    },
+    "victory": {
+      "title": "Puzzle concluído",
+      "description": "Você organizou todas as peças corretamente.",
+      "retry": "Jogar novamente",
+      "menu": "Voltar ao menu"
+    },
+    "share": {
+      "message": "Resolvi o Slide Puzzle {size} em {time} com {moves} movimentos.",
+      "copied": "Texto de compartilhamento copiado para a área de transferência (Ctrl + C)."
     }
   }
 }

@@ -249,7 +249,7 @@ export function useSnakeGame() {
     [setDirection, settings.swipeSensitivity],
   );
 
-  const shareScore = useCallback(async (message: string) => {
+  const shareScore = useCallback(async (message: string, copiedMessage: string) => {
     const score = Math.max(session.score, bestScore);
     const text = message.replace("{score}", String(score));
     const url = typeof window !== "undefined" ? `${window.location.origin}/snake` : "";
@@ -257,12 +257,13 @@ export function useSnakeGame() {
     try {
       if (navigator.share) {
         await navigator.share({ text, url });
+        setStatusMessage(text);
       } else {
         await navigator.clipboard.writeText(`${text} ${url}`.trim());
+        setStatusMessage(copiedMessage);
       }
-      setStatusMessage(text);
     } catch {
-      setStatusMessage(text);
+      setStatusMessage(copiedMessage);
     }
   }, [bestScore, session.score]);
 

@@ -3,6 +3,7 @@
     "home": "Inicio",
     "sudoku": "Sudoku",
     "snake": "Snake",
+    "slide": "Slide",
     "toggleNavigation": "Alternar navegación",
     "language": "Idioma",
     "languageNames": {
@@ -16,6 +17,7 @@
     "description": "La aplicación Vue fue traducida a una base React con App Router, TypeScript, Tailwind, anuncios responsivos y un tablero de Sudoku totalmente jugable.",
     "play": "Jugar Sudoku",
     "playSnake": "Jugar Snake",
+    "playSlide": "Jugar Slide",
     "contact": "Contacto Tr@c3r",
     "bannerAlt": "Banner de Puzzled",
     "iconAlt": "Ícono de Puzzled"
@@ -185,7 +187,55 @@
       "mobile": "Mobile: desliza sobre el área del juego para cambiar de dirección y mantén el toque para activar el boost de velocidad. El swipe respeta la sensibilidad configurada."
     },
     "share": {
-      "message": "Fiz {score} pontos no Snake! 🐍🔥"
+      "message": "Fiz {score} pontos no Snake! 🐍🔥",
+      "copied": "Texto de compartido copiado al portapapeles (Ctrl + C)."
+    }
+  },
+  "slide": {
+    "title": "Slide Puzzle",
+    "menu": {
+      "subtitle": "Ordena las piezas en orden ascendente y resuelve el rompecabezas en el menor tiempo posible.",
+      "play": "Jugar",
+      "settings": "Configuración",
+      "share": "Compartir resultado",
+      "bestTime": "Mejor tiempo {value}",
+      "bestMoves": "Menos movimientos {value}"
+    },
+    "settings": {
+      "title": "Configuración",
+      "back": "Volver",
+      "boardSize": "Tamaño del tablero",
+      "sound": "Sonido de movimiento",
+      "animations": "Animaciones",
+      "soundOn": "Sonido activo",
+      "soundOff": "Sonido apagado"
+    },
+    "hud": {
+      "time": "Tiempo {value}",
+      "moves": "Movimientos {value}",
+      "restart": "Reiniciar",
+      "size": "Tablero {size}"
+    },
+    "records": {
+      "title": "Récords",
+      "none": "--"
+    },
+    "quickActions": {
+      "title": "Acciones rápidas"
+    },
+    "help": {
+      "line1": "Haz clic o toca una pieza adyacente al espacio vacío para moverla.",
+      "line2": "Completa los números en orden ascendente, desde el 1 hasta la última pieza, dejando el espacio vacío en la esquina final."
+    },
+    "victory": {
+      "title": "Puzzle completado",
+      "description": "Ordenaste todas las piezas correctamente.",
+      "retry": "Jugar de nuevo",
+      "menu": "Volver al menú"
+    },
+    "share": {
+      "message": "Resolví el Slide Puzzle {size} en {time} con {moves} movimientos.",
+      "copied": "Texto de compartido copiado al portapapeles (Ctrl + C)."
     }
   }
 }

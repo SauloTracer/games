@@ -77,6 +77,7 @@ export function SnakeGame() {
   const scoreLabel = t("snake.hud.score").replace("{score}", String(score));
   const bestScoreLabel = t("snake.hud.bestScore").replace("{score}", String(bestScore));
   const shareMessage = t("snake.share.message");
+  const copiedMessage = t("snake.share.copied");
   const overlayTitle = useMemo(() => {
     if (screen === "paused") {
       return t("snake.pause.title");
@@ -208,7 +209,7 @@ export function SnakeGame() {
         shareLabel={t("snake.menu.share")}
         onPlay={() => void startGame()}
         onSettings={openSettings}
-        onShare={() => void shareScore(shareMessage)}
+        onShare={() => void shareScore(shareMessage, copiedMessage)}
         bestScoreLabel={bestScoreLabel}
       />
     );
@@ -260,7 +261,7 @@ export function SnakeGame() {
             pausedLabel={t("snake.hud.resume")}
             shareLabel={t("snake.hud.share")}
             onPause={screen === "paused" ? resumeGame : pauseGame}
-            onShare={() => void shareScore(shareMessage)}
+            onShare={() => void shareScore(shareMessage, copiedMessage)}
             isPaused={screen === "paused"}
           />
 

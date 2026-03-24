@@ -73,6 +73,7 @@ export function TetrisGame() {
     closeSettings,
     goToMenu,
     hardDrop,
+    hold,
     moveLeft,
     moveRight,
     openSettings,
@@ -128,6 +129,11 @@ export function TetrisGame() {
 
     if (deltaY > swipeThreshold) {
       hardDrop();
+      return;
+    }
+
+    if (deltaY < -swipeThreshold && settings.holdEnabled) {
+      hold();
       return;
     }
 

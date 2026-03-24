@@ -253,7 +253,7 @@
     },
     "help": {
       "desktop": "Desktop: use the arrow keys to move and rotate, the space bar for hard drop, C for hold, and P to pause or resume.",
-      "mobile": "Mobile: swipe left or right to move, swipe down to hard drop, tap to rotate, and use the pause button in the top-left corner."
+      "mobile": "Mobile: swipe left or right to move, swipe down to hard drop, swipe up to hold, tap to rotate, and use the pause button in the top-left corner."
     },
     "settings": {
       "kicker": "Settings",
@@ -314,6 +314,10 @@
       "controlHardDrop": "Desktop: space hard drop",
       "controlHold": "Desktop: C hold",
       "controlPause": "Desktop: P pause",
+      "controlMobileMove": "Mobile: side swipe moves",
+      "controlMobileRotate": "Mobile: tap rotates",
+      "controlMobileHardDrop": "Mobile: swipe down hard drop",
+      "controlMobileHold": "Mobile: swipe up hold",
       "strategyTitle": "Strategy",
       "strategyHold": "Use hold to save critical pieces.",
       "strategyPreview": "Use the preview to plan your moves.",

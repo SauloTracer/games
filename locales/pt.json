@@ -253,7 +253,7 @@
     },
     "help": {
       "desktop": "Desktop: use as setas para mover e rotacionar, barra de espaço para hard drop, C para hold e P para pausar ou retomar.",
-      "mobile": "Mobile: deslize para a esquerda ou direita para mover, deslize para baixo para hard drop, toque para rotacionar e use o botão de pausa no canto superior esquerdo."
+      "mobile": "Mobile: deslize para a esquerda ou direita para mover, deslize para baixo para hard drop, deslize para cima para hold, toque para rotacionar e use o botão de pausa no canto superior esquerdo."
     },
     "settings": {
       "kicker": "Configuração",
@@ -314,6 +314,10 @@
       "controlHardDrop": "Desktop: espaço hard drop",
       "controlHold": "Desktop: C hold",
       "controlPause": "Desktop: P pausar",
+      "controlMobileMove": "Mobile: swipe lateral move",
+      "controlMobileRotate": "Mobile: toque rotaciona",
+      "controlMobileHardDrop": "Mobile: swipe down hard drop",
+      "controlMobileHold": "Mobile: swipe up hold",
       "strategyTitle": "Estratégia",
       "strategyHold": "Use hold para guardar peças críticas.",
       "strategyPreview": "Utilize o preview para planejar seus movimentos.",

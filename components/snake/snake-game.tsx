@@ -9,6 +9,7 @@ import { SnakeHud } from "@/components/snake/components/snake-hud";
 import { SnakeMenu } from "@/components/snake/components/snake-menu";
 import { SnakeSettingsPanel } from "@/components/snake/components/snake-settings-panel";
 import { useSnakeGame } from "@/components/snake/hooks/use-snake-game";
+import { Share2 } from "lucide-react";
 
 const foodPalette: Record<FoodType, string> = {
   common: "#22c55e",
@@ -298,6 +299,16 @@ export function SnakeGame() {
                         {t("snake.pause.resume")}
                       </button>
                     ) : null}
+                    <button
+                      type="button"
+                      onClick={() => void shareScore(shareMessage, copiedMessage, false)}
+                      className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700"
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        <Share2 size={16} />
+                        {t("snake.hud.share")}
+                      </span>
+                    </button>
                     <button
                       type="button"
                       onClick={() => void restartGame()}

@@ -249,8 +249,8 @@ export function useSnakeGame() {
     [setDirection, settings.swipeSensitivity],
   );
 
-  const shareScore = useCallback(async (message: string, copiedMessage: string) => {
-    const score = Math.max(session.score, bestScore);
+  const shareScore = useCallback(async (message: string, copiedMessage: string, max: boolean = true) => {
+    const score = max ? Math.max(session.score, bestScore) : session.score;
     const text = message.replace("{score}", String(score));
     const url = typeof window !== "undefined" ? `${window.location.origin}/snake` : "";
 

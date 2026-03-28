@@ -1,6 +1,4 @@
 {
-  "/page": "app/page.js",
-  "/sudoku/page": "app/sudoku/page.js",
   "/snake/page": "app/snake/page.js",
   "/slide/page": "app/slide/page.js"
 }

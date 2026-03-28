@@ -11,11 +11,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/page.js"
     ],
-    "/sudoku/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/sudoku/page.js"
-    ],
     "/snake/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",

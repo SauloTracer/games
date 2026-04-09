@@ -5,6 +5,10 @@
     "snake": "Snake",
     "slide": "Racha Cuca",
     "tetris": "Tetris",
+    "articles": "Artigos",
+    "about": "Sobre",
+    "contact": "Contato",
+    "privacy": "Privacidade",
     "toggleNavigation": "Alternar navegação",
     "language": "Idioma",
     "languageNames": {
@@ -14,15 +18,189 @@
     }
   },
   "home": {
-    "title": "Sudoku, refeito em Next.js",
-    "description": "A aplicação Vue foi traduzida para uma base React com App Router, TypeScript, Tailwind, anúncios responsivos e um tabuleiro de Sudoku totalmente jogável.",
+    "title": "Jogos clássicos para pensar, testar reflexos e manter o cérebro ativo",
+    "description": "Jogue Sudoku, Snake, Racha Cuca e Tetris no navegador. Leia artigos para se manter atualizado, aprender sobre os jogos e conhecer sua história.",
     "play": "Sudoku",
     "playSnake": "Snake",
     "playSlide": "Racha Cuca",
     "playTetris": "Tetris",
-    "contact": "Contato Tr@c3r",
+    "articles": "Artigos",
+    "contact": "Contato",
+    "featuredArticlesKicker": "Leitura",
+    "featuredArticlesTitle": "Artigos para continuar jogando melhor",
+    "allArticles": "Ver todos os artigos",
     "bannerAlt": "Banner do Puzzled",
     "iconAlt": "Ícone do Puzzled"
+  },
+  "articlesIndex": {
+    "kicker": "Artigos",
+    "title": "Artigos, regras, tutoriais e estratégias",
+    "description": "Aprenda a resolver Sudoku com método, conheça técnicas avançadas e visite a origem dos jogos disponíveis em Puzzled.",
+    "categories": {
+      "history": "História dos jogos",
+      "tutorial": "Tutorial de sudoku",
+      "other": "Outros"
+    }
+  },
+  "articlePage": {
+    "back": "Artigos",
+    "updatedOn": "Atualizado em",
+    "readingTime": "min de leitura",
+    "viewBook": "Ver livro"
+  },
+  "articlesContent": {
+    "habitControl": {
+      "title": "Mude sua Vida Controlando seus Hábitos",
+      "description": "Entenda como hábitos moldam comportamento, conheça o ciclo de gatilho, ação e recompensa e veja três livros que ajudam a construir rotinas mais saudáveis.",
+      "intro": [
+        "Hábitos são ferramentas poderosas que, quando utilizados corretamente, podem transformar nossas vidas.",
+        "Nossos hábitos definem nosso comportamento e formam a nossa identidade. Então controlar nossos hábitos é um caminho viável para a nossa evolução pessoal.",
+        "Ao entender como nossos hábitos são formados e como podemos alterá-los, podemos construir hábitos que nos levem a viver vidas mais saudáveis e produtivas, aprendendo com nossos erros e mantendo uma mentalidade de crescimento.",
+        "Para alcançar grandes mudanças a longo prazo, convém começar com hábitos extremamente pequenos e sustentáveis, tão fáceis que você não tenha desculpas para não fazê-los. Utilizando metas simples e alcançáveis, podemos criar um ciclo de feedback positivo que nos ajuda a desenvolver hábitos mais saudáveis."
+      ],
+      "frameworkTitle": "Gatilho, ação e recompensa",
+      "frameworkIntro": "Para colocar tudo isso em prática, precisamos de apenas três coisas: um gatilho, uma ação e uma recompensa.",
+      "triggerTitle": "Gatilho",
+      "triggerBody": "É o momento ou estímulo que faz a ação começar.",
+      "triggerItems": [
+        "Sentir determinada emoção como alegria, tristeza, raiva ou medo.",
+        "Pensar em um assunto específico.",
+        "Um evento como cair, receber um elogio, receber uma crítica ou terminar uma tarefa.",
+        "Uma palavra dita ou ouvida."
+      ],
+      "actionTitle": "Ação",
+      "actionBody": "É o que queremos fazer toda vez que o gatilho é disparado.",
+      "actionItems": [
+        "Interromper o que estamos fazendo.",
+        "Corrigir nosso comportamento.",
+        "Iniciar uma atividade."
+      ],
+      "rewardTitle": "Recompensa",
+      "rewardBody": "Se tivermos sucesso na ação, podemos reforçar o comportamento com um retorno positivo.",
+      "rewardItems": [
+        "Um doce.",
+        "Um momento de descanso.",
+        "Uma palavra de encorajamento.",
+        "Tempo de lazer."
+      ],
+      "closing": [
+        "Se perceber que não está conseguindo realizar a ação, torne-a mais fácil. Se quer fazer 100 flexões, comece com 1 flexão de parede. Se quer ler um livro de 500 páginas, comece com 1 página ou até 1 parágrafo.",
+        "Pode parecer pouco, mas o importante é criar o hábito e desenvolvê-lo com o tempo. Pequenas vitórias reduzem a resistência inicial e ajudam a manter constância."
+      ],
+      "booksTitle": "3 livros para aprofundar o tema",
+      "booksIntro": "A seguir, um resumo de três livros que ajudam a substituir hábitos nocivos por outros mais saudáveis, construir novas rotinas e mantê-las com mais facilidade.",
+      "books": [
+        {
+          "title": "O Poder do Hábito",
+          "description": "Charles Duhigg explora a psicologia dos hábitos e o impacto que eles têm na vida pessoal e profissional.",
+          "bullets": [
+            "Explica como os hábitos funcionam por meio de gatilho, rotina e recompensa.",
+            "Mostra como criar novos hábitos começando pequeno e praticando com regularidade.",
+            "Ajuda a identificar e substituir hábitos indesejados sem ignorar a recompensa que os sustenta.",
+            "Relaciona hábitos à saúde, felicidade, trabalho, negócios e comportamento coletivo."
+          ],
+          "link": "https://meli.la/2w8qxtu",
+          "image": "https://http2.mlstatic.com/D_NQ_NP_2X_852472-MLU72521939954_102023-F.webp",
+          "imageAlt": "Capa do livro O Poder do Hábito"
+        },
+        {
+          "title": "Mini Hábitos",
+          "description": "Stephen Guise defende que hábitos mínimos e diários podem gerar mudanças grandes e sustentáveis ao longo do tempo.",
+          "bullets": [
+            "Propõe hábitos tão pequenos que você não tenha desculpas para evitá-los.",
+            "Reduz procrastinação e resistência à mudança com metas fáceis de cumprir.",
+            "Sugere aumentar a dificuldade gradualmente depois que a constância estiver consolidada.",
+            "Apresenta estratégias para lidar com recaídas, manter o diário de progresso e usar reforço positivo."
+          ],
+          "link": "https://meli.la/1QPexWd",
+          "image": "https://http2.mlstatic.com/D_NQ_NP_2X_738801-MLU50456235942_062022-F.webp",
+          "imageAlt": "Capa do livro Mini Hábitos"
+        },
+        {
+          "title": "Hábitos Atômicos",
+          "description": "James Clear mostra como pequenas melhorias acumuladas podem transformar identidade, rotina e resultados.",
+          "bullets": [
+            "Trata hábitos como base da identidade e da mudança de vida.",
+            "Enfatiza mudanças incrementais, consistentes e sustentáveis.",
+            "Explora gatilho, rotina, recompensa e ritual como parte da formação de hábitos.",
+            "Ajuda a superar procrastinação, resistência e barreiras ambientais que atrapalham o progresso."
+          ],
+          "link": "https://meli.la/2iyg3G1",
+          "image": "https://http2.mlstatic.com/D_NQ_NP_2X_616873-MLU50456261949_062022-F.webp",
+          "imageAlt": "Capa do livro Hábitos Atômicos"
+        }
+      ],
+      "callToAction": "Ver mais artigos"
+    }
+  },
+  "about": {
+    "title": "Sobre o Puzzled",
+    "intro": "O Puzzled é um site direto ao ponto para quem curte puzzles e jogos clássicos.",
+    "introDetail": "Reunimos versões acessíveis de jogos clássicos, artigos que explicam suas histórias, regras, técnicas e estratégias. A ideia é utilizar jogos para estimular o raciocínio lógico, foco e concentração: seja com uma eliminação no Sudoku, uma rota melhor no Snake, uma solução mais limpa no Racha Cuca ou uma decisão mais calma no Tetris.",
+    "games": {
+      "title": "O que você encontra aqui",
+      "body": "Cada jogo foi escolhido por combinar regras simples com profundidade, possibilitando o desenvolvimento cerebral de forma lúdica e sem esforço.",
+      "items": [
+        "Sudoku online com candidatos, marcações, impressão e filtros de padrões",
+        "Snake online com pontuação, comidas especiais, boost e recorde local",
+        "Racha Cuca com peças deslizantes, cronômetro e contador de movimentos",
+        "Tetris online com tetrominós, hold, preview, ranking local e linhas para limpar"
+      ]
+    },
+    "purpose": {
+      "title": "Nossa proposta",
+      "body": "Além de disponibilizar os jogos, o conteúdo do Puzzled explica de onde os jogos vieram, como suas regras funcionam e quais estratégias ajudam a jogar com mais intenção.",
+      "items": [
+        "Tutoriais de Sudoku do básico às técnicas difíceis",
+        "Contar a história dos jogos clássicos disponíveis no site",
+        "Estimular raciocínio lógico, concentração, reconhecimento de padrões e planejamento"
+      ]
+    },
+    "audience": {
+      "title": "Para quem é",
+      "items": [
+        "Quem quer manter o cérebro ativo",
+        "Jogadores casuais que querem uma partida rápida no navegador",
+        "Iniciantes em Sudoku que querem aprender a jogar sem depender de chutes",
+        "Fãs de jogos clássicos que gostam de contexto e curiosidades",
+        "Pessoas que usam puzzles como pausa ativa, treino de foco ou estudo de estratégia"
+      ]
+    },
+    "vision": {
+      "title": "O que vem pela frente",
+      "body": "Vamos continuar ampliando nossa biblioteca de jogos e artigos, melhorando a experiência de jogo e seus estímulos para o cérebro."
+    },
+    "readArticles": "Ler artigos",
+    "playNow": "Jogar Sudoku"
+  },
+  "contact": {
+    "title": "Contato",
+    "description": "Use esta página para falar sobre problemas técnicos, sugestões de artigos, correções, privacidade, parcerias ou dúvidas sobre o Puzzled.",
+    "emailTitle": "Email de contato",
+    "emailBody": "Envie sua mensagem para o endereço abaixo. Inclua o link da página, o nome do jogo, o dispositivo usado e uma descrição objetiva quando estiver relatando um problema.",
+    "topicsTitle": "Assuntos úteis",
+    "topicBug": "Relatar erro em uma partida, controle, layout, anúncio ou ferramenta de Sudoku.",
+    "topicContent": "Sugerir um tutorial, pedir uma correção ou indicar uma explicação que ficou confusa.",
+    "topicPrivacy": "Tratar de privacidade, anúncios, analytics, consentimento ou informação relacionada ao site.",
+    "topicBusiness": "Conversar sobre parcerias, divulgação, conteúdo, imprensa ou oportunidades comerciais."
+  },
+  "privacy": {
+    "title": "Privacidade",
+    "description": "Até o momento, os recursos dos jogos do Puzzled usam armazenamento local do navegador para manter preferências, progresso e recordes neste dispositivo.",
+    "localTitle": "O que fica salvo localmente",
+    "localBody": "Armazenamento local é um espaço do seu navegador. O Puzzled usa esse recurso para lembrar escolhas simples e preservar partidas. Esses dados ficam no dispositivo e no navegador onde você jogou; eles não criam uma conta e não formam um perfil público.",
+    "localItemLanguage": "Idioma escolhido no seletor do site.",
+    "localItemSudoku": "Estado salvo do Sudoku, quando há uma partida em andamento.",
+    "localItemSnake": "Configurações do Snake e melhor pontuação local.",
+    "localItemSlide": "Configurações, recordes e resultado recente do Racha Cuca.",
+    "localItemTetris": "Configurações, recorde, ranking local e preferências do Tetris.",
+    "noAccountTitle": "Sem cadastro no Puzzled",
+    "noAccountBody": "O Puzzled não pede login para jogar. No estado atual do site, o progresso dos jogos não é sincronizado entre celulares, computadores ou navegadores diferentes.",
+    "controlTitle": "Como apagar esses dados",
+    "controlBody": "Você pode apagar os dados locais limpando os dados do site nas configurações do navegador. Se fizer isso, idioma, configurações, partidas salvas, recordes e rankings locais podem voltar ao estado inicial.",
+    "changesTitle": "Mudanças futuras",
+    "changesBody": "Se o Puzzled passar a usar contas, banco de dados, sincronização online ou novas formas de armazenamento, esta página será atualizada para explicar o que mudou e por quê.",
+    "contactLink": "Falar sobre privacidade"
   },
   "ads": {
     "recommendation": "Recomendação",

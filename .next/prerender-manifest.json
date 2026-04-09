@@ -1,11 +1,1 @@
-{
-  "version": 4,
-  "routes": {},
-  "dynamicRoutes": {},
-  "notFoundRoutes": [],
-  "preview": {
-    "previewModeId": "edab99d8ecd2a758fb884bd719693906",
-    "previewModeSigningKey": "29f38eaa00ec72685fb2589a3364df16cbe0874e0e8d5eec89f21519d0db5b3b",
-    "previewModeEncryptionKey": "49e01a95a26b06ece6a289baee6ef08c138363f50d4ac634a1c7fb21cc491d88"
-  }
-}
+{"version":4,"routes":{"/articles/mude-sua-vida-controlando-seus-habitos":{},"/articles/historia-do-sudoku":{},"/articles/historia-do-snake":{},"/articles/historia-do-slide-puzzle":{},"/articles/historia-do-tetris":{},"/articles/como-jogar-sudoku":{},"/articles/sudoku-pointing-pairs":{},"/articles/sudoku-x-wing":{},"/articles/sudoku-xy-wing":{},"/articles/sudoku-swordfish":{},"/articles/sudoku-candidatos-e-singles":{}},"dynamicRoutes":{"/articles/[slug]":{"dataRoute":null,"dataRouteRegex":null,"fallback":null,"fallbackRevalidate":false,"fallbackSourceRoute":"/articles/[slug]","routeRegex":"^\\/articles\\/([^/]+?)(?:\\/)?$","allowHeader":[]}},"notFoundRoutes":[],"preview":{"previewModeId":"86f84c5c2f3f797d6dca72eeeada20fd","previewModeSigningKey":"1eaa70d3878e577ee1928053d4cf97a1e71b93cb58d3de25dabb95950171fef7","previewModeEncryptionKey":"d2436967c782e2ab650b10ac083d87332c06d2e629e871fc02ad491eec48f0b6"}}

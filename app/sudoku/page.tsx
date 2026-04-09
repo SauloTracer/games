@@ -2,16 +2,28 @@ import { SudokuGame } from "@/components/sudoku-game";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sudoku | Puzzled",
+  title: "Sudoku online grátis | Puzzled",
   description:
-    "Jogue sudoku online grátis. Mantenha seu cérebro ativo!",
+    "Jogue Sudoku online grátis com candidatos, marcações, impressão, compartilhamento e filtros para padrões como X-Wing e Swordfish.",
   keywords: [
     "sudoku",
     "free sudoku online",
     "math game",
     "numbers game",
-    "organize os números"
+    "organize os números",
+    "técnicas de sudoku",
   ],
+  alternates: {
+    canonical: "https://puzzled.com.br/sudoku",
+  },
+  openGraph: {
+    title: "Sudoku online grátis | Puzzled",
+    description: "Um tabuleiro de Sudoku online com candidatos, marcações, impressão e ferramentas de estudo.",
+    url: "https://puzzled.com.br/sudoku",
+    siteName: "Puzzled",
+    locale: "pt_BR",
+    type: "website",
+  },
 };
 
 export default function SudokuPage() {
@@ -24,7 +36,7 @@ export default function SudokuPage() {
           "@context": "https://schema.org",
           "@type": "Game",
           name: "Sudoku",
-          description: "Jogue Sudoku Online Grátis | Play Sudoku online for free",
+          description: metadata.description,
           applicationCategory: "Game",
           operatingSystem: "All",
         }),

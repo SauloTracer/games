@@ -18,6 +18,10 @@ export function SiteChrome({ children }: { children: ReactNode }) {
     { href: "/snake", label: t("chrome.snake") },
     { href: "/slide", label: t("chrome.slide") },
     { href: "/tetris", label: t("chrome.tetris") },
+    { href: "/articles", label: t("chrome.articles") },
+    { href: "/about", label: t("chrome.about") },
+    { href: "/contact", label: t("chrome.contact") },
+    { href: "/privacy", label: t("chrome.privacy") },
   ];
 
   useEffect(() => {

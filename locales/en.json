@@ -5,6 +5,10 @@
     "snake": "Snake",
     "slide": "Slide",
     "tetris": "Tetris",
+    "articles": "Articles",
+    "about": "About",
+    "contact": "Contact",
+    "privacy": "Privacy",
     "toggleNavigation": "Toggle navigation",
     "language": "Language",
     "languageNames": {
@@ -14,15 +18,189 @@
     }
   },
   "home": {
-    "title": "Sudoku, rebuilt in Next.js",
-    "description": "The Vue application has been translated into a React-based app with App Router, TypeScript, Tailwind, responsive ads, and a fully playable Sudoku board.",
+    "title": "Classic games to think, test reflexes, and keep your brain active",
+    "description": "Play Sudoku, Snake, Slide Puzzle, and Tetris in the browser. Read articles to stay up to date, learn about the games, and discover their history.",
     "play": "Sudoku",
     "playSnake": "Snake",
     "playSlide": "Slide",
     "playTetris": "Tetris",
-    "contact": "Contact Tr@c3r",
+    "articles": "Articles",
+    "contact": "Contact",
+    "featuredArticlesKicker": "Reading",
+    "featuredArticlesTitle": "Articles to keep playing better",
+    "allArticles": "See all articles",
     "bannerAlt": "Puzzled banner",
     "iconAlt": "Puzzled icon"
+  },
+  "articlesIndex": {
+    "kicker": "Articles",
+    "title": "Articles, rules, tutorials, and strategies",
+    "description": "Learn to solve Sudoku with method, study advanced techniques, and visit the origin of the games available in Puzzled.",
+    "categories": {
+      "history": "Game History",
+      "tutorial": "Sudoku Tutorial",
+      "other": "Other"
+    }
+  },
+  "articlePage": {
+    "back": "Articles",
+    "updatedOn": "Updated on",
+    "readingTime": "min read",
+    "viewBook": "View book"
+  },
+  "articlesContent": {
+    "habitControl": {
+      "title": "Change Your Life by Controlling Your Habits",
+      "description": "Understand how habits shape behavior, learn the cue-action-reward cycle, and see three books that help build healthier routines.",
+      "intro": [
+        "Habits are powerful tools that, when used correctly, can transform our lives.",
+        "Our habits define our behavior and shape our identity. That is why learning to control habits is a practical path for personal growth.",
+        "By understanding how habits are formed and how they can be changed, we can build routines that lead to healthier and more productive lives while learning from mistakes and keeping a growth mindset.",
+        "To achieve major long-term change, it helps to start with extremely small and sustainable habits, so easy that you have no excuse not to do them. Simple and achievable goals create a positive feedback cycle that supports healthier habits."
+      ],
+      "frameworkTitle": "Cue, action, and reward",
+      "frameworkIntro": "To put this into practice, we only need three things: a cue, an action, and a reward.",
+      "triggerTitle": "Cue",
+      "triggerBody": "This is the moment or stimulus that starts the action.",
+      "triggerItems": [
+        "Feeling a certain emotion such as joy, sadness, anger, or fear.",
+        "Thinking about a specific subject.",
+        "An event such as falling, receiving praise, receiving criticism, or finishing a task.",
+        "A word that is spoken or heard."
+      ],
+      "actionTitle": "Action",
+      "actionBody": "This is what we want to do every time the cue is triggered.",
+      "actionItems": [
+        "Interrupt what we are doing.",
+        "Correct our behavior.",
+        "Start an activity."
+      ],
+      "rewardTitle": "Reward",
+      "rewardBody": "If we succeed with the action, we can reinforce the behavior with a positive reward.",
+      "rewardItems": [
+        "A sweet.",
+        "A short rest.",
+        "A word of encouragement.",
+        "Leisure time."
+      ],
+      "closing": [
+        "If you notice that you are not managing to perform the action, make it easier. If you want to do 100 push-ups, start with 1 wall push-up. If you want to read a 500-page book, start with 1 page or even 1 paragraph.",
+        "It may seem like very little, but the important part is to create the habit and develop it over time. Small wins reduce initial resistance and make consistency easier."
+      ],
+      "booksTitle": "3 books to deepen the topic",
+      "booksIntro": "Below is a summary of three books that can help replace harmful habits with healthier ones, build new routines, and keep them with less friction.",
+      "books": [
+        {
+          "title": "The Power of Habit",
+          "description": "Charles Duhigg explores the psychology behind habits and the impact they have on personal and professional life.",
+          "bullets": [
+            "Explains how habits work through cue, routine, and reward.",
+            "Shows how to create new habits by starting small and practicing regularly.",
+            "Helps identify and replace unwanted habits without ignoring the reward that keeps them alive.",
+            "Connects habits to health, happiness, work, business, and collective behavior."
+          ],
+          "link": "https://meli.la/2w8qxtu",
+          "image": "https://http2.mlstatic.com/D_NQ_NP_2X_852472-MLU72521939954_102023-F.webp",
+          "imageAlt": "Cover of the book The Power of Habit"
+        },
+        {
+          "title": "Mini Habits",
+          "description": "Stephen Guise argues that very small daily habits can lead to major and sustainable change over time.",
+          "bullets": [
+            "Suggests habits so small that you have no excuse to skip them.",
+            "Reduces procrastination and resistance to change with goals that are easy to complete.",
+            "Encourages increasing difficulty gradually after consistency is established.",
+            "Offers strategies to handle setbacks, track progress, and use positive reinforcement."
+          ],
+          "link": "https://meli.la/1QPexWd",
+          "image": "https://http2.mlstatic.com/D_NQ_NP_2X_738801-MLU50456235942_062022-F.webp",
+          "imageAlt": "Cover of the book Mini Habits"
+        },
+        {
+          "title": "Atomic Habits",
+          "description": "James Clear shows how small accumulated improvements can transform identity, routine, and results.",
+          "bullets": [
+            "Treats habits as the foundation of identity and life change.",
+            "Emphasizes incremental, consistent, and sustainable change.",
+            "Explores cue, routine, reward, and ritual as part of habit formation.",
+            "Helps overcome procrastination, resistance, and environmental barriers that get in the way of progress."
+          ],
+          "link": "https://meli.la/2iyg3G1",
+          "image": "https://http2.mlstatic.com/D_NQ_NP_2X_616873-MLU50456261949_062022-F.webp",
+          "imageAlt": "Cover of the book Atomic Habits"
+        }
+      ],
+      "callToAction": "See more articles"
+    }
+  },
+  "about": {
+    "title": "About Puzzled",
+    "intro": "Puzzled is a straight-to-the-point site for people who enjoy puzzles and classic games.",
+    "introDetail": "We bring together accessible versions of classic games and articles that explain their history, rules, techniques, and strategies. The idea is to use games to stimulate logical reasoning, focus, and concentration: with a Sudoku elimination, a better Snake route, a cleaner Slide Puzzle solution, or a calmer Tetris decision.",
+    "games": {
+      "title": "What you can find here",
+      "body": "Each game was chosen because it combines simple rules with depth, making brain development possible in a playful and effortless way.",
+      "items": [
+        "Online Sudoku with candidates, marks, print mode, and pattern filters",
+        "Online Snake with scoring, special foods, boost, and local best score",
+        "Slide Puzzle with numbered tiles, timer, and move counter",
+        "Online Tetris with tetrominoes, hold, preview, local ranking, and lines to clear"
+      ]
+    },
+    "purpose": {
+      "title": "Our proposal",
+      "body": "Beyond making the games available, Puzzled content explains where they came from, how their rules work, and which strategies help you play with more intention.",
+      "items": [
+        "Sudoku tutorials from the basics to difficult techniques",
+        "Tell the history of the classic games available on the site",
+        "Stimulate logical reasoning, concentration, pattern recognition, and planning"
+      ]
+    },
+    "audience": {
+      "title": "Who it is for",
+      "items": [
+        "People who want to keep their brain active",
+        "Players who want a quick browser match",
+        "Sudoku beginners who want to learn to play without relying on guesses",
+        "Classic game fans who enjoy context and curiosity",
+        "People who use puzzles as an active break, focus practice, or strategy study"
+      ]
+    },
+    "vision": {
+      "title": "What comes next",
+      "body": "We will keep expanding our library of games and articles, improving the game experience and the brain-stimulating challenges around it."
+    },
+    "readArticles": "Read articles",
+    "playNow": "Play Sudoku"
+  },
+  "contact": {
+    "title": "Contact",
+    "description": "Use this page for technical issues, article suggestions, corrections, privacy, partnerships, or questions about Puzzled.",
+    "emailTitle": "Contact email",
+    "emailBody": "Send your message to the address below. When reporting an issue, include the page link, game name, device, and a clear description.",
+    "topicsTitle": "Useful topics",
+    "topicBug": "Report an error in a match, control, layout, ad, or Sudoku tool.",
+    "topicContent": "Suggest a tutorial, request a correction, or point out an explanation that was unclear.",
+    "topicPrivacy": "Discuss privacy, ads, analytics, consent, or site-related information.",
+    "topicBusiness": "Talk about partnerships, publishing, content, press, or business opportunities."
+  },
+  "privacy": {
+    "title": "Privacy",
+    "description": "At this time, Puzzled game features use the browser's local storage to keep preferences, progress, and records on this device.",
+    "localTitle": "What is saved locally",
+    "localBody": "Local storage is space inside your browser. Puzzled uses it to remember simple choices and preserve matches. This data stays on the device and browser where you played; it does not create an account and does not become a public profile.",
+    "localItemLanguage": "Language chosen in the site selector.",
+    "localItemSudoku": "Saved Sudoku state when a match is in progress.",
+    "localItemSnake": "Snake settings and local best score.",
+    "localItemSlide": "Slide Puzzle settings, records, and recent result.",
+    "localItemTetris": "Tetris settings, high score, local ranking, and preferences.",
+    "noAccountTitle": "No Puzzled account",
+    "noAccountBody": "Puzzled does not ask you to log in before playing. In the current state of the site, game progress is not synchronized across different phones, computers, or browsers.",
+    "controlTitle": "How to delete this data",
+    "controlBody": "You can delete local data by clearing site data in your browser settings. If you do, language, settings, saved games, records, and local rankings may return to their initial state.",
+    "changesTitle": "Future changes",
+    "changesBody": "If Puzzled starts using accounts, a database, online sync, or new storage methods, this page should be updated to explain what changed and why.",
+    "contactLink": "Ask about privacy"
   },
   "ads": {
     "recommendation": "Recommendation",

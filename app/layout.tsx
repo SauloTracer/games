@@ -6,8 +6,32 @@ import { SiteChrome } from "@/components/site-chrome";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Puzzled Games",
-  description: "Sudoku and board game themed recommendations.",
+  metadataBase: new URL("https://puzzled.com.br"),
+  title: {
+    default: "Puzzled | Jogos online de lógica",
+    template: "%s",
+  },
+  description: "Jogos online de lógica, artigos sobre clássicos e tutoriais de Sudoku em português.",
+  applicationName: "Puzzled",
+  authors: [{ name: "Puzzled" }],
+  creator: "Puzzled",
+  publisher: "Puzzled",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Puzzled | Jogos online de lógica",
+    description: "Jogue Sudoku, Snake, Racha Cuca e Tetris. Leia histórias de jogos e técnicas de Sudoku.",
+    url: "https://puzzled.com.br",
+    siteName: "Puzzled",
+    locale: "pt_BR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Puzzled | Jogos online de lógica",
+    description: "Jogos clássicos, Sudoku online e guias de estratégia.",
+  },
 };
 
 export default function RootLayout({

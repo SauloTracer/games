@@ -68,5 +68,19 @@
         "link": "https://meli.la/1b6E6Sp",
         "image": "https://http2.mlstatic.com/D_NQ_NP_2X_927843-MLA98094297289_112025-F.webp",
         "clicks": 0
+    },
+    {
+        "id": 11,
+        "title": "O Poder do Hábito",
+        "link": "https://meli.la/2w8qxtu",
+        "image": "https://http2.mlstatic.com/D_NQ_NP_2X_852472-MLU72521939954_102023-F.webp",
+        "clicks": 0
+    },
+    {
+        "id": 12,
+        "title": "Mini-Hábitos",
+        "link": "https://meli.la/1QPexWd",
+        "image": "https://http2.mlstatic.com/D_NQ_NP_2X_738801-MLU50456235942_062022-F.webp",
+        "clicks": 0
     }
 ]

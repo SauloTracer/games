@@ -26,6 +26,13 @@ export const metadata: Metadata = {
     siteName: "Puzzled",
     locale: "pt_BR",
     type: "website",
+    images: [
+      {
+        url: "https://puzzled.com.br/icon.jpg",
+        width: 1200,
+        height: 1200,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",

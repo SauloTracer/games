@@ -20,15 +20,15 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Puzzled | Jogos online de lógica",
-    description: "Jogue Sudoku, Snake, Racha Cuca e Tetris. Leia histórias de jogos e técnicas de Sudoku.",
+    title: "Puzzled | Jogos clássicos online",
+    description: "Jogue Sudoku, Snake, Racha Cuca e outros, ou leia nossos artigos para saber mais sobre jogos, estratégias e mais",
     url: "https://puzzled.com.br",
     siteName: "Puzzled",
     locale: "pt_BR",
     type: "website",
     images: [
       {
-        url: "https://puzzled.com.br/icon.jpg",
+        url: "https://puzzled.com.br/icon.jpeg",
         width: 1200,
         height: 1200,
       },
@@ -38,6 +38,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Puzzled | Jogos online de lógica",
     description: "Jogos clássicos, Sudoku online e guias de estratégia.",
+    images: ["https://puzzled.com.br/icon.jpeg"]
   },
 };
 

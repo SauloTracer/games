@@ -1,9 +1,24 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Analytics } from "@vercel/analytics/next";
+import { Bricolage_Grotesque, Inter } from "next/font/google";
 import { LanguageProvider } from "@/components/language-provider";
 import { SiteChrome } from "@/components/site-chrome";
 import "./globals.css";
+
+const display = Bricolage_Grotesque({
+  subsets: ["latin"],
+  weight: ["600", "800"],
+  display: "swap",
+  variable: "--font-display",
+});
+
+const sans = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-sans",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://puzzled.com.br"),
@@ -48,8 +63,8 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="pt-BR" className={`${display.variable} ${sans.variable}`}>
+      <body className="bg-ground font-sans text-ink antialiased">
         <LanguageProvider>
           <SiteChrome>{children}</SiteChrome>
         </LanguageProvider>

@@ -1011,7 +1011,7 @@ export function SudokuGame() {
   );
 
   return (
-    <section className="mx-auto flex w-full max-w-[calc(18cm+8cm+4rem)] flex-col gap-6 rounded-[2rem] border border-white/60 bg-white/90 p-4 shadow-panel backdrop-blur md:p-6">
+    <section className="mx-auto flex w-full max-w-[calc(18cm+8cm+4rem)] flex-col gap-6 rounded-[2rem] border border-white/60 bg-white/90 p-4 shadow-card backdrop-blur md:p-6">
       <div className="flex flex-wrap items-center gap-3 lg:justify-between">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-3xl font-black tracking-tight text-stone-900 md:text-5xl">{t("sudoku.title")}</h1>
@@ -1406,7 +1406,7 @@ export function SudokuGame() {
 
       {isGameOver ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4">
-          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-panel">
+          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-card">
             <h2 className="text-center text-2xl font-black text-stone-900">{t("sudoku.gameOver.title")}</h2>
             <p className="mt-4 text-center text-sm leading-6 text-stone-600">
               {t("sudoku.gameOver.description")}
@@ -1433,7 +1433,7 @@ export function SudokuGame() {
 
       {showSuccessModal ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4">
-          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-panel">
+          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-card">
             <h2 className="text-center text-2xl font-black text-stone-900">{t("sudoku.success.title")}</h2>
             <p className="mt-4 text-center text-sm leading-6 text-stone-600">
               {t("sudoku.success.description")}
@@ -1465,7 +1465,7 @@ export function SudokuGame() {
 
       {showNewGameModal ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4">
-          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-panel">
+          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-card">
             <h2 className="text-center text-2xl font-black text-stone-900">{t("sudoku.newGameModal.title")}</h2>
             <div className="mt-6">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-stone-500">{t("sudoku.newGameModal.mode")}</p>
@@ -1534,7 +1534,7 @@ export function SudokuGame() {
 
       {showAutoCandidateDialog ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4">
-          <div className="w-full max-w-sm rounded-[2rem] bg-white p-6 shadow-panel">
+          <div className="w-full max-w-sm rounded-[2rem] bg-white p-6 shadow-card">
             <h2 className="text-xl font-black text-stone-900">{t("sudoku.autoCandidatesModal.title")}</h2>
             <p className="mt-2 text-sm leading-6 text-stone-600">
               {t("sudoku.autoCandidatesModal.description")}
@@ -1568,7 +1568,7 @@ export function SudokuGame() {
 
       {showPrintModal ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4">
-          <div className="w-full max-w-3xl rounded-[2rem] bg-white p-6 shadow-panel">
+          <div className="w-full max-w-3xl rounded-[2rem] bg-white p-6 shadow-card">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-black text-stone-900">{t("sudoku.printModal.title")}</h2>
@@ -1633,7 +1633,7 @@ export function SudokuGame() {
 
       {showFilterHelp ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4">
-          <div className="w-full max-w-2xl rounded-[2rem] bg-white p-6 shadow-panel">
+          <div className="w-full max-w-2xl rounded-[2rem] bg-white p-6 shadow-card">
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-xl font-black text-stone-900">{t("sudoku.filterHelp.title")}</h2>
               <button

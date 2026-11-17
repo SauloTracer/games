@@ -23,7 +23,7 @@ export function ArticlePageContent({ article }: { article: Article }) {
   const presentation = getArticlePresentation(messages, article);
 
   return (
-    <article className="mx-auto max-w-4xl rounded-3xl border border-white/60 bg-white/95 px-6 py-12 shadow-panel md:px-12">
+    <article className="mx-auto max-w-4xl rounded-3xl border border-white/60 bg-white/95 px-6 py-12 shadow-card md:px-12">
       <Link href="/articles" className="font-semibold text-amber-700 hover:text-amber-900">
         {t("articlePage.back")}
       </Link>

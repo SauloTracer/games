@@ -30,7 +30,7 @@ export function SlideMenu({
   statusMessage,
 }: SlideMenuProps) {
   return (
-    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-6 shadow-panel backdrop-blur md:p-8">
+    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-6 shadow-card backdrop-blur md:p-8">
       <div className="mx-auto max-w-2xl text-center">
         <h1 className="mt-4 text-4xl font-black tracking-tight text-stone-900 md:text-6xl">{title}</h1>
         <p className="mt-4 whitespace-pre-line text-base leading-7 text-stone-600 md:text-lg">{subtitle}</p>

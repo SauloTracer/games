@@ -124,7 +124,7 @@ export function TetrisSettingsPanel({ settings, onBack, onFieldChange }: TetrisS
   const { t } = useLanguage();
 
   return (
-    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-6 shadow-panel backdrop-blur md:p-8">
+    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-6 shadow-card backdrop-blur md:p-8">
       <div className="grid gap-6 xl:grid-cols-[18rem_minmax(0,1fr)]">
         <aside className="flex h-full flex-col justify-between rounded-[1.75rem] border border-cyan-200/70 bg-[radial-gradient(circle_at_top,#ecfeff_0%,#f8fafc_55%,#eef2ff_100%)] p-5">
           <div>

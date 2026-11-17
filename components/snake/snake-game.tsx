@@ -243,7 +243,7 @@ export function SnakeGame() {
   }
 
   return (
-    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-4 shadow-panel backdrop-blur md:p-6">
+    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-4 shadow-card backdrop-blur md:p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="mt-2 text-3xl font-black tracking-tight text-stone-900 md:text-5xl">{t("snake.title")}</h1>
@@ -284,7 +284,7 @@ export function SnakeGame() {
 
             {screen === "paused" || screen === "game-over" ? (
               <div className="absolute inset-0 flex items-center justify-center bg-stone-950/55 p-4">
-                <div className="w-full max-w-sm rounded-[1.75rem] bg-white p-6 text-center shadow-panel">
+                <div className="w-full max-w-sm rounded-[1.75rem] bg-white p-6 text-center shadow-card">
                   <h2 className="text-2xl font-black text-stone-900">{overlayTitle}</h2>
                   <p className="mt-3 text-sm leading-6 text-stone-600">
                     {screen === "paused" ? t("snake.pause.description") : t("snake.gameOver.description").replace("{score}", String(score))}

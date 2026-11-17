@@ -29,7 +29,7 @@ export function HomePageContent({ articles }: { articles: Article[] }) {
   }, [articles]);
 
   return (
-    <section className="mx-auto flex w-full max-w-4xl flex-col gap-10 rounded-[2rem] border border-white/60 bg-white/85 p-6 shadow-panel backdrop-blur md:p-10">
+    <section className="mx-auto flex w-full max-w-4xl flex-col gap-10 rounded-[2rem] border border-white/60 bg-white/85 p-6 shadow-card backdrop-blur md:p-10">
       <div className="space-y-8">
         <div className="overflow-hidden rounded-[1.75rem] border border-amber-200 bg-gradient-to-br from-amber-50 via-orange-50 to-stone-100">
           <img src="/banner.jpeg" alt={t("home.bannerAlt")} className="hidden h-auto w-full object-cover md:block" />
@@ -98,7 +98,7 @@ export function HomePageContent({ articles }: { articles: Article[] }) {
             const presentation = getArticlePresentation(messages, article);
 
             return (
-              <Link key={article.slug} href={`/articles/${article.slug}`} className="rounded-lg border border-stone-200 bg-white p-5 transition hover:border-amber-400 hover:shadow-panel">
+              <Link key={article.slug} href={`/articles/${article.slug}`} className="rounded-lg border border-stone-200 bg-white p-5 transition hover:border-amber-400 hover:shadow-card">
                 <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">{article.readingMinutes} min</p>
                 <h3 className="mt-3 text-lg font-black leading-snug text-stone-950">{presentation.title}</h3>
                 <p className="mt-3 line-clamp-3 leading-7 text-stone-700">{presentation.description}</p>

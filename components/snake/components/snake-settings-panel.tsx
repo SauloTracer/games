@@ -36,7 +36,7 @@ export function SnakeSettingsPanel({
   onFieldChange,
 }: SnakeSettingsPanelProps) {
   return (
-    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-6 shadow-panel backdrop-blur md:p-8">
+    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-6 shadow-card backdrop-blur md:p-8">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-3xl font-black tracking-tight text-stone-900">{title}</h2>
         <button

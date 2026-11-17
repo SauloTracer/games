@@ -8,7 +8,7 @@ export function ContactPageContent() {
   const { t } = useLanguage();
 
   return (
-    <section className="mx-auto max-w-3xl space-y-10 rounded-3xl border border-white/60 bg-white/90 px-6 py-12 shadow-panel md:px-10">
+    <section className="mx-auto max-w-3xl space-y-10 rounded-3xl border border-white/60 bg-white/90 px-6 py-12 shadow-card md:px-10">
       <div className="space-y-5">
         <p className="text-sm font-black uppercase tracking-[0.35em] text-amber-700">Puzzled</p>
         <h1 className="text-4xl font-black leading-tight text-stone-950 md:text-5xl">{t("contact.title")}</h1>

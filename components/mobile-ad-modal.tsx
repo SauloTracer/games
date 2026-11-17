@@ -42,7 +42,7 @@ export function MobileAdModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4 md:hidden">
-      <div className="relative w-full max-w-sm rounded-[1.75rem] bg-white p-3 shadow-panel">
+      <div className="relative w-full max-w-sm rounded-[1.75rem] bg-white p-3 shadow-card">
         <button
           type="button"
           onClick={() => setOpen(false)}

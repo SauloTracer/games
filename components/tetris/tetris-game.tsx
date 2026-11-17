@@ -220,7 +220,7 @@ export function TetrisGame() {
 
   return (
     <section
-      className={`rounded-[2rem] border p-4 shadow-panel backdrop-blur md:p-6 ${settings.theme === "arcade-dark"
+      className={`rounded-[2rem] border p-4 shadow-card backdrop-blur md:p-6 ${settings.theme === "arcade-dark"
           ? "border-cyan-200/10 bg-[radial-gradient(circle_at_top,#1d4ed8_0%,#0f172a_42%,#020617_100%)] text-white"
           : "border-amber-200/70 bg-[radial-gradient(circle_at_top,#fef3c7_0%,#fff7ed_48%,#fffbeb_100%)] text-stone-900"
         }`}

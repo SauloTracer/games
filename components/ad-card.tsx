@@ -16,7 +16,7 @@ export function AdCard({ ad }: Props) {
       href={ad.link}
       target="_blank"
       rel="noreferrer noopener"
-      className="group flex flex-col overflow-hidden rounded-[1.5rem] border border-amber-100 bg-white shadow-panel transition hover:-translate-y-1"
+      className="group flex flex-col overflow-hidden rounded-[1.5rem] border border-amber-100 bg-white shadow-card transition hover:-translate-y-1"
     >
       <div className="relative aspect-[4/5] w-full bg-stone-100">
         <Image

@@ -313,6 +313,24 @@
       "line10": "`swordfish()` ou `sf()` destaca as células que formam um Swordfish; `swordfish(candidate=3)` filtra por candidato.",
       "line11": "`lines(1,3)`, `columns(4,8)` e `blocks(2,5)` restringem o universo.",
       "line12": "Exemplos: `lines(2) && contains(7)`, `blocks(1,4); unique()`, `columns(2,8) && xWing(candidate=7)`."
+    },
+    "layout": {
+      "games": "Jogos",
+      "breadcrumb": "Trilha de navegação",
+      "howToPlay": "Como jogar",
+      "nextStep": "Próximo passo",
+      "minutes": "{count} min",
+      "readArticle": "Ler o tutorial",
+      "nextStepTitle": "Candidatos e singles: o primeiro passo para resolver qualquer Sudoku",
+      "inputMode": "Modo de entrada",
+      "errors": "Erros",
+      "notes": "Anotar",
+      "reveal": "Revelar",
+      "tools": "Ferramentas",
+      "rules": "Preencha cada linha, coluna e bloco 3×3 com os números de 1 a 9, sem repetir. Use o modo Candidatos para anotar as possibilidades de cada casa.",
+      "keyMouse": "Mouse",
+      "keySpace": "Espaço",
+      "keySearch": "Busca"
     }
   },
   "snake": {

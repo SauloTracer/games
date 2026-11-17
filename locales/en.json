@@ -313,6 +313,24 @@
       "line10": "`swordfish()` or `sf()` highlights the cells that form a Swordfish; `swordfish(candidate=3)` filters by candidate.",
       "line11": "`lines(1,3)`, `columns(4,8)` and `blocks(2,5)` restrict the universe.",
       "line12": "Examples: `lines(2) && contains(7)`, `blocks(1,4); unique()`, `columns(2,8) && xWing(candidate=7)`."
+    },
+    "layout": {
+      "games": "Games",
+      "breadcrumb": "Breadcrumb",
+      "howToPlay": "How to play",
+      "nextStep": "Next step",
+      "minutes": "{count} min",
+      "readArticle": "Read the tutorial",
+      "nextStepTitle": "Candidates and singles: the first step to solving any Sudoku",
+      "inputMode": "Input mode",
+      "errors": "Mistakes",
+      "notes": "Notes",
+      "reveal": "Reveal",
+      "tools": "Tools",
+      "rules": "Fill every row, column and 3×3 box with the numbers 1 to 9, without repeating. Use Candidates mode to note the possibilities for each cell.",
+      "keyMouse": "Mouse",
+      "keySpace": "Space",
+      "keySearch": "Search"
     }
   },
   "snake": {

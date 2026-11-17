@@ -44,7 +44,7 @@ select {
 }
 
 .sudoku-block {
-  border: solid 2px black;
+  border: solid 2px theme("colors.ink");
   z-index: 3;
   box-sizing: border-box;
   display: grid;
@@ -97,7 +97,7 @@ select {
 }
 
 .sudoku-cell-frame {
-  border: solid 1px gray;
+  border: solid 1px #DCE0EA;
   border-collapse: collapse;
   display: flex;
   align-items: center;
@@ -150,13 +150,13 @@ select {
 .sudoku-cell.given {
   font-weight: bold;
   font-size: x-large;
-  color: black;
+  color: theme("colors.ink");
 }
 
 .sudoku-cell.filled {
   font-weight: bold;
   font-size: x-large;
-  color: gray;
+  color: theme("colors.subtle");
 }
 
 .sudoku-cell.selected,
@@ -265,11 +265,11 @@ select {
   }
 
   .sudoku-block {
-    border: solid 1px black;
+    border: solid 1px theme("colors.ink");
   }
 
   .sudoku-cell-frame {
-    border: solid 1px lightgray;
+    border: solid 1px #DCE0EA;
     font-size: 1em;
   }
 

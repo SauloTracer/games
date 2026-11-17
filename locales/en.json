@@ -15,6 +15,21 @@
       "en": "English",
       "pt": "Portuguese",
       "es": "Spanish"
+    },
+    "games": "Games",
+    "dailyChallenge": "Daily challenge",
+    "more": "More",
+    "mainNav": "Main",
+    "gamesNav": "Games",
+    "bottomNav": "Navigation",
+    "footerNav": "Footer",
+    "tagline": "Online logic games and strategy guides in Portuguese, English and Spanish.",
+    "homeLink": "Puzzled, home page",
+    "close": "Close",
+    "languageShort": {
+      "en": "EN",
+      "pt": "PT",
+      "es": "ES"
     }
   },
   "home": {
@@ -204,7 +219,8 @@
   },
   "ads": {
     "recommendation": "Recommendation",
-    "close": "Close ad"
+    "close": "Close ad",
+    "affiliate": "Recommendation · affiliate"
   },
   "sudoku": {
     "title": "Sudoku",

@@ -1,6 +1,6 @@
 {
   "chrome": {
-    "home": "Inicio",
+    "home": "Início",
     "sudoku": "Sudoku",
     "snake": "Snake",
     "slide": "Racha Cuca",
@@ -15,6 +15,21 @@
       "en": "Inglês",
       "pt": "Português",
       "es": "Espanhol"
+    },
+    "games": "Jogos",
+    "dailyChallenge": "Desafio do dia",
+    "more": "Mais",
+    "mainNav": "Principal",
+    "gamesNav": "Jogos",
+    "bottomNav": "Navegação",
+    "footerNav": "Rodapé",
+    "tagline": "Jogos online de lógica e guias de estratégia em português, inglês e espanhol.",
+    "homeLink": "Puzzled, página inicial",
+    "close": "Fechar",
+    "languageShort": {
+      "en": "EN",
+      "pt": "PT",
+      "es": "ES"
     }
   },
   "home": {
@@ -204,7 +219,8 @@
   },
   "ads": {
     "recommendation": "Recomendação",
-    "close": "Fechar anúncio"
+    "close": "Fechar anúncio",
+    "affiliate": "Recomendação · afiliado"
   },
   "sudoku": {
     "title": "Sudoku",

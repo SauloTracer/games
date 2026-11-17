@@ -8,6 +8,7 @@ type Props = {
   ad: AdItem;
 };
 
+/** Cartão horizontal compacto de recomendação (link de afiliado). */
 export function AdCard({ ad }: Props) {
   const { t } = useLanguage();
 
@@ -15,24 +16,18 @@ export function AdCard({ ad }: Props) {
     <a
       href={ad.link}
       target="_blank"
-      rel="noreferrer noopener"
-      className="group flex flex-col overflow-hidden rounded-[1.5rem] border border-amber-100 bg-white shadow-card transition hover:-translate-y-1"
+      rel="sponsored noreferrer noopener"
+      className="group flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-3 transition hover:border-line-strong hover:shadow-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
     >
-      <div className="relative aspect-[4/5] w-full bg-stone-100">
-        <Image
-          src={ad.image}
-          alt={ad.title}
-          fill
-          sizes="280px"
-          className="object-cover"
-        />
-      </div>
-      <div className="p-4">
-        <p className="text-xs uppercase tracking-[0.3em] text-amber-700">{t("ads.recommendation")}</p>
-        <h3 className="mt-2 text-sm font-semibold leading-6 text-stone-800">
+      <span className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-[10px] bg-chip">
+        <Image src={ad.image} alt="" fill sizes="72px" className="object-cover" />
+      </span>
+      <span className="flex min-w-0 flex-col gap-1">
+        <span className="text-xs font-medium text-subtle">{t("ads.affiliate")}</span>
+        <span className="line-clamp-2 text-[15px] font-semibold leading-snug text-ink group-hover:text-ink-soft">
           {ad.title}
-        </h3>
-      </div>
+        </span>
+      </span>
     </a>
   );
 }

@@ -24,17 +24,17 @@ export function SlideSettingsPanel({
   onFieldChange,
 }: SlideSettingsPanelProps) {
   return (
-    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-6 shadow-card backdrop-blur md:p-8">
+    <section className="w-full py-2">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="text-3xl font-black tracking-tight text-stone-900">{title}</h2>
-        <button type="button" onClick={onBack} className="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">
+        <h2 className="font-display text-2xl font-extrabold text-ink">{title}</h2>
+        <button type="button" onClick={onBack} className="min-h-11 rounded-xl border border-line-strong px-4 py-2 text-sm font-semibold text-ink hover:bg-chip">
           {backLabel}
         </button>
       </div>
 
-      <div className="mt-8 grid gap-6">
-        <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-5">
-          <label className="block text-sm font-semibold uppercase tracking-[0.2em] text-stone-500" htmlFor="slide-board-size">
+      <div className="mt-6 grid gap-4">
+        <div className="rounded-2xl border border-line bg-ground p-5">
+          <label className="block text-xs font-bold uppercase tracking-[0.08em] text-subtle" htmlFor="slide-board-size">
             {boardSizeLabel}: {settings.boardSize}x{settings.boardSize}
           </label>
           <input
@@ -45,12 +45,12 @@ export function SlideSettingsPanel({
             step={1}
             value={settings.boardSize}
             onChange={(event) => onFieldChange("boardSize", Number(event.target.value))}
-            className="mt-4 w-full accent-rose-600"
+            className="mt-4 w-full accent-slide"
           />
         </div>
 
-        <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-5">
-          <label className="flex items-center gap-3 text-sm font-semibold text-stone-700">
+        <div className="rounded-2xl border border-line bg-ground p-5">
+          <label className="flex items-center gap-3 min-h-11 text-sm font-semibold text-ink">
             <input
               type="checkbox"
               checked={settings.soundEnabled}
@@ -58,7 +58,7 @@ export function SlideSettingsPanel({
             />
             {soundLabel}
           </label>
-          <label className="mt-4 flex items-center gap-3 text-sm font-semibold text-stone-700">
+          <label className="mt-4 flex items-center gap-3 min-h-11 text-sm font-semibold text-ink">
             <input
               type="checkbox"
               checked={settings.animationsEnabled}

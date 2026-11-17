@@ -1,9 +1,8 @@
 "use client";
 
-import { Share2 } from "lucide-react";
+import { Play, Settings, Share2 } from "lucide-react";
 
 type SlideMenuProps = {
-  title: string;
   subtitle: string;
   playLabel: string;
   settingsLabel: string;
@@ -13,11 +12,9 @@ type SlideMenuProps = {
   onPlay: () => void;
   onSettings: () => void;
   onShare: () => void;
-  statusMessage?: string;
 };
 
 export function SlideMenu({
-  title,
   subtitle,
   playLabel,
   settingsLabel,
@@ -27,38 +24,41 @@ export function SlideMenu({
   onPlay,
   onSettings,
   onShare,
-  statusMessage,
 }: SlideMenuProps) {
   return (
-    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-6 shadow-card backdrop-blur md:p-8">
-      <div className="mx-auto max-w-2xl text-center">
-        <h1 className="mt-4 text-4xl font-black tracking-tight text-stone-900 md:text-6xl">{title}</h1>
-        <p className="mt-4 whitespace-pre-line text-base leading-7 text-stone-600 md:text-lg">{subtitle}</p>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-          <span className="rounded-full bg-rose-100 px-4 py-2 text-sm font-semibold text-rose-800">{bestTimeLabel}</span>
-          <span className="rounded-full bg-stone-100 px-4 py-2 text-sm font-semibold text-stone-700">{bestMovesLabel}</span>
-        </div>
+    <div className="flex min-h-[360px] w-full flex-col items-center justify-center gap-6 py-6 text-center md:min-h-[480px]">
+      <p className="max-w-xl whitespace-pre-line text-base leading-7 text-muted md:text-lg">{subtitle}</p>
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <span className="rounded-lg bg-slide-soft px-3 py-1.5 text-sm font-semibold text-slide-ink">{bestTimeLabel}</span>
+        <span className="rounded-lg bg-chip px-3 py-1.5 text-sm font-semibold text-ink">{bestMovesLabel}</span>
       </div>
 
-      <div className="mx-auto mt-8 grid max-w-xl gap-3">
-        <button type="button" onClick={onPlay} className="rounded-2xl bg-rose-600 px-6 py-4 text-base font-semibold text-white transition hover:bg-rose-700">
+      <div className="grid w-full max-w-sm gap-3">
+        <button
+          type="button"
+          onClick={onPlay}
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slide px-6 text-base font-bold text-ink transition hover:brightness-95"
+        >
+          <Play size={18} aria-hidden="true" />
           {playLabel}
         </button>
-        <button type="button" onClick={onSettings} className="rounded-2xl bg-stone-100 px-6 py-4 text-base font-semibold text-stone-700 transition hover:bg-stone-200">
+        <button
+          type="button"
+          onClick={onSettings}
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-line-strong bg-surface px-6 text-base font-semibold text-ink transition hover:bg-chip"
+        >
+          <Settings size={18} aria-hidden="true" />
           {settingsLabel}
         </button>
-        <button type="button" onClick={onShare} className="rounded-2xl border border-stone-300 bg-white px-6 py-4 text-base font-semibold text-stone-700 transition hover:border-stone-400">
-          <span className="inline-flex items-center gap-2">
-            <Share2 size={18} />
-            {shareLabel}
-          </span>
+        <button
+          type="button"
+          onClick={onShare}
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-line-strong bg-surface px-6 text-base font-semibold text-ink transition hover:bg-chip"
+        >
+          <Share2 size={18} aria-hidden="true" />
+          {shareLabel}
         </button>
       </div>
-      {statusMessage ? (
-        <p className="mx-auto mt-4 max-w-xl text-center text-sm font-semibold leading-6 text-rose-700">
-          {statusMessage}
-        </p>
-      ) : null}
-    </section>
+    </div>
   );
 }

@@ -141,14 +141,14 @@ export function TetrisCanvas({
   }, [boardWidth, instance, settings, t]);
 
   return (
-    <div ref={frameRef} className="rounded-[1.75rem] border border-white/10 bg-black/25 p-3 backdrop-blur">
+    <div ref={frameRef} className="rounded-2xl bg-ink p-3">
       <div className="mb-3 hidden items-center justify-between gap-3 text-sm font-semibold text-slate-200 md:flex">
         <span>{instance.board.name}</span>
-        <span className="rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.28em]">
+        <span className="rounded-md bg-white/10 px-2.5 py-1 text-xs font-bold uppercase tracking-[0.08em]">
           {instance.controlMode === "local" ? t("tetris.canvas.local") : t("tetris.canvas.remote")}
         </span>
       </div>
-      <canvas ref={canvasRef} width={340} height={680} className="mx-auto block max-w-full rounded-[1.25rem] shadow-2xl" />
+      <canvas ref={canvasRef} width={340} height={680} className="mx-auto block max-w-full rounded-xl" />
     </div>
   );
 }

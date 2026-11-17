@@ -356,6 +356,24 @@
       "line10": "`swordfish()` o `sf()` resalta las celdas que forman un Swordfish; `swordfish(candidate=3)` filtra por candidato.",
       "line11": "`lines(1,3)`, `columns(4,8)` y `blocks(2,5)` restringen el universo.",
       "line12": "Ejemplos: `lines(2) && contains(7)`, `blocks(1,4); unique()`, `columns(2,8) && xWing(candidate=7)`."
+    },
+    "layout": {
+      "games": "Juegos",
+      "breadcrumb": "Ruta de navegación",
+      "howToPlay": "Cómo jugar",
+      "nextStep": "Siguiente paso",
+      "minutes": "{count} min",
+      "readArticle": "Leer el tutorial",
+      "nextStepTitle": "Candidatos y singles: el primer paso para resolver cualquier Sudoku",
+      "inputMode": "Modo de entrada",
+      "errors": "Errores",
+      "notes": "Anotar",
+      "reveal": "Revelar",
+      "tools": "Herramientas",
+      "rules": "Completa cada fila, columna y bloque 3×3 con los números del 1 al 9, sin repetir. Usa el modo Candidatos para anotar las posibilidades de cada casilla.",
+      "keyMouse": "Ratón",
+      "keySpace": "Espacio",
+      "keySearch": "Búsqueda"
     }
   },
   "snake": {
@@ -412,6 +430,22 @@
     "share": {
       "message": "Fiz {score} pontos no Snake! 🐍🔥",
       "copied": "Texto de compartido copiado al portapapeles (Ctrl + C)."
+    },
+    "layout": {
+      "games": "Juegos",
+      "breadcrumb": "Ruta de navegación",
+      "howToPlay": "Cómo jugar",
+      "nextStep": "Siguiente paso",
+      "minutes": "{count} min",
+      "readArticle": "Leer el artículo",
+      "nextStepTitle": "La historia de Snake: de las máquinas recreativas a los móviles",
+      "score": "Puntos",
+      "best": "Récord",
+      "newGame": "Nuevo juego",
+      "menu": "Menú",
+      "keySpace": "Espacio",
+      "keySwipe": "Deslizar",
+      "keyHold": "Mantener"
     }
   },
   "slide": {
@@ -459,6 +493,23 @@
     "share": {
       "message": "Resolví el Slide Puzzle {size} en {time} con {moves} movimientos.",
       "copied": "Texto de compartido copiado al portapapeles (Ctrl + C)."
+    },
+    "layout": {
+      "games": "Juegos",
+      "breadcrumb": "Ruta de navegación",
+      "howToPlay": "Cómo jugar",
+      "nextStep": "Siguiente paso",
+      "minutes": "{count} min",
+      "readArticle": "Leer el artículo",
+      "nextStepTitle": "La historia del rompecabezas deslizante",
+      "time": "Tiempo",
+      "moves": "Movimientos",
+      "newGame": "Nuevo juego",
+      "menu": "Menú",
+      "keyClick": "Clic",
+      "keyTap": "Toque",
+      "share": "Compartir",
+      "settings": "Ajustes"
     }
   },
   "tetris": {
@@ -560,6 +611,20 @@
       "action": "Compartir",
       "message": "Hice {score} puntos en Tetris, limpié {lines} líneas y llegué al nivel {level}.",
       "copied": "Texto para compartir copiado al portapapeles (Ctrl + C)."
+    },
+    "layout": {
+      "games": "Juegos",
+      "breadcrumb": "Ruta de navegación",
+      "howToPlay": "Cómo jugar",
+      "nextStep": "Siguiente paso",
+      "minutes": "{count} min",
+      "readArticle": "Leer el artículo",
+      "nextStepTitle": "La historia de Tetris: el rompecabezas que conquistó el mundo",
+      "newGame": "Nuevo juego",
+      "keySpace": "Espacio",
+      "keySwipe": "Deslizar",
+      "keyTap": "Toque",
+      "settings": "Ajustes"
     }
   }
 }

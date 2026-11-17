@@ -1,7 +1,43 @@
 "use client";
 
-import { Mouse, Search } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  CheckCheck,
+  CircleHelp,
+  Delete,
+  Grid3x3,
+  Highlighter,
+  Lightbulb,
+  Mouse,
+  PencilLine,
+  Printer,
+  RotateCcw,
+  Search,
+  Share2,
+  Sparkles,
+  SquareDashedMousePointer,
+  Undo2,
+  WandSparkles,
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ActionButton,
+  ActionGrid,
+  BodyPortal,
+  GameAd,
+  GameBody,
+  GameFooter,
+  GameHeader,
+  GamePage,
+  HowToRow,
+  KeyChip,
+  PanelCard,
+  PanelTitle,
+  PrimaryButton,
+  Segmented,
+  Stat,
+  StatRow,
+  ToolButton,
+} from "@/components/game-layout";
 import { useLanguage } from "@/components/language-provider";
 import { runBoardFilter } from "@/lib/sudoku-filter";
 import {
@@ -74,26 +110,6 @@ function isShareablePuzzle(puzzle: string) {
   return /^[1-9.]{81}$/.test(puzzle);
 }
 
-function ControlKey({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
-  return (
-    <span
-      className={`inline-flex h-9 items-center justify-center rounded-xl border border-stone-300 bg-white px-3 text-xs font-bold text-stone-700 shadow-sm ${wide ? "min-w-[4.5rem]" : "min-w-9"
-        }`}
-    >
-      {children}
-    </span>
-  );
-}
-
-function ControlRow({ visual, text }: { visual: ReactNode; text: string }) {
-  return (
-    <div className="grid gap-3 rounded-2xl border border-amber-200/80 bg-white/70 p-3 md:grid-cols-[auto_1fr] md:items-center">
-      <div className="flex flex-wrap items-center gap-2">{visual}</div>
-      <p className="max-w-[36rem] whitespace-normal break-words text-sm leading-6">{text}</p>
-    </div>
-  );
-}
-
 function InitialBoardPreview({ puzzle }: { puzzle: string }) {
   const grid = parsePuzzle(puzzle);
 
@@ -107,7 +123,7 @@ function InitialBoardPreview({ puzzle }: { puzzle: string }) {
           return (
             <div
               key={`${rowIndex}-${colIndex}`}
-              className="flex items-center justify-center border border-stone-300 text-xl font-bold text-stone-900 sm:text-2xl"
+              className="flex items-center justify-center border border-stone-300 text-xl font-bold text-ink sm:text-2xl"
               style={{
                 borderTopWidth: thickTop ? "2px" : undefined,
                 borderLeftWidth: thickLeft ? "2px" : undefined,
@@ -184,7 +200,6 @@ export function SudokuGame() {
     [t],
   );
   const selectedCellsLabel = t("sudoku.selectedCells").replace("{count}", String(selectedCells.length));
-  const livesLabel = t("sudoku.lives").replace("{count}", String(Math.max(0, 3 - errors)));
   const printableBoard = useMemo(
     () => (initialPuzzle && isShareablePuzzle(initialPuzzle) ? initialPuzzle : ""),
     [initialPuzzle],
@@ -1011,54 +1026,25 @@ export function SudokuGame() {
   );
 
   return (
-    <section className="mx-auto flex w-full max-w-[calc(18cm+8cm+4rem)] flex-col gap-6 rounded-[2rem] border border-white/60 bg-white/90 p-4 shadow-card backdrop-blur md:p-6">
-      <div className="flex flex-wrap items-center gap-3 lg:justify-between">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-3xl font-black tracking-tight text-stone-900 md:text-5xl">{t("sudoku.title")}</h1>
-          <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-stone-600">
-            <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-900">{difficultyLabel[difficulty]}</span>
-            <span className="rounded-full bg-stone-100 px-3 py-1 capitalize">
-              {gameMode === "zen" ? t("sudoku.mode.zen") : t("sudoku.mode.threeStrikes")}
-            </span>
-            {selectedCells.length > 1 ? (
-              <span className="rounded-full bg-sky-100 px-3 py-1 text-sky-800">{selectedCellsLabel}</span>
-            ) : null}
-            {gameMode === "three-strikes" ? (
-              <span className="rounded-full bg-rose-100 px-3 py-1 text-rose-700">{livesLabel}</span>
-            ) : null}
-          </div>
-        </div>
+    <GamePage>
+      <GameHeader ns="sudoku" title={t("sudoku.title")}>
+        <Segmented
+          label={t("sudoku.layout.inputMode")}
+          options={[
+            { key: "answer", label: t("sudoku.answer"), active: !candidateMode, onClick: () => setCandidateMode(false) },
+            { key: "candidates", label: t("sudoku.candidates"), active: candidateMode, onClick: () => setCandidateMode(true) },
+          ]}
+        />
+      </GameHeader>
 
-        <div className="flex flex-wrap gap-2 lg:ml-auto">
-          <button
-            type="button"
-            onClick={() => setCandidateMode(false)}
-            className={`rounded-full px-4 py-2 text-sm font-semibold ${!candidateMode ? "bg-amber-600 text-white" : "bg-stone-100 text-stone-700"
-              }`}
-          >
-            {t("sudoku.answer")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setCandidateMode(true)}
-            className={`rounded-full px-4 py-2 text-sm font-semibold ${candidateMode ? "bg-amber-600 text-white" : "bg-stone-100 text-stone-700"
-              }`}
-          >
-            {t("sudoku.candidates")}
-          </button>
-        </div>
-      </div>
-
-      {!board.length && !loading ? (
-        <div className="rounded-[1.5rem] border border-dashed border-stone-300 bg-stone-50 p-10 text-center text-stone-600">
-          {t("sudoku.emptyState")}
-        </div>
-      ) : null}
-
-      <div className="grid gap-6 xl:grid-cols-[max-content_8cm] xl:items-start xl:justify-center">
-        <div className="w-full max-w-[18cm] justify-self-center xl:w-fit xl:max-w-none xl:space-y-4">
-          <div className="w-full rounded-[1.75rem] border border-amber-100 bg-[#fffdf8] p-3 shadow-inner md:p-4 xl:w-fit xl:max-w-full xl:overflow-visible">
-            <div className="sudoku-board" role="grid" aria-label={t("sudoku.boardAriaLabel")}>
+      <GameBody
+        board={
+          !board.length ? (
+            <div className="flex min-h-[320px] w-full items-center justify-center rounded-2xl border border-dashed border-line-strong bg-ground p-10 text-center text-muted">
+              {loading ? t("sudoku.loadingPuzzle") : t("sudoku.emptyState")}
+            </div>
+          ) : (
+            <div className="sudoku-board !w-full !max-w-[640px]" role="grid" aria-label={t("sudoku.boardAriaLabel")}>
               {boardBlocks.map((blockCells, blockIndex) => (
                 <div key={blockIndex} className="sudoku-block">
                   {blockCells.map((cell) => {
@@ -1094,17 +1080,17 @@ export function SudokuGame() {
                               style={!isSelected && filtered && !isActiveDigitValue ? { backgroundColor: filterColor } : undefined}
                             >
                               <span
-                              className={[
-                                "sudoku-value-content",
-                                selectedValue !== null && cell.value === selectedValue ? "highlightValue" : "",
-                                cell.status === "wrong" ? "wrong" : "",
-                                cell.status === "correct" && !cell.given ? "correct" : "",
-                              ]
-                                .filter(Boolean)
-                                .join(" ")}
-                            >
-                              {cell.value}
-                            </span>
+                                className={[
+                                  "sudoku-value-content",
+                                  selectedValue !== null && cell.value === selectedValue ? "highlightValue" : "",
+                                  cell.status === "wrong" ? "wrong" : "",
+                                  cell.status === "correct" && !cell.given ? "correct" : "",
+                                ]
+                                  .filter(Boolean)
+                                  .join(" ")}
+                              >
+                                {cell.value}
+                              </span>
                             </div>
                           ) : (
                             <div
@@ -1129,18 +1115,18 @@ export function SudokuGame() {
                                   return (
                                     <div key={digit} className="candidate-spot">
                                       <span
-                                      className={[
-                                        "sudoku-candidate-value",
-                                        cell.candidates.includes(digit) && selectedValue === digit ? "highlightValue" : "",
-                                        cell.candidates.includes(digit) && activeHighlightDigit === digit ? "hoverMatch" : "",
-                                      ]
-                                        .filter(Boolean)
-                                        .join(" ")}
-                                      style={{
-                                        fontWeight: "bold",
-                                        color: cell.candidates.includes(digit)
-                                          ? candidateGroupIndex !== undefined
-                                            ? "#111827"
+                                        className={[
+                                          "sudoku-candidate-value",
+                                          cell.candidates.includes(digit) && selectedValue === digit ? "highlightValue" : "",
+                                          cell.candidates.includes(digit) && activeHighlightDigit === digit ? "hoverMatch" : "",
+                                        ]
+                                          .filter(Boolean)
+                                          .join(" ")}
+                                        style={{
+                                          fontWeight: "bold",
+                                          color: cell.candidates.includes(digit)
+                                            ? candidateGroupIndex !== undefined
+                                              ? "#111827"
                                               : "#555"
                                             : "transparent",
                                           backgroundColor:
@@ -1162,506 +1148,470 @@ export function SudokuGame() {
                 </div>
               ))}
             </div>
-          </div>
+          )
+        }
+        panel={
+          <>
+            <PanelCard>
+              <StatRow>
+                <Stat label={t("sudoku.newGameModal.difficulty")} value={difficultyLabel[difficulty]} />
+                {gameMode === "three-strikes" ? (
+                  <Stat label={t("sudoku.layout.errors")} value={`${Math.min(errors, 3)}/3`} align="end" />
+                ) : (
+                  <Stat label={t("sudoku.newGameModal.mode")} value={t("sudoku.mode.zen")} align="end" />
+                )}
+              </StatRow>
 
-          <div className="hidden w-fit max-w-[calc(18cm+2rem)] rounded-[1.5rem] border border-amber-100 bg-amber-50 p-4 text-sm leading-6 text-amber-900 xl:block">
-            <p className="font-semibold">{t("sudoku.controlsTitle")}</p>
-            <div className="mt-3 grid gap-3">
-              <ControlRow
-                visual={
-                  <>
-                    <div className="grid grid-cols-3 gap-1">
-                      <span />
-                      <ControlKey>↑</ControlKey>
-                      <span />
-                      <ControlKey>←</ControlKey>
-                      <ControlKey>↓</ControlKey>
-                      <ControlKey>→</ControlKey>
-                    </div>
-                    <ControlKey>
-                      <Mouse size={16} />
-                    </ControlKey>
-                  </>
-                }
-                text={t("sudoku.controlsBoardNavigation")}
-              />
-              <ControlRow
-                visual={
-                  <div className="flex flex-col gap-1">
-                    <div className="grid grid-cols-3 gap-1">
-                      {Array.from({ length: 9 }, (_, index) => (
-                        <ControlKey key={index}>{index + 1}</ControlKey>
-                      ))}
-                    </div>
-                    <ControlKey wide>{t("sudoku.erase")}</ControlKey>
-                  </div>
-                }
-                text={t("sudoku.controlsNumberInput")}
-              />
-              <ControlRow visual={<ControlKey wide>Space</ControlKey>} text={t("sudoku.controlsModeSwitch")} />
-              <ControlRow
-                visual={
-                  <>
-                    <ControlKey>1</ControlKey>
-                    <span className="px-1 text-stone-500">...</span>
-                    <ControlKey>9</ControlKey>
-                  </>
-                }
-                text={t("sudoku.controlsHoverHighlight")}
-              />
-              <ControlRow
-                visual={
-                  <span className="inline-flex min-w-[12rem] items-center gap-2 rounded-xl border border-stone-300 bg-white px-3 py-2 text-xs font-semibold text-stone-500 shadow-sm">
-                    <Search size={14} />
-                    <span className="truncate">{t("sudoku.filterPlaceholder")}</span>
-                  </span>
-                }
-                text={t("sudoku.controlsSearch")}
-              />
-            </div>
-            {status ? <p className="mt-2 font-semibold">{status}</p> : null}
-            {loading ? <p className="mt-2 font-semibold">{t("sudoku.loadingPuzzle")}</p> : null}
-          </div>
-        </div>
-
-        <aside className="space-y-4">
-          <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4">
-            <div className="grid grid-cols-5 gap-2 md:hidden">
-              {Array.from({ length: 9 }, (_, index) => index + 1).map((digit) => (
-                <button
-                  key={digit}
-                  type="button"
-                  onClick={() => setCellValue(digit)}
-                  onMouseEnter={() => setHoveredDigit(digit)}
-                  onMouseLeave={() => setHoveredDigit(null)}
-                  disabled={boardCounts[digit - 1] >= 9 || loading}
-                  className="rounded-xl border border-stone-200 bg-white px-1 py-2 text-center font-bold text-stone-800 transition hover:border-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <span className="block text-base leading-none">{digit}</span>
-                  <span className="mt-1 block text-[10px] leading-none text-stone-500">{boardCounts[digit - 1]}/9</span>
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={clearCell}
-                className="rounded-xl border border-stone-300 bg-white px-1 py-2 text-center text-xs font-semibold text-stone-700"
-              >
-                {t("sudoku.erase")}
-              </button>
-            </div>
-
-            <div className="hidden grid-cols-3 gap-2 md:grid">
-              {Array.from({ length: 9 }, (_, index) => index + 1).map((digit) => (
-                <button
-                  key={digit}
-                  type="button"
-                  onClick={() => setCellValue(digit)}
-                  onMouseEnter={() => setHoveredDigit(digit)}
-                  onMouseLeave={() => setHoveredDigit(null)}
-                  disabled={boardCounts[digit - 1] >= 9 || loading}
-                  className="rounded-2xl border border-stone-200 bg-white px-2 py-3 text-center font-bold text-stone-800 transition hover:border-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <span className="block text-lg">{digit}</span>
-                  <span className="text-xs text-stone-500">{boardCounts[digit - 1]}/9</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-3 hidden md:block">
-              <button type="button" onClick={clearCell} className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 font-semibold text-stone-700">
-                {t("sudoku.erase")}
-              </button>
-            </div>
-          </div>
-
-          <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4">
-            <div className="flex items-center justify-between">
-              <label htmlFor="auto-check" className="text-sm font-semibold text-stone-700">
-                {t("sudoku.autoCheck")}
-              </label>
-              <input
-                id="auto-check"
-                type="checkbox"
-                checked={autoCheck}
-                disabled={gameMode === "three-strikes"}
-                onChange={(event) => setAutoCheck(event.target.checked)}
-              />
-            </div>
-
-            <div className="mt-4 grid gap-2">
-              {!autoCheck ? (
-                <button type="button" onClick={checkCell} className="rounded-2xl bg-stone-900 px-4 py-3 font-semibold text-white" title={t("sudoku.checkCellTitle")}>
-                  {t("sudoku.checkCell")}
-                </button>
+              {selectedCells.length > 1 ? (
+                <p className="-mt-2 text-[13px] font-semibold text-muted">{selectedCellsLabel}</p>
               ) : null}
-              <button type="button" onClick={handleAutoCandidateClick} className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700" title={t("sudoku.autoCandidateTitle")}>
-                {t("sudoku.autoCandidate")}
-              </button>
-              <button type="button" onClick={singles} className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">
-                {t("sudoku.promoteSingles")}
-              </button>
-              <button
-                type="button"
-                onClick={() => setMultiselectMode((value) => !value)}
-                className={`rounded-2xl px-4 py-3 font-semibold ${multiselectMode ? "bg-sky-700 text-white" : "bg-white text-stone-700"
-                  }`}
-              >
-                {t("sudoku.multiselect")}
-              </button>
-              <button type="button" onClick={() => setShowMarkPanel((value) => !value)} className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">
-                {t("sudoku.markCells")}
-              </button>
-              <button type="button" onClick={revealCell} className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">
-                {t("sudoku.revealCell")}
-              </button>
-              <button type="button" onClick={solve} className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">
-                {t("sudoku.solve")}
-              </button>
-              <button type="button" onClick={reset} className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">
-                {t("sudoku.reset")}
-              </button>
-              <button type="button" onClick={undo} className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">
-                {t("sudoku.undo")}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowPrintModal(true)}
-                className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700"
-              >
-                {t("sudoku.print")}
-              </button>
-              <button type="button" onClick={() => void shareGame()} className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">
-                {t("sudoku.share")}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setPendingDifficulty(difficulty);
-                  setPendingMode(gameMode);
-                  setShowNewGameModal(true);
-                }}
-                className="rounded-2xl bg-amber-600 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-amber-700"
-              >
-                {t("sudoku.newGame")}
-              </button>
-            </div>
 
-            {status ? <p className="mt-3 text-sm font-semibold text-stone-600">{status}</p> : null}
-
-            {showMarkPanel ? (
-              <div className="mt-4 rounded-2xl border border-stone-200 bg-white p-3">
-                <p className="text-sm font-semibold text-stone-700">{t("sudoku.chooseColor")}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {markPalette.map((color) => (
-                    <button
-                      key={color}
-                      type="button"
-                      onClick={() => applyMarkColor(color)}
-                      style={{ backgroundColor: color }}
-                      className="h-9 w-9 rounded-full border border-stone-300"
-                    />
-                  ))}
-                </div>
-                <div className="mt-3 grid gap-2">
-                  <button type="button" onClick={() => applyMarkColor(null)} className="rounded-2xl bg-stone-100 px-3 py-2 text-sm font-semibold text-stone-700">
-                    {t("sudoku.clearSelected")}
-                  </button>
-                  <button type="button" onClick={clearAllMarks} className="rounded-2xl bg-stone-100 px-3 py-2 text-sm font-semibold text-stone-700">
-                    {t("sudoku.clearAllMarks")}
-                  </button>
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4">
-            <div className="flex items-center justify-between gap-3">
-              <div className="relative w-full">
-                <Search
-                  size={16}
-                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-stone-400"
+              <ActionGrid>
+                <ActionButton icon={<Undo2 size={20} />} label={t("sudoku.undo")} onClick={undo} />
+                <ActionButton icon={<Delete size={20} />} label={t("sudoku.erase")} onClick={clearCell} />
+                <ActionButton
+                  icon={<PencilLine size={20} />}
+                  label={t("sudoku.layout.notes")}
+                  onClick={() => setCandidateMode((value) => !value)}
+                  pressed={candidateMode}
                 />
-                <input
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder={t("sudoku.filterPlaceholder")}
-                  className="w-full rounded-2xl border border-stone-300 bg-white py-3 pl-11 pr-4 text-sm text-stone-700 outline-none ring-0"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowFilterHelp(true)}
-                className="rounded-full bg-stone-900 px-3 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-white"
-              >
-                ?
-              </button>
-            </div>
-            <p className="mt-3 text-xs leading-5 text-stone-500">
-              {t("sudoku.filterHelpers")}
-            </p>
-          </div>
-        </aside>
+                <ActionButton icon={<Lightbulb size={20} />} label={t("sudoku.layout.reveal")} onClick={revealCell} title={t("sudoku.revealCell")} />
+              </ActionGrid>
 
-      </div>
-
-      {isGameOver ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4">
-          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-card">
-            <h2 className="text-center text-2xl font-black text-stone-900">{t("sudoku.gameOver.title")}</h2>
-            <p className="mt-4 text-center text-sm leading-6 text-stone-600">
-              {t("sudoku.gameOver.description")}
-            </p>
-            <div className="mt-6 grid gap-2">
-              <button type="button" onClick={reset} className="rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700">
-                {t("sudoku.gameOver.reviewBoard")}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setPendingDifficulty(difficulty);
-                  setPendingMode(gameMode);
-                  setShowNewGameModal(true);
-                }}
-                className="rounded-2xl bg-amber-600 px-4 py-3 font-semibold text-white"
-              >
-                {t("sudoku.gameOver.newGame")}
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {showSuccessModal ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4">
-          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-card">
-            <h2 className="text-center text-2xl font-black text-stone-900">{t("sudoku.success.title")}</h2>
-            <p className="mt-4 text-center text-sm leading-6 text-stone-600">
-              {t("sudoku.success.description")}
-            </p>
-            <div className="mt-6 grid gap-2">
-              <button
-                type="button"
-                onClick={() => setShowSuccessModal(false)}
-                className="rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700"
-              >
-                {t("sudoku.success.reviewBoard")}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowSuccessModal(false);
-                  setPendingDifficulty(difficulty);
-                  setPendingMode(gameMode);
-                  setShowNewGameModal(true);
-                }}
-                className="rounded-2xl bg-amber-600 px-4 py-3 font-semibold text-white"
-              >
-                {t("sudoku.success.newGame")}
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {showNewGameModal ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4">
-          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-card">
-            <h2 className="text-center text-2xl font-black text-stone-900">{t("sudoku.newGameModal.title")}</h2>
-            <div className="mt-6">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-stone-500">{t("sudoku.newGameModal.mode")}</p>
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setPendingMode("zen")}
-                  className={`rounded-2xl px-4 py-3 text-sm font-semibold ${pendingMode === "zen" ? "bg-stone-900 text-white" : "bg-stone-100 text-stone-700"
-                    }`}
-                >
-                  {t("sudoku.mode.zen")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPendingMode("three-strikes")}
-                  className={`rounded-2xl px-4 py-3 text-sm font-semibold ${pendingMode === "three-strikes" ? "bg-stone-900 text-white" : "bg-stone-100 text-stone-700"
-                    }`}
-                >
-                  {t("sudoku.mode.threeStrikes")}
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-stone-500">{t("sudoku.newGameModal.difficulty")}</p>
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                {difficulties.map((item) => (
+              <div className="grid grid-cols-3 gap-2">
+                {Array.from({ length: 9 }, (_, index) => index + 1).map((digit) => (
                   <button
-                    key={item}
+                    key={digit}
                     type="button"
-                    onClick={() => setPendingDifficulty(item)}
-                    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${pendingDifficulty === item ? "bg-amber-600 text-white" : "bg-stone-100 text-stone-700"
-                      }`}
+                    onClick={() => setCellValue(digit)}
+                    onMouseEnter={() => setHoveredDigit(digit)}
+                    onMouseLeave={() => setHoveredDigit(null)}
+                    disabled={boardCounts[digit - 1] >= 9 || loading}
+                    className="flex h-14 flex-col items-center justify-center rounded-xl bg-chip text-ink transition hover:bg-sudoku-soft disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    {difficultyLabel[item]}
+                    <span className="font-display text-2xl font-extrabold leading-none">{digit}</span>
+                    <span className="mt-0.5 text-[10px] font-semibold leading-none text-subtle">{boardCounts[digit - 1]}/9</span>
                   </button>
                 ))}
               </div>
-            </div>
 
-            <div className="mt-6 border-t border-stone-200" />
+              <PrimaryButton
+                onClick={() => {
+                  setPendingDifficulty(difficulty);
+                  setPendingMode(gameMode);
+                  setShowNewGameModal(true);
+                }}
+              >
+                {t("sudoku.newGame")}
+              </PrimaryButton>
 
-            <div className="mt-6 flex gap-2">
-              {board.length ? (
+              {status ? <p className="text-sm font-semibold text-muted" role="status">{status}</p> : null}
+              {loading && board.length ? <p className="text-sm font-semibold text-muted">{t("sudoku.loadingPuzzle")}</p> : null}
+            </PanelCard>
+
+            <PanelCard>
+              <PanelTitle>{t("sudoku.layout.tools")}</PanelTitle>
+              <div className="-mt-2 flex items-center">
+                <label htmlFor="auto-check" className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl bg-chip px-3 text-[13px] font-semibold text-ink">
+                  {t("sudoku.autoCheck")}
+                  <input
+                    id="auto-check"
+                    type="checkbox"
+                    checked={autoCheck}
+                    disabled={gameMode === "three-strikes"}
+                    onChange={(event) => setAutoCheck(event.target.checked)}
+                    className="h-5 w-5 accent-ink"
+                  />
+                </label>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {!autoCheck ? (
+                  <ToolButton icon={<CheckCheck size={18} />} label={t("sudoku.checkCell")} onClick={checkCell} title={t("sudoku.checkCellTitle")} />
+                ) : null}
+                <ToolButton icon={<Grid3x3 size={18} />} label={t("sudoku.autoCandidate")} onClick={handleAutoCandidateClick} title={t("sudoku.autoCandidateTitle")} />
+                <ToolButton icon={<Sparkles size={18} />} label={t("sudoku.promoteSingles")} onClick={singles} />
+                <ToolButton
+                  icon={<SquareDashedMousePointer size={18} />}
+                  label={t("sudoku.multiselect")}
+                  onClick={() => setMultiselectMode((value) => !value)}
+                  pressed={multiselectMode}
+                />
+                <ToolButton
+                  icon={<Highlighter size={18} />}
+                  label={t("sudoku.markCells")}
+                  onClick={() => setShowMarkPanel((value) => !value)}
+                  pressed={showMarkPanel}
+                />
+                <ToolButton icon={<WandSparkles size={18} />} label={t("sudoku.solve")} onClick={solve} />
+                <ToolButton icon={<RotateCcw size={18} />} label={t("sudoku.reset")} onClick={reset} />
+                <ToolButton icon={<Printer size={18} />} label={t("sudoku.print")} onClick={() => setShowPrintModal(true)} />
+                <ToolButton icon={<Share2 size={18} />} label={t("sudoku.share")} onClick={() => void shareGame()} />
+              </div>
+
+              {showMarkPanel ? (
+                <div className="rounded-xl border border-line bg-ground p-3">
+                  <p className="text-sm font-semibold text-ink">{t("sudoku.chooseColor")}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {markPalette.map((color) => (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => applyMarkColor(color)}
+                        style={{ backgroundColor: color }}
+                        aria-label={`${t("sudoku.chooseColor")} ${color}`}
+                        className="h-11 w-11 rounded-full border border-line-strong"
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-3 grid gap-2">
+                    <button type="button" onClick={() => applyMarkColor(null)} className="min-h-11 rounded-xl bg-surface px-3 py-2 text-sm font-semibold text-ink">
+                      {t("sudoku.clearSelected")}
+                    </button>
+                    <button type="button" onClick={clearAllMarks} className="min-h-11 rounded-xl bg-surface px-3 py-2 text-sm font-semibold text-ink">
+                      {t("sudoku.clearAllMarks")}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="relative w-full">
+                    <Search size={16} aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-subtle" />
+                    <input
+                      value={searchQuery}
+                      onChange={(event) => setSearchQuery(event.target.value)}
+                      placeholder={t("sudoku.filterPlaceholder")}
+                      aria-label={t("sudoku.filterHelp.title")}
+                      className="h-11 w-full rounded-xl border border-line-strong bg-surface pl-10 pr-3 text-sm text-ink outline-none focus:border-ink"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowFilterHelp(true)}
+                    aria-label={t("sudoku.filterHelp.title")}
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-ink text-white"
+                  >
+                    <CircleHelp size={18} aria-hidden="true" />
+                  </button>
+                </div>
+                <p className="text-xs leading-5 text-subtle">{t("sudoku.filterHelpers")}</p>
+              </div>
+            </PanelCard>
+
+            <GameAd />
+          </>
+        }
+      />
+
+      <GameFooter ns="sudoku" articleSlug="sudoku-candidatos-e-singles">
+        <p className="text-[15px] leading-relaxed text-muted">{t("sudoku.layout.rules")}</p>
+        <HowToRow
+          keys={
+            <>
+              <KeyChip>↑ ↓ ← →</KeyChip>
+              <KeyChip>
+                <Mouse size={14} aria-hidden="true" />
+                {t("sudoku.layout.keyMouse")}
+              </KeyChip>
+              <KeyChip>Shift / Ctrl</KeyChip>
+            </>
+          }
+          text={t("sudoku.controlsBoardNavigation")}
+        />
+        <HowToRow
+          keys={
+            <>
+              <KeyChip>1–9</KeyChip>
+              <KeyChip>Delete</KeyChip>
+            </>
+          }
+          text={t("sudoku.controlsNumberInput")}
+        />
+        <HowToRow keys={<KeyChip>{t("sudoku.layout.keySpace")}</KeyChip>} text={t("sudoku.controlsModeSwitch")} />
+        <HowToRow text={t("sudoku.controlsHoverHighlight")} />
+        <HowToRow
+          keys={
+            <KeyChip>
+              <Search size={14} aria-hidden="true" />
+              {t("sudoku.layout.keySearch")}
+            </KeyChip>
+          }
+          text={t("sudoku.controlsSearch")}
+        />
+      </GameFooter>
+
+      {isGameOver ? (
+        <BodyPortal>
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/60 p-4">
+            <div className="w-full max-w-md rounded-[20px] bg-white p-6 shadow-card">
+              <h2 className="text-center text-2xl font-display font-extrabold text-ink">{t("sudoku.gameOver.title")}</h2>
+              <p className="mt-4 text-center text-sm leading-6 text-muted">
+                {t("sudoku.gameOver.description")}
+              </p>
+              <div className="mt-6 grid gap-2">
+                <button type="button" onClick={reset} className="rounded-2xl bg-chip px-4 py-3 font-semibold text-ink">
+                  {t("sudoku.gameOver.reviewBoard")}
+                </button>
                 <button
                   type="button"
-                  onClick={() => setShowNewGameModal(false)}
-                  disabled={loading}
-                  className="w-full rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={() => {
+                    setPendingDifficulty(difficulty);
+                    setPendingMode(gameMode);
+                    setShowNewGameModal(true);
+                  }}
+                  className="rounded-2xl bg-ink px-4 py-3 font-semibold text-white"
                 >
-                  {t("sudoku.newGameModal.cancel")}
+                  {t("sudoku.gameOver.newGame")}
                 </button>
-              ) : null}
-              <button
-                type="button"
-                onClick={() => void startNewGame(pendingDifficulty, pendingMode)}
-                disabled={loading}
-                className="w-full rounded-2xl bg-amber-600 px-4 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {loading ? t("sudoku.newGameModal.startingGame") : t("sudoku.newGameModal.startGame")}
-              </button>
+              </div>
             </div>
           </div>
-        </div>
+        </BodyPortal>
+      ) : null}
+
+      {showSuccessModal ? (
+        <BodyPortal>
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/60 p-4">
+            <div className="w-full max-w-md rounded-[20px] bg-white p-6 shadow-card">
+              <h2 className="text-center text-2xl font-display font-extrabold text-ink">{t("sudoku.success.title")}</h2>
+              <p className="mt-4 text-center text-sm leading-6 text-muted">
+                {t("sudoku.success.description")}
+              </p>
+              <div className="mt-6 grid gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSuccessModal(false)}
+                  className="rounded-2xl bg-chip px-4 py-3 font-semibold text-ink"
+                >
+                  {t("sudoku.success.reviewBoard")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    setPendingDifficulty(difficulty);
+                    setPendingMode(gameMode);
+                    setShowNewGameModal(true);
+                  }}
+                  className="rounded-2xl bg-ink px-4 py-3 font-semibold text-white"
+                >
+                  {t("sudoku.success.newGame")}
+                </button>
+              </div>
+            </div>
+          </div>
+        </BodyPortal>
+      ) : null}
+
+      {showNewGameModal ? (
+        <BodyPortal>
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/60 p-4">
+            <div className="w-full max-w-md rounded-[20px] bg-white p-6 shadow-card">
+              <h2 className="text-center text-2xl font-display font-extrabold text-ink">{t("sudoku.newGameModal.title")}</h2>
+              <div className="mt-6">
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-subtle">{t("sudoku.newGameModal.mode")}</p>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPendingMode("zen")}
+                    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${pendingMode === "zen" ? "bg-ink text-white" : "bg-chip text-ink"
+                      }`}
+                  >
+                    {t("sudoku.mode.zen")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPendingMode("three-strikes")}
+                    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${pendingMode === "three-strikes" ? "bg-ink text-white" : "bg-chip text-ink"
+                      }`}
+                  >
+                    {t("sudoku.mode.threeStrikes")}
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-subtle">{t("sudoku.newGameModal.difficulty")}</p>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {difficulties.map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => setPendingDifficulty(item)}
+                      className={`rounded-2xl px-4 py-3 text-sm font-semibold ${pendingDifficulty === item ? "bg-sudoku text-ink" : "bg-chip text-ink"
+                        }`}
+                    >
+                      {difficultyLabel[item]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-6 border-t border-line" />
+
+              <div className="mt-6 flex gap-2">
+                {board.length ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowNewGameModal(false)}
+                    disabled={loading}
+                    className="w-full rounded-2xl bg-chip px-4 py-3 font-semibold text-ink disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {t("sudoku.newGameModal.cancel")}
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => void startNewGame(pendingDifficulty, pendingMode)}
+                  disabled={loading}
+                  className="w-full rounded-2xl bg-ink px-4 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {loading ? t("sudoku.newGameModal.startingGame") : t("sudoku.newGameModal.startGame")}
+                </button>
+              </div>
+            </div>
+          </div>
+        </BodyPortal>
       ) : null}
 
       {showAutoCandidateDialog ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4">
-          <div className="w-full max-w-sm rounded-[2rem] bg-white p-6 shadow-card">
-            <h2 className="text-xl font-black text-stone-900">{t("sudoku.autoCandidatesModal.title")}</h2>
-            <p className="mt-2 text-sm leading-6 text-stone-600">
-              {t("sudoku.autoCandidatesModal.description")}
-            </p>
-            <div className="mt-5 grid gap-2">
-              <button
-                type="button"
-                onClick={() => applyAutoCandidates("selected")}
-                className="rounded-2xl bg-stone-900 px-4 py-3 font-semibold text-white"
-              >
-                {t("sudoku.autoCandidatesModal.selectedCells")}
-              </button>
-              <button
-                type="button"
-                onClick={() => applyAutoCandidates("all")}
-                className="rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700"
-              >
-                {t("sudoku.autoCandidatesModal.wholeBoard")}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowAutoCandidateDialog(false)}
-                className="rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700"
-              >
-                {t("sudoku.autoCandidatesModal.cancel")}
-              </button>
+        <BodyPortal>
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/60 p-4">
+            <div className="w-full max-w-sm rounded-[20px] bg-white p-6 shadow-card">
+              <h2 className="text-xl font-display font-extrabold text-ink">{t("sudoku.autoCandidatesModal.title")}</h2>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                {t("sudoku.autoCandidatesModal.description")}
+              </p>
+              <div className="mt-5 grid gap-2">
+                <button
+                  type="button"
+                  onClick={() => applyAutoCandidates("selected")}
+                  className="rounded-2xl bg-ink px-4 py-3 font-semibold text-white"
+                >
+                  {t("sudoku.autoCandidatesModal.selectedCells")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyAutoCandidates("all")}
+                  className="rounded-2xl bg-chip px-4 py-3 font-semibold text-ink"
+                >
+                  {t("sudoku.autoCandidatesModal.wholeBoard")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAutoCandidateDialog(false)}
+                  className="rounded-2xl bg-chip px-4 py-3 font-semibold text-ink"
+                >
+                  {t("sudoku.autoCandidatesModal.cancel")}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </BodyPortal>
       ) : null}
 
       {showPrintModal ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4">
-          <div className="w-full max-w-3xl rounded-[2rem] bg-white p-6 shadow-card">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-black text-stone-900">{t("sudoku.printModal.title")}</h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowPrintModal(false)}
-                className="rounded-full bg-stone-100 px-3 py-2 text-sm font-semibold text-stone-700"
-              >
-                {t("sudoku.printModal.close")}
-              </button>
-            </div>
-
-            <div className="mt-6 rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4">
-              <div className="mx-auto max-w-2xl">
-                {printableBoard ? <InitialBoardPreview puzzle={printableBoard} /> : null}
+        <BodyPortal>
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/60 p-4">
+            <div className="w-full max-w-3xl rounded-[20px] bg-white p-6 shadow-card">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-display font-extrabold text-ink">{t("sudoku.printModal.title")}</h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPrintModal(false)}
+                  className="rounded-full bg-chip px-3 py-2 text-sm font-semibold text-ink"
+                >
+                  {t("sudoku.printModal.close")}
+                </button>
               </div>
 
-              <div className="mt-6 flex flex-col gap-6 border-t border-stone-200 pt-6 md:flex-row md:items-center md:justify-between">
-                <div className="shrink-0 rounded-2xl bg-white p-3 shadow-sm">
-                  <img src="/icon.jpeg" alt={t("home.iconAlt")} className="h-32 w-32 rounded-2xl object-cover" />
+              <div className="mt-6 rounded-[1.5rem] border border-line bg-ground p-4">
+                <div className="mx-auto max-w-2xl">
+                  {printableBoard ? <InitialBoardPreview puzzle={printableBoard} /> : null}
                 </div>
-                <div className="flex flex-1 items-center justify-center px-2">
-                  <p className="max-w-[16rem] whitespace-pre-line text-center text-xs font-semibold leading-5 text-stone-500">
-                    {t("sudoku.printModal.qrCaption")}
-                  </p>
-                </div>
-                {printableBoard ? (
+
+                <div className="mt-6 flex flex-col gap-6 border-t border-line pt-6 md:flex-row md:items-center md:justify-between">
                   <div className="shrink-0 rounded-2xl bg-white p-3 shadow-sm">
-                    <img
-                      src={`https://quickchart.io/qr?size=220&margin=1&text=${encodeURIComponent(buildShareUrl())}`}
-                      alt={t("sudoku.printModal.qrAlt")}
-                      className="h-32 w-32"
-                    />
+                    <img src="/icon.jpeg" alt={t("home.iconAlt")} className="h-32 w-32 rounded-2xl object-cover" />
                   </div>
-                ) : null}
+                  <div className="flex flex-1 items-center justify-center px-2">
+                    <p className="max-w-[16rem] whitespace-pre-line text-center text-xs font-semibold leading-5 text-subtle">
+                      {t("sudoku.printModal.qrCaption")}
+                    </p>
+                  </div>
+                  {printableBoard ? (
+                    <div className="shrink-0 rounded-2xl bg-white p-3 shadow-sm">
+                      <img
+                        src={`https://quickchart.io/qr?size=220&margin=1&text=${encodeURIComponent(buildShareUrl())}`}
+                        alt={t("sudoku.printModal.qrAlt")}
+                        className="h-32 w-32"
+                      />
+                    </div>
+                  ) : null}
+                </div>
               </div>
-            </div>
 
-            <div className="mt-6 flex gap-2">
-              <button
-                type="button"
-                onClick={() => setShowPrintModal(false)}
-                className="w-full rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700"
-              >
-                {t("sudoku.printModal.cancel")}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  printGame();
-                  setShowPrintModal(false);
-                }}
-                className="w-full rounded-2xl bg-stone-900 px-4 py-3 font-semibold text-white"
-              >
-                {t("sudoku.printModal.print")}
-              </button>
+              <div className="mt-6 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPrintModal(false)}
+                  className="w-full rounded-2xl bg-chip px-4 py-3 font-semibold text-ink"
+                >
+                  {t("sudoku.printModal.cancel")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    printGame();
+                    setShowPrintModal(false);
+                  }}
+                  className="w-full rounded-2xl bg-ink px-4 py-3 font-semibold text-white"
+                >
+                  {t("sudoku.printModal.print")}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </BodyPortal>
       ) : null}
 
       {showFilterHelp ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4">
-          <div className="w-full max-w-2xl rounded-[2rem] bg-white p-6 shadow-card">
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="text-xl font-black text-stone-900">{t("sudoku.filterHelp.title")}</h2>
-              <button
-                type="button"
-                onClick={() => setShowFilterHelp(false)}
-                className="rounded-full bg-stone-100 px-3 py-2 text-sm font-semibold text-stone-700"
-              >
-                {t("sudoku.filterHelp.close")}
-              </button>
-            </div>
+        <BodyPortal>
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/60 p-4">
+            <div className="w-full max-w-2xl rounded-[20px] bg-white p-6 shadow-card">
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="text-xl font-display font-extrabold text-ink">{t("sudoku.filterHelp.title")}</h2>
+                <button
+                  type="button"
+                  onClick={() => setShowFilterHelp(false)}
+                  className="rounded-full bg-chip px-3 py-2 text-sm font-semibold text-ink"
+                >
+                  {t("sudoku.filterHelp.close")}
+                </button>
+              </div>
 
-            <div className="mt-4 space-y-4 text-sm leading-6 text-stone-700">
-              <p>{t("sudoku.filterHelp.line1")}</p>
-              <p>{t("sudoku.filterHelp.line2")}</p>
-              <p>{t("sudoku.filterHelp.line3")}</p>
-              <p>{t("sudoku.filterHelp.line4")}</p>
-              <p>{t("sudoku.filterHelp.line5")}</p>
-              <p>{t("sudoku.filterHelp.line6")}</p>
-              <p>{t("sudoku.filterHelp.line7")}</p>
-              <p>{t("sudoku.filterHelp.line8")}</p>
-              <p>{t("sudoku.filterHelp.line9")}</p>
-              <p>{t("sudoku.filterHelp.line10")}</p>
-              <p>{t("sudoku.filterHelp.line11")}</p>
-              <p>{t("sudoku.filterHelp.line12")}</p>
+              <div className="mt-4 space-y-4 text-sm leading-6 text-ink">
+                <p>{t("sudoku.filterHelp.line1")}</p>
+                <p>{t("sudoku.filterHelp.line2")}</p>
+                <p>{t("sudoku.filterHelp.line3")}</p>
+                <p>{t("sudoku.filterHelp.line4")}</p>
+                <p>{t("sudoku.filterHelp.line5")}</p>
+                <p>{t("sudoku.filterHelp.line6")}</p>
+                <p>{t("sudoku.filterHelp.line7")}</p>
+                <p>{t("sudoku.filterHelp.line8")}</p>
+                <p>{t("sudoku.filterHelp.line9")}</p>
+                <p>{t("sudoku.filterHelp.line10")}</p>
+                <p>{t("sudoku.filterHelp.line11")}</p>
+                <p>{t("sudoku.filterHelp.line12")}</p>
+              </div>
             </div>
           </div>
-        </div>
+        </BodyPortal>
       ) : null}
-    </section>
+    </GamePage>
   );
 }

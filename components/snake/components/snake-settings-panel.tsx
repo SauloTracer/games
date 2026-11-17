@@ -36,42 +36,42 @@ export function SnakeSettingsPanel({
   onFieldChange,
 }: SnakeSettingsPanelProps) {
   return (
-    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-6 shadow-card backdrop-blur md:p-8">
+    <section className="w-full py-2">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="text-3xl font-black tracking-tight text-stone-900">{title}</h2>
+        <h2 className="font-display text-2xl font-extrabold text-ink">{title}</h2>
         <button
           type="button"
           onClick={onBack}
-          className="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700"
+          className="min-h-11 rounded-xl border border-line-strong px-4 py-2 text-sm font-semibold text-ink hover:bg-chip"
         >
           {backLabel}
         </button>
       </div>
 
-      <div className="mt-8 grid gap-6">
-        <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-5">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-stone-500">{wallModeLabel}</p>
+      <div className="mt-6 grid gap-4">
+        <div className="rounded-2xl border border-line bg-ground p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.08em] text-subtle">{wallModeLabel}</p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             <button
               type="button"
               onClick={() => onWallModeChange("wrap")}
               title={wrapTitle}
-              className={`rounded-2xl px-4 py-3 font-semibold ${settings.wallMode === "wrap" ? "bg-emerald-600 text-white" : "bg-white text-stone-700"}`}
+              className={`min-h-12 rounded-xl px-4 py-3 font-semibold ${settings.wallMode === "wrap" ? "bg-snake text-ink" : "border border-line-strong bg-surface text-ink"}`}
             >
               {wrapLabel}
             </button>
             <button
               type="button"
               onClick={() => onWallModeChange("collision")}
-              className={`rounded-2xl px-4 py-3 font-semibold ${settings.wallMode === "collision" ? "bg-emerald-600 text-white" : "bg-white text-stone-700"}`}
+              className={`min-h-12 rounded-xl px-4 py-3 font-semibold ${settings.wallMode === "collision" ? "bg-snake text-ink" : "border border-line-strong bg-surface text-ink"}`}
             >
               {collisionLabel}
             </button>
           </div>
         </div>
 
-        <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-5">
-          <label className="block text-sm font-semibold uppercase tracking-[0.2em] text-stone-500" htmlFor="snake-volume">
+        <div className="rounded-2xl border border-line bg-ground p-5">
+          <label className="block text-xs font-bold uppercase tracking-[0.08em] text-subtle" htmlFor="snake-volume">
             {volumeLabel}: {settings.volume}%
           </label>
           <input
@@ -81,9 +81,9 @@ export function SnakeSettingsPanel({
             max={100}
             value={settings.volume}
             onChange={(event) => onFieldChange("volume", Number(event.target.value))}
-            className="mt-4 w-full accent-emerald-600"
+            className="mt-4 w-full accent-snake"
           />
-          <label className="mt-4 flex items-center gap-3 text-sm font-semibold text-stone-700">
+          <label className="mt-4 flex items-center gap-3 min-h-11 text-sm font-semibold text-ink">
             <input
               type="checkbox"
               checked={settings.muted}
@@ -93,8 +93,8 @@ export function SnakeSettingsPanel({
           </label>
         </div>
 
-        <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-5">
-          <label className="block text-sm font-semibold uppercase tracking-[0.2em] text-stone-500" htmlFor="snake-swipe">
+        <div className="rounded-2xl border border-line bg-ground p-5">
+          <label className="block text-xs font-bold uppercase tracking-[0.08em] text-subtle" htmlFor="snake-swipe">
             {swipeLabel}: {settings.swipeSensitivity}px
           </label>
           <input
@@ -105,12 +105,12 @@ export function SnakeSettingsPanel({
             step={2}
             value={settings.swipeSensitivity}
             onChange={(event) => onFieldChange("swipeSensitivity", Number(event.target.value))}
-            className="mt-4 w-full accent-emerald-600"
+            className="mt-4 w-full accent-snake"
           />
         </div>
 
-        <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-5">
-          <label className="block text-sm font-semibold uppercase tracking-[0.2em] text-stone-500" htmlFor="snake-speed">
+        <div className="rounded-2xl border border-line bg-ground p-5">
+          <label className="block text-xs font-bold uppercase tracking-[0.08em] text-subtle" htmlFor="snake-speed">
             {speedLabel}: {settings.initialSpeed}ms
           </label>
           <input
@@ -121,7 +121,7 @@ export function SnakeSettingsPanel({
             step={5}
             value={settings.initialSpeed}
             onChange={(event) => onFieldChange("initialSpeed", Number(event.target.value))}
-            className="mt-4 w-full accent-emerald-600"
+            className="mt-4 w-full accent-snake"
           />
         </div>
       </div>

@@ -568,6 +568,20 @@
       "action": "Compartilhar",
       "message": "Fiz {score} pontos no Tetris, limpei {lines} linhas e cheguei ao nível {level}.",
       "copied": "Texto de compartilhamento copiado para a área de transferência; use Ctrl + V para compartilhar."
+    },
+    "layout": {
+      "games": "Jogos",
+      "breadcrumb": "Trilha de navegação",
+      "howToPlay": "Como jogar",
+      "nextStep": "Próximo passo",
+      "minutes": "{count} min",
+      "readArticle": "Ler o artigo",
+      "nextStepTitle": "A história do Tetris: o quebra-cabeça que conquistou o mundo",
+      "newGame": "Novo jogo",
+      "keySpace": "Espaço",
+      "keySwipe": "Deslizar",
+      "keyTap": "Toque",
+      "settings": "Ajustes"
     }
   }
 }

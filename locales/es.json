@@ -568,6 +568,20 @@
       "action": "Compartir",
       "message": "Hice {score} puntos en Tetris, limpié {lines} líneas y llegué al nivel {level}.",
       "copied": "Texto para compartir copiado al portapapeles (Ctrl + C)."
+    },
+    "layout": {
+      "games": "Juegos",
+      "breadcrumb": "Ruta de navegación",
+      "howToPlay": "Cómo jugar",
+      "nextStep": "Siguiente paso",
+      "minutes": "{count} min",
+      "readArticle": "Leer el artículo",
+      "nextStepTitle": "La historia de Tetris: el rompecabezas que conquistó el mundo",
+      "newGame": "Nuevo juego",
+      "keySpace": "Espacio",
+      "keySwipe": "Deslizar",
+      "keyTap": "Toque",
+      "settings": "Ajustes"
     }
   }
 }

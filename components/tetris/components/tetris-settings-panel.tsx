@@ -20,10 +20,10 @@ function SectionCard({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/85 p-5 shadow-sm">
+    <section className="rounded-2xl border border-line bg-ground p-5">
       <div className="mb-5">
-        <h2 className="text-2xl font-black tracking-tight text-stone-900">{title}</h2>
-        {description ? <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-600">{description}</p> : null}
+        <h3 className="font-display text-xl font-extrabold text-ink">{title}</h3>
+        {description ? <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">{description}</p> : null}
       </div>
       <div className="grid gap-4">{children}</div>
     </section>
@@ -48,15 +48,15 @@ function SliderField({
   onChange: (value: number) => void;
 }) {
   return (
-    <label className="grid gap-2 rounded-2xl border border-stone-200 bg-white/80 p-4">
+    <label className="grid gap-2 rounded-xl border border-line bg-surface p-4">
       <div className="flex items-center justify-between gap-3">
-        <span className="font-semibold text-stone-800">{label}</span>
-        <span className="text-sm font-bold text-cyan-700">
+        <span className="font-semibold text-ink">{label}</span>
+        <span className="text-sm font-bold text-tetris-ink">
           {value}
           {suffix}
         </span>
       </div>
-      <input type="range" min={min} max={max} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} />
+      <input className="accent-tetris" type="range" min={min} max={max} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} />
     </label>
   );
 }
@@ -71,9 +71,9 @@ function ToggleField({
   onChange: (value: boolean) => void;
 }) {
   return (
-    <label className="flex items-center justify-between gap-4 rounded-2xl border border-stone-200 bg-white/80 p-4">
-      <span className="text-sm font-semibold text-stone-800">{label}</span>
-      <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} className="h-5 w-5" />
+    <label className="flex items-center justify-between gap-4 rounded-xl border border-line bg-surface p-4">
+      <span className="text-sm font-semibold text-ink">{label}</span>
+      <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} className="h-5 w-5 accent-ink" />
     </label>
   );
 }
@@ -94,9 +94,9 @@ function NumberField({
   onChange: (value: number) => void;
 }) {
   return (
-    <label className={`flex items-center justify-between gap-3 rounded-2xl border p-4 ${disabled ? "border-stone-200/70 bg-stone-100/80 opacity-60" : "border-stone-200 bg-white/80"}`}>
+    <label className={`flex items-center justify-between gap-3 rounded-2xl border p-4 ${disabled ? "border-line bg-chip opacity-60" : "border-line bg-surface"}`}>
       <div className="flex items-center justify-between gap-3">
-        <span className="font-semibold text-stone-800">{label}</span>
+        <span className="font-semibold text-ink">{label}</span>
       </div>
       <input
         type="number"
@@ -114,7 +114,7 @@ function NumberField({
           }
           onChange(Math.min(max, Math.max(min, parsed)));
         }}
-        className="w-20 rounded-xl border border-stone-300 bg-white px-3 py-2 font-semibold text-stone-900 disabled:cursor-not-allowed disabled:bg-stone-100"
+        className="w-20 min-h-11 rounded-xl border border-line-strong bg-surface px-3 py-2 font-semibold text-ink disabled:cursor-not-allowed disabled:bg-chip"
       />
     </label>
   );
@@ -124,19 +124,18 @@ export function TetrisSettingsPanel({ settings, onBack, onFieldChange }: TetrisS
   const { t } = useLanguage();
 
   return (
-    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-6 shadow-card backdrop-blur md:p-8">
-      <div className="grid gap-6 xl:grid-cols-[18rem_minmax(0,1fr)]">
-        <aside className="flex h-full flex-col justify-between rounded-[1.75rem] border border-cyan-200/70 bg-[radial-gradient(circle_at_top,#ecfeff_0%,#f8fafc_55%,#eef2ff_100%)] p-5">
+    <section className="w-full py-2">
+      <div className="grid gap-5">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-cyan-700">{t("tetris.settings.kicker")}</p>
-            <h1 className="mt-2 text-4xl font-black tracking-tight text-stone-900">{t("tetris.title")}</h1>
-            <p className="mt-3 text-sm leading-6 text-stone-600">{t("tetris.settings.description")}</p>
+            <h2 className="font-display text-2xl font-extrabold text-ink">{t("tetris.game.settings")}</h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-muted">{t("tetris.settings.description")}</p>
           </div>
 
-          <div className="mt-6 grid gap-3">
-            <div className="rounded-2xl border border-white/70 bg-white/75 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-700">{t("tetris.settings.summaryTitle")}</p>
-              <div className="mt-3 grid gap-2 text-sm text-stone-700">
+          <div className="grid shrink-0 gap-3 md:w-60">
+            <div className="rounded-xl bg-chip p-4">
+              <p className="text-xs font-bold uppercase tracking-[0.08em] text-subtle">{t("tetris.settings.summaryTitle")}</p>
+              <div className="mt-3 grid gap-2 text-sm text-ink">
                 <p>{t("tetris.settings.summaryTheme").replace("{value}", settings.theme === "arcade-dark" ? t("tetris.settings.themeDark") : t("tetris.settings.themeLight"))}</p>
                 <p>{t("tetris.settings.summaryHold").replace("{value}", settings.holdEnabled ? t("tetris.settings.enabled") : t("tetris.settings.disabled"))}</p>
                 <p>{t("tetris.settings.summaryPreview").replace("{value}", settings.showNextQueue ? t("tetris.settings.previewVisible").replace("{count}", String(settings.previewCount)) : t("tetris.settings.previewHidden"))}</p>
@@ -145,12 +144,12 @@ export function TetrisSettingsPanel({ settings, onBack, onFieldChange }: TetrisS
             <button
               type="button"
               onClick={onBack}
-              className="rounded-full border border-stone-300 bg-white px-5 py-3 font-semibold text-stone-700 transition hover:border-stone-500"
+              className="min-h-11 rounded-xl border border-line-strong bg-surface px-5 py-2 font-semibold text-ink transition hover:bg-chip"
             >
               {t("tetris.settings.back")}
             </button>
           </div>
-        </aside>
+        </div>
 
         <div className="grid gap-5">
           <SectionCard title={t("tetris.settings.audioTitle")}>
@@ -195,8 +194,8 @@ export function TetrisSettingsPanel({ settings, onBack, onFieldChange }: TetrisS
               <button
                 type="button"
                 onClick={() => onFieldChange("theme", "arcade-dark")}
-                className={`rounded-full px-5 py-3 font-semibold transition ${
-                  settings.theme === "arcade-dark" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
+                className={`min-h-11 rounded-xl px-5 py-2 font-semibold transition ${
+                  settings.theme === "arcade-dark" ? "bg-ink text-white" : "border border-line-strong bg-surface text-ink"
                 }`}
               >
                 {t("tetris.settings.themeDark")}
@@ -204,8 +203,8 @@ export function TetrisSettingsPanel({ settings, onBack, onFieldChange }: TetrisS
               <button
                 type="button"
                 onClick={() => onFieldChange("theme", "arcade-light")}
-                className={`rounded-full px-5 py-3 font-semibold transition ${
-                  settings.theme === "arcade-light" ? "bg-amber-500 text-white" : "bg-amber-100 text-amber-800"
+                className={`min-h-11 rounded-xl px-5 py-2 font-semibold transition ${
+                  settings.theme === "arcade-light" ? "bg-tetris text-ink" : "border border-line-strong bg-surface text-ink"
                 }`}
               >
                 {t("tetris.settings.themeLight")}

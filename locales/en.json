@@ -568,6 +568,20 @@
       "action": "Share",
       "message": "I scored {score} points in Tetris, cleared {lines} lines, and reached level {level}.",
       "copied": "Share text copied to the clipboard (Ctrl + C)."
+    },
+    "layout": {
+      "games": "Games",
+      "breadcrumb": "Breadcrumb",
+      "howToPlay": "How to play",
+      "nextStep": "Next step",
+      "minutes": "{count} min",
+      "readArticle": "Read the article",
+      "nextStepTitle": "The history of Tetris: the puzzle that conquered the world",
+      "newGame": "New game",
+      "keySpace": "Space",
+      "keySwipe": "Swipe",
+      "keyTap": "Tap",
+      "settings": "Settings"
     }
   }
 }

@@ -90,7 +90,7 @@ export function SlideGame() {
   }
 
   return (
-    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-4 shadow-panel backdrop-blur md:p-6">
+    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-4 shadow-card backdrop-blur md:p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="mt-2 text-3xl font-black tracking-tight text-stone-900 md:text-5xl">{t("slide.title")}</h1>
@@ -188,7 +188,7 @@ export function SlideGame() {
 
       {screen === "victory" ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4">
-          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-panel">
+          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-card">
             <h2 className="text-center text-2xl font-black text-stone-900">{t("slide.victory.title")}</h2>
             <p className="mt-4 text-center text-sm leading-6 text-stone-600">
               {t("slide.victory.description")}

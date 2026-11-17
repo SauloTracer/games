@@ -27,7 +27,7 @@ export function AboutPageContent() {
   const { messages, t } = useLanguage();
 
   return (
-    <section className="mx-auto max-w-4xl space-y-12 rounded-3xl border border-white/60 bg-white/90 px-6 py-12 shadow-panel md:px-10">
+    <section className="mx-auto max-w-4xl space-y-12 rounded-3xl border border-white/60 bg-white/90 px-6 py-12 shadow-card md:px-10">
       <div className="space-y-5">
         <h1 className="text-4xl font-black leading-tight text-stone-950 md:text-5xl">{t("about.title")}</h1>
         <p className="text-lg leading-8 text-stone-700">{t("about.intro")}</p>

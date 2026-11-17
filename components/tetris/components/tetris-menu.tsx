@@ -34,7 +34,7 @@ export function TetrisMenu({ bestScore, onPlay, onSettings }: TetrisMenuProps) {
   const subtitleParagraphs = t("tetris.menu.subtitle").split("\n\n");
 
   return (
-    <section className="overflow-hidden rounded-[2rem] border border-cyan-200/70 bg-[radial-gradient(circle_at_top,#1d4ed8_0%,#0f172a_45%,#020617_100%)] p-6 text-white shadow-panel md:p-8">
+    <section className="overflow-hidden rounded-[2rem] border border-cyan-200/70 bg-[radial-gradient(circle_at_top,#1d4ed8_0%,#0f172a_45%,#020617_100%)] p-6 text-white shadow-card md:p-8">
       <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="space-y-5">
           <h1 className="text-5xl font-black tracking-tight text-white md:text-7xl">{t("tetris.title")}</h1>

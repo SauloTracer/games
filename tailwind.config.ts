@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import defaultTheme from "tailwindcss/defaultTheme";
 
 const config: Config = {
   content: [
@@ -9,15 +10,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        canvas: "#f4efe6",
-        ink: "#1f2937",
-        accent: "#d97706",
-        accentDark: "#92400e",
-        board: "#fffdf8",
-        line: "#d6c7ae",
+        ink: "#16233F",
+        "ink-soft": "#2B4C8C",
+        muted: "#4A5568",
+        subtle: "#5A6478",
+        ground: "#F4F5F9",
+        surface: "#FFFFFF",
+        line: "#E3E6EE",
+        "line-strong": "#D5DAE5",
+        chip: "#EEF1F7",
+        sudoku: { DEFAULT: "#F5B83D", soft: "#FFF1D1", ink: "#6B4500" },
+        snake: { DEFAULT: "#2FB37A", soft: "#DDF5EA", ink: "#0F5236" },
+        slide: { DEFAULT: "#EE6A6A", soft: "#FDE2E2", ink: "#7A1E24" },
+        tetris: { DEFAULT: "#3BA7D9", soft: "#DCEFF8", ink: "#0B4560" },
+      },
+      fontFamily: {
+        display: ["var(--font-display)", "Bricolage Grotesque", ...defaultTheme.fontFamily.sans],
+        sans: ["var(--font-sans)", "Inter", ...defaultTheme.fontFamily.sans],
       },
       boxShadow: {
-        panel: "0 18px 60px rgba(74, 58, 33, 0.14)",
+        card: "0 24px 60px rgba(22, 35, 63, 0.10)",
       },
     },
   },

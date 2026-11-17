@@ -1,7 +1,23 @@
 "use client";
 
 import { useMemo } from "react";
-import { Share2 } from "lucide-react";
+import { House, Mouse, Settings, Share2 } from "lucide-react";
+import {
+  ActionButton,
+  ActionGrid,
+  BodyPortal,
+  GameAd,
+  GameBody,
+  GameFooter,
+  GameHeader,
+  GamePage,
+  GameTag,
+  HowToRow,
+  KeyChip,
+  PanelCard,
+  PanelTitle,
+  PrimaryButton,
+} from "@/components/game-layout";
 import { useLanguage } from "@/components/language-provider";
 import { SlideHud } from "@/components/slide/components/slide-hud";
 import { SlideMenu } from "@/components/slide/components/slide-menu";
@@ -56,72 +72,51 @@ export function SlideGame() {
     return "max-w-[42rem]";
   }, [settings.boardSize]);
 
-  if (screen === "menu") {
-    return (
-      <SlideMenu
-        title={t("slide.title")}
-        subtitle={t("slide.menu.subtitle")}
-        playLabel={t("slide.menu.play")}
-        settingsLabel={t("slide.menu.settings")}
-        shareLabel={t("slide.menu.share")}
-        bestTimeLabel={bestTimeLabel}
-        bestMovesLabel={bestMovesLabel}
-        onPlay={() => void startGame()}
-        onSettings={openSettings}
-        onShare={() => void shareResult(shareTemplate, copiedMessage)}
-        statusMessage={statusMessage}
-      />
-    );
-  }
-
-  if (screen === "settings") {
-    return (
-      <SlideSettingsPanel
-        title={t("slide.settings.title")}
-        backLabel={t("slide.settings.back")}
-        boardSizeLabel={t("slide.settings.boardSize")}
-        soundLabel={t("slide.settings.sound")}
-        animationsLabel={t("slide.settings.animations")}
-        settings={settings}
-        onBack={closeSettings}
-        onFieldChange={updateSettingsField}
-      />
-    );
-  }
+  const inGame = screen === "playing" || screen === "victory";
 
   return (
-    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-4 shadow-card backdrop-blur md:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="mt-2 text-3xl font-black tracking-tight text-stone-900 md:text-5xl">{t("slide.title")}</h1>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <span className="rounded-full bg-rose-100 px-4 py-2 text-sm font-semibold text-rose-800">
-            {t("slide.hud.size").replace("{size}", `${settings.boardSize}x${settings.boardSize}`)}
-          </span>
-          <span className="rounded-full bg-stone-100 px-4 py-2 text-sm font-semibold text-stone-700">
-            {settings.soundEnabled ? t("slide.settings.soundOn") : t("slide.settings.soundOff")}
-          </span>
-        </div>
-      </div>
+    <GamePage>
+      <GameHeader ns="slide" title={t("slide.title")}>
+        <GameTag ns="slide">{t("slide.hud.size").replace("{size}", `${settings.boardSize}x${settings.boardSize}`)}</GameTag>
+        <GameTag ns="slide" muted>
+          {settings.soundEnabled ? t("slide.settings.soundOn") : t("slide.settings.soundOff")}
+        </GameTag>
+      </GameHeader>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="space-y-4">
-          <SlideHud
-            timeLabel={t("slide.hud.time").replace("{value}", formatTime(elapsedSeconds))}
-            movesLabel={t("slide.hud.moves").replace("{value}", String(moves))}
-            restartLabel={t("slide.hud.restart")}
-            onRestart={() => void restartGame()}
-          />
-
-          <div className="rounded-[2rem] border border-rose-200 bg-gradient-to-br from-rose-500 via-red-500 to-orange-500 p-4 shadow-inner md:p-6">
-            <div className="mx-auto max-w-[42rem] rounded-[1.5rem] bg-[#fff7ed] p-4 shadow-lg">
+      <GameBody
+        board={
+          screen === "menu" ? (
+            <SlideMenu
+              subtitle={t("slide.menu.subtitle")}
+              playLabel={t("slide.menu.play")}
+              settingsLabel={t("slide.menu.settings")}
+              shareLabel={t("slide.menu.share")}
+              bestTimeLabel={bestTimeLabel}
+              bestMovesLabel={bestMovesLabel}
+              onPlay={() => void startGame()}
+              onSettings={openSettings}
+              onShare={() => void shareResult(shareTemplate, copiedMessage)}
+            />
+          ) : screen === "settings" ? (
+            <SlideSettingsPanel
+              title={t("slide.settings.title")}
+              backLabel={t("slide.settings.back")}
+              boardSizeLabel={t("slide.settings.boardSize")}
+              soundLabel={t("slide.settings.sound")}
+              animationsLabel={t("slide.settings.animations")}
+              settings={settings}
+              onBack={closeSettings}
+              onFieldChange={updateSettingsField}
+            />
+          ) : (
+            <div className="w-full max-w-[600px] rounded-2xl bg-chip p-2 sm:p-3">
               <div
+                data-slide-board
                 className={`relative mx-auto aspect-square w-full ${boardWidthClass}`}
                 style={{ touchAction: "manipulation" }}
               >
                 <div
-                  className="grid h-full w-full gap-2"
+                  className="grid h-full w-full gap-1.5 sm:gap-2"
                   style={{ gridTemplateColumns: `repeat(${settings.boardSize}, minmax(0, 1fr))` }}
                 >
                   {boardRows.flat().map((value, index) => (
@@ -131,11 +126,11 @@ export function SlideGame() {
                       onClick={() => move(index)}
                       disabled={value === 0}
                       className={[
-                        "flex aspect-square items-center justify-center border-2 text-center font-black text-stone-900 shadow-sm",
+                        "flex aspect-square items-center justify-center text-center font-display font-extrabold text-ink",
                         settings.animationsEnabled ? "transition duration-200 ease-out" : "",
                         value === 0
-                          ? "cursor-default rounded-[1.25rem] border-dashed border-yellow-200 bg-yellow-100/80 text-transparent shadow-inner"
-                          : "rounded-[1.1rem] border-stone-200 bg-white text-[clamp(1rem,3vw,2.4rem)] hover:-translate-y-0.5 hover:shadow-md active:translate-y-0",
+                          ? "cursor-default rounded-xl border-2 border-dashed border-line-strong bg-transparent text-transparent"
+                          : "rounded-xl border border-line bg-surface text-[clamp(1rem,3vw,2.2rem)] shadow-[0_2px_0_#D5DAE5] hover:-translate-y-0.5 hover:border-slide hover:bg-slide-soft active:translate-y-0",
                       ].join(" ")}
                     >
                       {value === 0 ? "0" : value}
@@ -143,75 +138,107 @@ export function SlideGame() {
                   ))}
                 </div>
               </div>
+            </div>
+          )
+        }
+        panel={
+          <>
+            <PanelCard>
+              <SlideHud
+                timeTitle={t("slide.layout.time")}
+                movesTitle={t("slide.layout.moves")}
+                time={formatTime(elapsedSeconds)}
+                moves={moves}
+              />
 
-              <div className="mt-6 text-center text-sm font-semibold uppercase tracking-[0.3em] text-stone-700">
-                Racha-Cuca
+              <div className="flex flex-col gap-2 rounded-xl bg-chip p-3">
+                <PanelTitle>{t("slide.records.title")}</PanelTitle>
+                <p className="text-sm font-semibold text-ink">{bestTimeLabel}</p>
+                <p className="text-sm font-semibold text-ink">{bestMovesLabel}</p>
               </div>
-            </div>
-          </div>
 
-          <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4 text-sm leading-6 text-stone-600">
-            <p>{t("slide.help.line1")}</p>
-            <p className="mt-2">{t("slide.help.line2")}</p>
-            {statusMessage ? <p className="mt-3 font-semibold text-rose-700">{statusMessage}</p> : null}
-          </div>
-        </div>
+              <ActionGrid cols={3}>
+                <ActionButton
+                  icon={<Settings size={20} />}
+                  label={t("slide.layout.settings")}
+                  title={t("slide.menu.settings")}
+                  onClick={openSettings}
+                  pressed={screen === "settings"}
+                />
+                <ActionButton
+                  icon={<Share2 size={20} />}
+                  label={t("slide.layout.share")}
+                  onClick={() => void shareResult(shareTemplate, copiedMessage)}
+                  title={t("slide.menu.share")}
+                />
+                <ActionButton
+                  icon={<House size={20} />}
+                  label={t("slide.layout.menu")}
+                  onClick={goToMenu}
+                  disabled={screen === "menu"}
+                />
+              </ActionGrid>
 
-        <aside className="space-y-4">
-          <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-stone-500">{t("slide.records.title")}</p>
-            <div className="mt-4 grid gap-2">
-              <div className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">{bestTimeLabel}</div>
-              <div className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">{bestMovesLabel}</div>
-            </div>
-          </div>
+              <PrimaryButton onClick={() => void (inGame ? restartGame() : startGame())}>
+                {t("slide.layout.newGame")}
+              </PrimaryButton>
 
-          <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-stone-500">{t("slide.quickActions.title")}</p>
-            <div className="mt-4 grid gap-2">
-              <button type="button" onClick={openSettings} className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">
-                {t("slide.menu.settings")}
-              </button>
-              <button type="button" onClick={() => void shareResult(shareTemplate, copiedMessage)} className="rounded-2xl bg-white px-4 py-3 font-semibold text-stone-700">
-                <span className="inline-flex items-center gap-2">
-                  <Share2 size={18} />
-                  {t("slide.menu.share")}
-                </span>
-              </button>
-              <button type="button" onClick={goToMenu} className="rounded-2xl bg-rose-600 px-4 py-3 font-semibold text-white">
-                {t("slide.victory.menu")}
-              </button>
-            </div>
-          </div>
-        </aside>
-      </div>
+              {statusMessage ? (
+                <p className="text-sm font-semibold leading-6 text-slide-ink" role="status">
+                  {statusMessage}
+                </p>
+              ) : null}
+            </PanelCard>
+
+            <GameAd />
+          </>
+        }
+      />
+
+      <GameFooter ns="slide" articleSlug="historia-do-slide-puzzle">
+        <HowToRow
+          keys={
+            <>
+              <KeyChip>
+                <Mouse size={14} aria-hidden="true" />
+                {t("slide.layout.keyClick")}
+              </KeyChip>
+              <KeyChip>{t("slide.layout.keyTap")}</KeyChip>
+            </>
+          }
+          text={t("slide.help.line1")}
+        />
+        <HowToRow text={t("slide.help.line2")} />
+      </GameFooter>
 
       {screen === "victory" ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/55 p-4">
-          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-card">
-            <h2 className="text-center text-2xl font-black text-stone-900">{t("slide.victory.title")}</h2>
-            <p className="mt-4 text-center text-sm leading-6 text-stone-600">
-              {t("slide.victory.description")}
-            </p>
-            <div className="mt-6 grid gap-2 text-center">
-              <div className="rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700">
-                {t("slide.hud.time").replace("{value}", formatTime(lastResult?.elapsedSeconds ?? elapsedSeconds))}
+        <BodyPortal>
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/60 p-4">
+            <div className="w-full max-w-md rounded-[20px] bg-surface p-6 shadow-card">
+              <h2 className="text-center font-display text-2xl font-extrabold text-ink">{t("slide.victory.title")}</h2>
+              <p className="mt-4 text-center text-sm leading-6 text-muted">
+                {t("slide.victory.description")}
+              </p>
+              <div className="mt-6 grid gap-2 text-center">
+                <div className="rounded-xl bg-chip px-4 py-3 font-semibold text-ink">
+                  {t("slide.hud.time").replace("{value}", formatTime(lastResult?.elapsedSeconds ?? elapsedSeconds))}
+                </div>
+                <div className="rounded-xl bg-chip px-4 py-3 font-semibold text-ink">
+                  {t("slide.hud.moves").replace("{value}", String(lastResult?.moves ?? moves))}
+                </div>
               </div>
-              <div className="rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700">
-                {t("slide.hud.moves").replace("{value}", String(lastResult?.moves ?? moves))}
+              <div className="mt-6 grid gap-2">
+                <button type="button" onClick={() => void restartGame()} className="min-h-12 rounded-xl bg-ink px-4 py-3 font-semibold text-white">
+                  {t("slide.victory.retry")}
+                </button>
+                <button type="button" onClick={goToMenu} className="min-h-12 rounded-xl bg-chip px-4 py-3 font-semibold text-ink">
+                  {t("slide.victory.menu")}
+                </button>
               </div>
-            </div>
-            <div className="mt-6 grid gap-2">
-              <button type="button" onClick={() => void restartGame()} className="rounded-2xl bg-stone-900 px-4 py-3 font-semibold text-white">
-                {t("slide.victory.retry")}
-              </button>
-              <button type="button" onClick={goToMenu} className="rounded-2xl bg-stone-100 px-4 py-3 font-semibold text-stone-700">
-                {t("slide.victory.menu")}
-              </button>
             </div>
           </div>
-        </div>
+        </BodyPortal>
       ) : null}
-    </section>
+    </GamePage>
   );
 }

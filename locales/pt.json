@@ -450,6 +450,23 @@
     "share": {
       "message": "Resolvi o Slide Puzzle {size} em {time} com {moves} movimentos.",
       "copied": "Texto de compartilhamento copiado para a área de transferência; use o atalho Ctrl + V ou o menu de contexto \"Colar\" no local onde deseja compartilhar!"
+    },
+    "layout": {
+      "games": "Jogos",
+      "breadcrumb": "Trilha de navegação",
+      "howToPlay": "Como jogar",
+      "nextStep": "Próximo passo",
+      "minutes": "{count} min",
+      "readArticle": "Ler o artigo",
+      "nextStepTitle": "A história do quebra-cabeça deslizante",
+      "time": "Tempo",
+      "moves": "Movimentos",
+      "newGame": "Novo jogo",
+      "menu": "Menu",
+      "keyClick": "Clique",
+      "keyTap": "Toque",
+      "share": "Compartilhar",
+      "settings": "Ajustes"
     }
   },
   "tetris": {

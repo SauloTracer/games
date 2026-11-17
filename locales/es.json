@@ -450,6 +450,23 @@
     "share": {
       "message": "Resolví el Slide Puzzle {size} en {time} con {moves} movimientos.",
       "copied": "Texto de compartido copiado al portapapeles (Ctrl + C)."
+    },
+    "layout": {
+      "games": "Juegos",
+      "breadcrumb": "Ruta de navegación",
+      "howToPlay": "Cómo jugar",
+      "nextStep": "Siguiente paso",
+      "minutes": "{count} min",
+      "readArticle": "Leer el artículo",
+      "nextStepTitle": "La historia del rompecabezas deslizante",
+      "time": "Tiempo",
+      "moves": "Movimientos",
+      "newGame": "Nuevo juego",
+      "menu": "Menú",
+      "keyClick": "Clic",
+      "keyTap": "Toque",
+      "share": "Compartir",
+      "settings": "Ajustes"
     }
   },
   "tetris": {

@@ -15,6 +15,21 @@
       "en": "Inglés",
       "pt": "Portugues",
       "es": "Español"
+    },
+    "games": "Juegos",
+    "dailyChallenge": "Desafío del día",
+    "more": "Más",
+    "mainNav": "Principal",
+    "gamesNav": "Juegos",
+    "bottomNav": "Navegación",
+    "footerNav": "Pie de página",
+    "tagline": "Juegos de lógica en línea y guías de estrategia en portugués, inglés y español.",
+    "homeLink": "Puzzled, página de inicio",
+    "close": "Cerrar",
+    "languageShort": {
+      "en": "EN",
+      "pt": "PT",
+      "es": "ES"
     }
   },
   "home": {
@@ -204,7 +219,8 @@
   },
   "ads": {
     "recommendation": "Recomendación",
-    "close": "Cerrar anuncio"
+    "close": "Cerrar anuncio",
+    "affiliate": "Recomendación · afiliado"
   },
   "sudoku": {
     "title": "Sudoku",

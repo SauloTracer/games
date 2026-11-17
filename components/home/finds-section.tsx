@@ -19,7 +19,7 @@ export function FindsSection() {
   if (!items.length) return null;
 
   return (
-    <section aria-labelledby="achados" className="mx-auto flex w-full max-w-[1200px] flex-col gap-5 px-4 py-12 sm:px-6 md:py-16">
+    <section aria-labelledby="achados" className="flex w-full flex-col gap-5 pt-12 md:pt-16">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 id="achados" className="font-display text-2xl font-extrabold text-ink md:text-[28px]">
           {t("home.findsTitle")}

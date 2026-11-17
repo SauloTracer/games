@@ -35,8 +35,8 @@ export function ArticlesSection({ articles }: { articles: Article[] }) {
   const pinnedPresentation = getArticlePresentation(messages, pinned);
 
   return (
-    <section id="artigos" aria-labelledby="artigos-title" className="scroll-mt-24 border-y border-line bg-surface">
-      <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-5 px-4 py-12 sm:gap-7 sm:px-6 md:py-[72px]">
+    <section id="artigos" aria-labelledby="artigos-title" className="w-full scroll-mt-24 rounded-[20px] border border-line bg-surface">
+      <div className="flex w-full flex-col gap-5 p-5 sm:gap-7 sm:p-8 md:p-10">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="flex flex-col gap-2">
             <span className="text-[13px] font-bold uppercase tracking-[0.08em] text-subtle">{t("home.featuredArticlesKicker")}</span>

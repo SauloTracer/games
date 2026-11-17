@@ -92,7 +92,7 @@ export function ContinueStrip() {
   const number = (value: number) => value.toLocaleString(language === "en" ? "en-US" : language === "es" ? "es-ES" : "pt-BR");
 
   return (
-    <section aria-label={t("home.continueTitle")} className="mx-auto w-full max-w-[1200px] px-4 pb-8 sm:px-6 md:pb-14">
+    <section aria-label={t("home.continueTitle")} className="w-full pb-8 md:pb-14">
       <div className="flex flex-col gap-1 rounded-2xl border border-line bg-surface px-5 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-1">
         <h2 className="py-1 text-[15px] font-bold text-ink">{t("home.continueTitle")}</h2>
         {progress.sudoku ? (

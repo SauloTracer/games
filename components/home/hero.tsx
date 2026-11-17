@@ -39,7 +39,7 @@ export function HomeHero() {
   const { t } = useLanguage();
 
   return (
-    <section className="mx-auto flex w-full max-w-[1200px] flex-col gap-7 px-4 pb-8 pt-6 sm:px-6 md:pb-12 md:pt-12 lg:flex-row lg:items-center lg:gap-12 lg:pt-16">
+    <section className="flex w-full flex-col gap-7 pb-8 md:pb-12 lg:flex-row lg:items-center lg:gap-12 lg:pt-8">
       <div className="flex flex-1 flex-col gap-4 md:gap-6">
         <span className="self-start rounded-full bg-[#FFE9B8] px-3 py-1.5 text-[13px] font-bold text-sudoku-ink">
           {t("home.badge")}

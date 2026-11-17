@@ -43,7 +43,7 @@ export function GamesSection() {
     <section
       id="jogos"
       aria-labelledby="jogos-title"
-      className="mx-auto flex w-full max-w-[1200px] scroll-mt-24 flex-col gap-4 px-4 pb-12 sm:gap-6 sm:px-6 md:pb-[72px]"
+      className="flex w-full scroll-mt-24 flex-col gap-4 pb-12 sm:gap-6 md:pb-16"
     >
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h2 id="jogos-title" className="font-display text-2xl font-extrabold tracking-[-0.01em] text-ink md:text-4xl">

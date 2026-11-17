@@ -387,6 +387,22 @@
     "share": {
       "message": "Fiz {score} pontos no Snake! 🐍🔥",
       "copied": "Texto de compartido copiado al portapapeles (Ctrl + C)."
+    },
+    "layout": {
+      "games": "Juegos",
+      "breadcrumb": "Ruta de navegación",
+      "howToPlay": "Cómo jugar",
+      "nextStep": "Siguiente paso",
+      "minutes": "{count} min",
+      "readArticle": "Leer el artículo",
+      "nextStepTitle": "La historia de Snake: de las máquinas recreativas a los móviles",
+      "score": "Puntos",
+      "best": "Récord",
+      "newGame": "Nuevo juego",
+      "menu": "Menú",
+      "keySpace": "Espacio",
+      "keySwipe": "Deslizar",
+      "keyHold": "Mantener"
     }
   },
   "slide": {

@@ -1,9 +1,8 @@
 "use client";
 
-import { Share2 } from "lucide-react";
+import { Play, Settings, Share2 } from "lucide-react";
 
 type SnakeMenuProps = {
-  title: string;
   subtitle: string;
   playLabel: string;
   settingsLabel: string;
@@ -12,11 +11,9 @@ type SnakeMenuProps = {
   onSettings: () => void;
   onShare: () => void;
   bestScoreLabel: string;
-  statusMessage?: string;
 };
 
 export function SnakeMenu({
-  title,
   subtitle,
   playLabel,
   settingsLabel,
@@ -25,49 +22,38 @@ export function SnakeMenu({
   onSettings,
   onShare,
   bestScoreLabel,
-  statusMessage,
 }: SnakeMenuProps) {
   return (
-    <section className="rounded-[2rem] border border-white/60 bg-white/90 p-6 shadow-card backdrop-blur md:p-8">
-      <div className="mx-auto max-w-2xl text-center">
-        <h1 className="mt-4 text-4xl font-black tracking-tight text-stone-900 md:text-6xl">{title}</h1>
-        <p className="mt-4 whitespace-pre-line text-base leading-7 text-stone-600 md:text-lg">{subtitle}</p>
-        <p className="mt-6 inline-flex rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-800">
-          {bestScoreLabel}
-        </p>
-      </div>
+    <div className="flex min-h-[360px] w-full flex-col items-center justify-center gap-6 py-6 text-center md:min-h-[480px]">
+      <p className="max-w-xl whitespace-pre-line text-base leading-7 text-muted md:text-lg">{subtitle}</p>
+      <span className="inline-flex rounded-lg bg-snake-soft px-3 py-1.5 text-sm font-semibold text-snake-ink">{bestScoreLabel}</span>
 
-      <div className="mx-auto mt-8 grid max-w-xl gap-3">
+      <div className="grid w-full max-w-sm gap-3">
         <button
           type="button"
           onClick={onPlay}
-          className="rounded-2xl bg-emerald-600 px-6 py-4 text-base font-semibold text-white transition hover:bg-emerald-700"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-snake px-6 text-base font-bold text-ink transition hover:brightness-95"
         >
+          <Play size={18} aria-hidden="true" />
           {playLabel}
         </button>
         <button
           type="button"
           onClick={onSettings}
-          className="rounded-2xl bg-stone-100 px-6 py-4 text-base font-semibold text-stone-700 transition hover:bg-stone-200"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-line-strong bg-surface px-6 text-base font-semibold text-ink transition hover:bg-chip"
         >
+          <Settings size={18} aria-hidden="true" />
           {settingsLabel}
         </button>
         <button
           type="button"
           onClick={onShare}
-          className="rounded-2xl border border-stone-300 bg-white px-6 py-4 text-base font-semibold text-stone-700 transition hover:border-stone-400"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-line-strong bg-surface px-6 text-base font-semibold text-ink transition hover:bg-chip"
         >
-          <span className="inline-flex items-center gap-2">
-            <Share2 size={18} />
-            {shareLabel}
-          </span>
+          <Share2 size={18} aria-hidden="true" />
+          {shareLabel}
         </button>
       </div>
-      {statusMessage ? (
-        <p className="mx-auto mt-4 max-w-xl text-center text-sm font-semibold leading-6 text-emerald-700">
-          {statusMessage}
-        </p>
-      ) : null}
-    </section>
+    </div>
   );
 }

@@ -387,6 +387,22 @@
     "share": {
       "message": "Fiz {score} pontos no Snake! 🐍🔥",
       "copied": "Texto de compartilhamento copiado para a área de transferência; use o atalho Ctrl + V ou o menu de contexto \"Colar\" no local onde deseja compartilhar!"
+    },
+    "layout": {
+      "games": "Jogos",
+      "breadcrumb": "Trilha de navegação",
+      "howToPlay": "Como jogar",
+      "nextStep": "Próximo passo",
+      "minutes": "{count} min",
+      "readArticle": "Ler o artigo",
+      "nextStepTitle": "A história do Snake: dos fliperamas aos celulares",
+      "score": "Pontos",
+      "best": "Recorde",
+      "newGame": "Novo jogo",
+      "menu": "Menu",
+      "keySpace": "Espaço",
+      "keySwipe": "Deslizar",
+      "keyHold": "Segurar"
     }
   },
   "slide": {

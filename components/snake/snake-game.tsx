@@ -12,7 +12,6 @@ import { House, Pause, Play, Settings, Share2 } from "lucide-react";
 import {
   ActionButton,
   ActionGrid,
-  GameAd,
   GameBody,
   GameFooter,
   GameHeader,
@@ -365,33 +364,32 @@ export function SnakeGame() {
                 ))}
               </div>
             </PanelCard>
-
-            <GameAd />
           </>
         }
+        below={
+          <GameFooter ns="snake" articleSlug="historia-do-snake">
+            <HowToRow
+              keys={
+                <>
+                  <KeyChip>↑ ↓ ← →</KeyChip>
+                  <KeyChip>P</KeyChip>
+                  <KeyChip>{t("snake.layout.keySpace")}</KeyChip>
+                </>
+              }
+              text={t("snake.help.desktop")}
+            />
+            <HowToRow
+              keys={
+                <>
+                  <KeyChip>{t("snake.layout.keySwipe")}</KeyChip>
+                  <KeyChip>{t("snake.layout.keyHold")}</KeyChip>
+                </>
+              }
+              text={t("snake.help.mobile")}
+            />
+          </GameFooter>
+        }
       />
-
-      <GameFooter ns="snake" articleSlug="historia-do-snake">
-        <HowToRow
-          keys={
-            <>
-              <KeyChip>↑ ↓ ← →</KeyChip>
-              <KeyChip>P</KeyChip>
-              <KeyChip>{t("snake.layout.keySpace")}</KeyChip>
-            </>
-          }
-          text={t("snake.help.desktop")}
-        />
-        <HowToRow
-          keys={
-            <>
-              <KeyChip>{t("snake.layout.keySwipe")}</KeyChip>
-              <KeyChip>{t("snake.layout.keyHold")}</KeyChip>
-            </>
-          }
-          text={t("snake.help.mobile")}
-        />
-      </GameFooter>
     </GamePage>
   );
 }

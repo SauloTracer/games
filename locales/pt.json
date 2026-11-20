@@ -373,13 +373,14 @@
       "rules": "Preencha cada linha, coluna e bloco 3×3 com os números de 1 a 9, sem repetir. Use o modo Candidatos para anotar as possibilidades de cada casa.",
       "keyMouse": "Mouse",
       "keySpace": "Espaço",
-      "keySearch": "Busca"
+      "keySearch": "Busca",
+      "searchTitle": "Busca de técnicas"
     }
   },
   "snake": {
     "title": "Snake",
     "menu": {
-      "subtitle": "🐍🔥 Desafie seus reflexos e vá além dos seus limites!\nCada movimento conta, cada ponto é uma conquista!\nAté onde você consegue chegar sem errar?",
+      "subtitle": "Desafie seus reflexos e vá além dos seus limites!\nCada movimento conta, cada ponto é uma conquista!\nAté onde você consegue chegar sem errar?",
       "play": "Jogar",
       "settings": "Configurações",
       "share": "Compartilhar pontuação"
@@ -451,7 +452,7 @@
   "slide": {
     "title": "Racha Cuca",
     "menu": {
-      "subtitle": "🧠🔥 Teste sua mente e supere seus limites!\nOrganize as peças em ordem crescente — pense rápido e prove que você consegue dominar o Racha-Cuca!",
+      "subtitle": "Teste sua mente e supere seus limites!\nOrganize as peças em ordem crescente — pense rápido e prove que você consegue dominar o Racha-Cuca!",
       "play": "Jogar",
       "settings": "Configurações",
       "share": "Compartilhar resultado",
@@ -515,9 +516,9 @@
   "tetris": {
     "title": "Tetris",
     "menu": {
-      "subtitle": "Às vezes a vida parece um jogo de Tetris: as peças caem rápido, fora de ordem, e nem sempre do jeito que a gente quer.\n\nMas cada encaixe é uma chance de organizar o caos, transformando pressão em estratégia.\n\nNem todas as peças vão ser perfeitas — e tá tudo bem.\n\nO segredo não é esperar pela peça ideal, é aprender a jogar bem com o que você tem.\n\nRespira, foca, gira as possibilidades… e segue jogando. 🎮✨",
-      "play": "▶ Jogar",
-      "settings": "⚙ Configurações",
+      "subtitle": "Às vezes a vida parece um jogo de Tetris: as peças caem rápido, fora de ordem, e nem sempre do jeito que a gente quer.\n\nMas cada encaixe é uma chance de organizar o caos, transformando pressão em estratégia.\n\nNem todas as peças vão ser perfeitas — e tá tudo bem.\n\nO segredo não é esperar pela peça ideal, é aprender a jogar bem com o que você tem.\n\nRespira, foca, gira as possibilidades… e segue jogando.",
+      "play": "Jogar",
+      "settings": "Configurações",
       "bestScore": "Recorde local",
       "controlsTitle": "Controles",
       "goalTitle": "Objetivo",
@@ -626,5 +627,16 @@
       "keyTap": "Toque",
       "settings": "Ajustes"
     }
+  },
+  "pageTitles": {
+    "home": "Puzzled | Jogos online de lógica, sudoku e clássicos",
+    "sudoku": "Sudoku online grátis | Puzzled",
+    "snake": "Snake online grátis | Jogo da cobrinha | Puzzled",
+    "slide": "Racha Cuca online | Slide Puzzle grátis | Puzzled",
+    "tetris": "Tetris online | Puzzle de ação grátis | Puzzled",
+    "articles": "Puzzled | Artigos | Histórias de jogos e tutoriais",
+    "about": "Sobre o Puzzled | Jogos online, lógica e estratégia",
+    "contact": "Contato | Puzzled",
+    "privacy": "Privacidade | Puzzled"
   }
 }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AdCard } from "@/components/ad-card";
 import { useLanguage } from "@/components/language-provider";
@@ -112,13 +112,95 @@ export function GameTag({ ns, children, muted = false }: { ns: GameNamespace; ch
   );
 }
 
-export function GameBody({ board, panel }: { board: ReactNode; panel: ReactNode }) {
+/** Largura a partir da qual tabuleiro e painel ficam lado a lado (precisa bater com `min-[900px]:` abaixo). */
+const SIDE_BY_SIDE_QUERY = "(min-width: 900px)";
+const MAX_FILLER_ADS = 10;
+
+/**
+ * Corpo da página de jogo.
+ * - Lado a lado (≥900px): à esquerda o tabuleiro e, embaixo dele, `below` (instruções etc.);
+ *   à direita o painel. Se o painel ficar mais curto que a coluna da esquerda, completa com
+ *   recomendações (afiliados) até chegar perto da mesma altura.
+ * - Empilhado (celular): tabuleiro, painel, uma recomendação e depois `below`.
+ */
+export function GameBody({ board, panel, below }: { board: ReactNode; panel: ReactNode; below?: ReactNode }) {
+  const boardRef = useRef<HTMLDivElement | null>(null);
+  const belowRef = useRef<HTMLDivElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const adRef = useRef<HTMLDivElement | null>(null);
+  const [adPool, setAdPool] = useState<AdItem[]>([]);
+  const [adCount, setAdCount] = useState(1);
+
+  // Sorteio no cliente, depois do mount, para não divergir da hidratação.
+  useEffect(() => {
+    setAdPool(pickRandomAds(1 + MAX_FILLER_ADS));
+  }, []);
+
+  useEffect(() => {
+    const boardEl = boardRef.current;
+    const belowEl = belowRef.current;
+    const panelEl = panelRef.current;
+    if (!boardEl || !panelEl || !adPool.length) {
+      return;
+    }
+    const media = window.matchMedia(SIDE_BY_SIDE_QUERY);
+
+    const update = () => {
+      if (!media.matches) {
+        setAdCount(1);
+        return;
+      }
+      const gap = 16;
+      const adHeight = adRef.current?.offsetHeight || 98;
+      const mainHeight = boardEl.offsetHeight + (belowEl ? 28 + belowEl.offsetHeight : 0);
+      const free = mainHeight - panelEl.offsetHeight;
+      // Cada recomendação ocupa a própria altura mais o espaçamento que vem antes dela.
+      const fits = Math.max(1, Math.floor(free / (adHeight + gap)));
+      setAdCount(Math.min(fits, adPool.length));
+    };
+
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(boardEl);
+    if (belowEl) {
+      observer.observe(belowEl);
+    }
+    observer.observe(panelEl);
+    media.addEventListener("change", update);
+    return () => {
+      observer.disconnect();
+      media.removeEventListener("change", update);
+    };
+  }, [adPool]);
+
   return (
-    <div className="flex flex-wrap items-start gap-7">
-      <div className="relative flex min-w-0 flex-[999_1_520px] justify-center rounded-[20px] border border-line bg-surface p-3 sm:p-6">
+    // Ordem no DOM (e no celular): tabuleiro, painel, below. Lado a lado, o painel ocupa as
+    // duas linhas da coluna direita e a segunda linha (1fr) absorve a sobra, então `below`
+    // fica colado embaixo do tabuleiro.
+    <div className="grid grid-cols-1 items-start gap-7 min-[900px]:grid-cols-[minmax(0,1fr)_300px] min-[900px]:grid-rows-[auto_1fr]">
+      <div
+        ref={boardRef}
+        className="relative flex min-w-0 justify-center rounded-[20px] border border-line bg-surface p-3 sm:p-6 min-[900px]:col-start-1 min-[900px]:row-start-1"
+      >
         {board}
       </div>
-      <aside className="flex min-w-0 flex-[1_1_300px] flex-col gap-4">{panel}</aside>
+
+      <aside className="flex min-w-0 flex-col gap-4 min-[900px]:col-start-2 min-[900px]:row-span-2 min-[900px]:row-start-1">
+        <div ref={panelRef} className="flex min-w-0 flex-col gap-4">
+          {panel}
+        </div>
+        {adPool.slice(0, adCount).map((ad, index) => (
+          <div key={ad.id} ref={index === 0 ? adRef : undefined}>
+            <AdCard ad={ad} />
+          </div>
+        ))}
+      </aside>
+
+      {below ? (
+        <div ref={belowRef} className="flex min-w-0 flex-col gap-7 min-[900px]:col-start-1 min-[900px]:row-start-2">
+          {below}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -271,21 +353,6 @@ export function SecondaryButton({
   );
 }
 
-/** Recomendação (afiliado) escolhida no cliente, depois do mount, para não divergir da hidratação. */
-export function GameAd() {
-  const [ad, setAd] = useState<AdItem | null>(null);
-
-  useEffect(() => {
-    setAd(pickRandomAds(1)[0] ?? null);
-  }, []);
-
-  if (!ad) {
-    return null;
-  }
-
-  return <AdCard ad={ad} />;
-}
-
 export function KeyChip({ children }: { children: ReactNode }) {
   return (
     <span className="inline-flex min-h-8 items-center gap-1 rounded-lg bg-chip px-2.5 py-1 text-[13px] font-bold text-ink">
@@ -318,14 +385,14 @@ export function GameFooter({
   const minutes = article?.readingMinutes;
 
   return (
-    <section className="flex flex-wrap items-start gap-5">
-      <div className="flex min-w-0 flex-[2_1_480px] flex-col gap-4 rounded-[20px] border border-line bg-surface p-6">
+    <section className="flex flex-col gap-5">
+      <div className="flex min-w-0 flex-col gap-4 rounded-[20px] border border-line bg-surface p-6">
         <h2 className="font-display text-[22px] font-extrabold text-ink">{t(`${ns}.layout.howToPlay`)}</h2>
         {children}
       </div>
       <Link
         href={`/articles/${articleSlug}`}
-        className="group flex min-h-[200px] min-w-0 flex-[1_1_300px] flex-col justify-between gap-3 rounded-[20px] bg-ink p-6 text-white transition hover:bg-[#1c2c4f]"
+        className="group flex min-w-0 flex-col justify-between gap-3 rounded-[20px] bg-ink p-6 text-white transition hover:bg-[#1c2c4f]"
       >
         <span className={`self-start rounded-md px-2.5 py-1 text-xs font-bold ${accentTag[ns]}`}>
           {t(`${ns}.layout.nextStep`)}

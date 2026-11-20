@@ -23,7 +23,6 @@ import {
   ActionButton,
   ActionGrid,
   BodyPortal,
-  GameAd,
   GameBody,
   GameFooter,
   GameHeader,
@@ -1274,8 +1273,14 @@ export function SudokuGame() {
                   </div>
                 </div>
               ) : null}
-
-              <div className="flex flex-col gap-2">
+            </PanelCard>
+          </>
+        }
+        below={
+          <>
+            <PanelCard>
+              <PanelTitle>{t("sudoku.layout.searchTitle")}</PanelTitle>
+              <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2">
                   <div className="relative w-full">
                     <Search size={16} aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-subtle" />
@@ -1299,48 +1304,45 @@ export function SudokuGame() {
                 <p className="text-xs leading-5 text-subtle">{t("sudoku.filterHelpers")}</p>
               </div>
             </PanelCard>
-
-            <GameAd />
+            <GameFooter ns="sudoku" articleSlug="sudoku-candidatos-e-singles">
+              <p className="text-[15px] leading-relaxed text-muted">{t("sudoku.layout.rules")}</p>
+              <HowToRow
+                keys={
+                  <>
+                    <KeyChip>↑ ↓ ← →</KeyChip>
+                    <KeyChip>
+                      <Mouse size={14} aria-hidden="true" />
+                      {t("sudoku.layout.keyMouse")}
+                    </KeyChip>
+                    <KeyChip>Shift / Ctrl</KeyChip>
+                  </>
+                }
+                text={t("sudoku.controlsBoardNavigation")}
+              />
+              <HowToRow
+                keys={
+                  <>
+                    <KeyChip>1–9</KeyChip>
+                    <KeyChip>Delete</KeyChip>
+                  </>
+                }
+                text={t("sudoku.controlsNumberInput")}
+              />
+              <HowToRow keys={<KeyChip>{t("sudoku.layout.keySpace")}</KeyChip>} text={t("sudoku.controlsModeSwitch")} />
+              <HowToRow text={t("sudoku.controlsHoverHighlight")} />
+              <HowToRow
+                keys={
+                  <KeyChip>
+                    <Search size={14} aria-hidden="true" />
+                    {t("sudoku.layout.keySearch")}
+                  </KeyChip>
+                }
+                text={t("sudoku.controlsSearch")}
+              />
+            </GameFooter>
           </>
         }
       />
-
-      <GameFooter ns="sudoku" articleSlug="sudoku-candidatos-e-singles">
-        <p className="text-[15px] leading-relaxed text-muted">{t("sudoku.layout.rules")}</p>
-        <HowToRow
-          keys={
-            <>
-              <KeyChip>↑ ↓ ← →</KeyChip>
-              <KeyChip>
-                <Mouse size={14} aria-hidden="true" />
-                {t("sudoku.layout.keyMouse")}
-              </KeyChip>
-              <KeyChip>Shift / Ctrl</KeyChip>
-            </>
-          }
-          text={t("sudoku.controlsBoardNavigation")}
-        />
-        <HowToRow
-          keys={
-            <>
-              <KeyChip>1–9</KeyChip>
-              <KeyChip>Delete</KeyChip>
-            </>
-          }
-          text={t("sudoku.controlsNumberInput")}
-        />
-        <HowToRow keys={<KeyChip>{t("sudoku.layout.keySpace")}</KeyChip>} text={t("sudoku.controlsModeSwitch")} />
-        <HowToRow text={t("sudoku.controlsHoverHighlight")} />
-        <HowToRow
-          keys={
-            <KeyChip>
-              <Search size={14} aria-hidden="true" />
-              {t("sudoku.layout.keySearch")}
-            </KeyChip>
-          }
-          text={t("sudoku.controlsSearch")}
-        />
-      </GameFooter>
 
       {isGameOver ? (
         <BodyPortal>

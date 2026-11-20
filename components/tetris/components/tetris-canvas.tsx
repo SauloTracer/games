@@ -102,10 +102,11 @@ export function TetrisCanvas({
     const updateBoardWidth = () => {
       const isMobile = window.innerWidth < 768;
       const containerWidth = frame.clientWidth;
-      const mobileMaxHeight = Math.max(320, window.innerHeight - 250);
+      // Desconta cabeçalho, painel do jogo e a barra inferior do celular.
+      const mobileMaxHeight = Math.max(320, window.innerHeight - 330);
       const nextWidth = isMobile
         ? Math.max(180, Math.min(containerWidth, mobileMaxHeight / 2, 340))
-        : Math.max(260, Math.min(containerWidth, 340));
+        : Math.max(200, Math.min(containerWidth, (window.innerHeight - 140) / 2, 340));
       setBoardWidth(Math.floor(nextWidth));
     };
 
@@ -118,6 +119,19 @@ export function TetrisCanvas({
       observer.disconnect();
       window.removeEventListener("resize", updateBoardWidth);
     };
+  }, []);
+
+  // Ao começar a partida, rola a página até o tabuleiro se ele não couber inteiro na tela
+  // (descontando o cabeçalho fixo e, no celular, a barra inferior).
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const rect = frameRef.current?.getBoundingClientRect();
+      const visibleBottom = window.innerHeight - (window.innerWidth < 768 ? 80 : 0);
+      if (rect && rect.bottom > visibleBottom) {
+        window.scrollBy({ top: Math.min(rect.top - 72, rect.bottom - visibleBottom + 16), behavior: "smooth" });
+      }
+    }, 100);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {

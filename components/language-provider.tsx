@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import en from "@/locales/en.json";
 import es from "@/locales/es.json";
@@ -48,6 +49,27 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, [language]);
 
   const messages = dictionaries[language];
+  const pathname = usePathname();
+
+  // O título vem do metadata do servidor, sempre em português. Para as páginas fixas,
+  // aplica o título do idioma escolhido e o reaplica se o Next trocar o <title> na navegação.
+  useEffect(() => {
+    const pageKey = pathname === "/" ? "home" : pathname.slice(1);
+    const titles = messages.pageTitles as Record<string, string>;
+    const desired = titles[pageKey];
+    if (!desired) {
+      return;
+    }
+    const apply = () => {
+      if (document.title !== desired) {
+        document.title = desired;
+      }
+    };
+    apply();
+    const observer = new MutationObserver(apply);
+    observer.observe(document.head, { childList: true, subtree: true, characterData: true });
+    return () => observer.disconnect();
+  }, [pathname, messages]);
   const t = useMemo(() => (key: string) => getMessage(messages, key), [messages]);
   const value = useMemo(() => ({ language, setLanguage, t, messages }), [language, messages, t]);
 

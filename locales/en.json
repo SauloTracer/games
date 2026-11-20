@@ -373,13 +373,14 @@
       "rules": "Fill every row, column and 3×3 box with the numbers 1 to 9, without repeating. Use Candidates mode to note the possibilities for each cell.",
       "keyMouse": "Mouse",
       "keySpace": "Space",
-      "keySearch": "Search"
+      "keySearch": "Search",
+      "searchTitle": "Technique search"
     }
   },
   "snake": {
     "title": "Snake",
     "menu": {
-      "subtitle": "🐍🔥 Challenge your reflexes and push past your limits!\nEvery move matters, every point is a win!\nHow far can you go without making a mistake?",
+      "subtitle": "Challenge your reflexes and push past your limits!\nEvery move matters, every point is a win!\nHow far can you go without making a mistake?",
       "play": "Play",
       "settings": "Settings",
       "share": "Share score"
@@ -428,7 +429,7 @@
       "mobile": "Mobile: swipe across the game area to change direction and hold your touch to trigger the speed boost. The swipe respects the configured sensitivity."
     },
     "share": {
-      "message": "Fiz {score} pontos no Snake! 🐍🔥",
+      "message": "I scored {score} points in Snake! 🐍🔥",
       "copied": "Share text copied to the clipboard (Ctrl + C)."
     },
     "layout": {
@@ -451,7 +452,7 @@
   "slide": {
     "title": "Slide Puzzle",
     "menu": {
-      "subtitle": "🧠🔥 Test your mind and push beyond your limits!\nArrange the tiles in ascending order — think fast and prove you can master the sliding puzzle!",
+      "subtitle": "Test your mind and push beyond your limits!\nArrange the tiles in ascending order — think fast and prove you can master the sliding puzzle!",
       "play": "Play",
       "settings": "Settings",
       "share": "Share result",
@@ -515,9 +516,9 @@
   "tetris": {
     "title": "Tetris",
     "menu": {
-      "subtitle": "Sometimes life feels like a game of Tetris: pieces fall fast, out of order, and not always the way we want.\n\nBut every fit is a chance to organize the chaos, turning pressure into strategy.\n\nNot every piece will be perfect, and that is okay.\n\nThe secret is not waiting for the ideal piece, it is learning to play well with what you have.\n\nTake a breath, focus, rotate the possibilities, and keep playing. 🎮✨",
-      "play": "▶ Play",
-      "settings": "⚙ Settings",
+      "subtitle": "Sometimes life feels like a game of Tetris: pieces fall fast, out of order, and not always the way we want.\n\nBut every fit is a chance to organize the chaos, turning pressure into strategy.\n\nNot every piece will be perfect, and that is okay.\n\nThe secret is not waiting for the ideal piece, it is learning to play well with what you have.\n\nTake a breath, focus, rotate the possibilities, and keep playing.",
+      "play": "Play",
+      "settings": "Settings",
       "bestScore": "Local best",
       "controlsTitle": "Controls",
       "goalTitle": "Goal",
@@ -626,5 +627,16 @@
       "keyTap": "Tap",
       "settings": "Settings"
     }
+  },
+  "pageTitles": {
+    "home": "Puzzled | Online logic games, sudoku and classics",
+    "sudoku": "Free online Sudoku | Puzzled",
+    "snake": "Free online Snake | Classic snake game | Puzzled",
+    "slide": "Online sliding puzzle | Free 15 puzzle | Puzzled",
+    "tetris": "Online Tetris | Free action puzzle | Puzzled",
+    "articles": "Puzzled | Articles | Game stories and tutorials",
+    "about": "About Puzzled | Online games, logic and strategy",
+    "contact": "Contact | Puzzled",
+    "privacy": "Privacy | Puzzled"
   }
 }

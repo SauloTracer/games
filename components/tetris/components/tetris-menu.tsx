@@ -1,5 +1,6 @@
 "use client";
 
+import { Play, Settings } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 
 type TetrisMenuProps = {
@@ -31,6 +32,7 @@ export function TetrisMenu({ bestScore, onPlay, onSettings }: TetrisMenuProps) {
           onClick={onPlay}
           className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-tetris px-6 text-base font-bold text-ink transition hover:brightness-95"
         >
+          <Play size={18} aria-hidden="true" />
           {t("tetris.menu.play")}
         </button>
         <button
@@ -38,6 +40,7 @@ export function TetrisMenu({ bestScore, onPlay, onSettings }: TetrisMenuProps) {
           onClick={onSettings}
           className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-line-strong bg-surface px-6 text-base font-semibold text-ink transition hover:bg-chip"
         >
+          <Settings size={18} aria-hidden="true" />
           {t("tetris.menu.settings")}
         </button>
       </div>

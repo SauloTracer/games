@@ -373,13 +373,14 @@
       "rules": "Completa cada fila, columna y bloque 3×3 con los números del 1 al 9, sin repetir. Usa el modo Candidatos para anotar las posibilidades de cada casilla.",
       "keyMouse": "Ratón",
       "keySpace": "Espacio",
-      "keySearch": "Búsqueda"
+      "keySearch": "Búsqueda",
+      "searchTitle": "Búsqueda de técnicas"
     }
   },
   "snake": {
     "title": "Snake",
     "menu": {
-      "subtitle": "🐍🔥 Desafía tus reflejos y supera tus límites!\nCada movimiento cuenta, cada punto es una conquista!\n¿Hasta dónde puedes llegar sin equivocarte?",
+      "subtitle": "Desafía tus reflejos y supera tus límites!\nCada movimiento cuenta, cada punto es una conquista!\n¿Hasta dónde puedes llegar sin equivocarte?",
       "play": "Jugar",
       "settings": "Configuración",
       "share": "Compartir puntuación"
@@ -428,7 +429,7 @@
       "mobile": "Mobile: desliza sobre el área del juego para cambiar de dirección y mantén el toque para activar el boost de velocidad. El swipe respeta la sensibilidad configurada."
     },
     "share": {
-      "message": "Fiz {score} pontos no Snake! 🐍🔥",
+      "message": "¡Hice {score} puntos en Snake! 🐍🔥",
       "copied": "Texto de compartido copiado al portapapeles (Ctrl + C)."
     },
     "layout": {
@@ -451,7 +452,7 @@
   "slide": {
     "title": "Slide Puzzle",
     "menu": {
-      "subtitle": "🧠🔥 Pon a prueba tu mente y supera tus límites!\nOrdena las piezas en orden ascendente — piensa rápido y demuestra que puedes dominar el Racha Cuca!",
+      "subtitle": "Pon a prueba tu mente y supera tus límites!\nOrdena las piezas en orden ascendente — piensa rápido y demuestra que puedes dominar el Racha Cuca!",
       "play": "Jugar",
       "settings": "Configuración",
       "share": "Compartir resultado",
@@ -515,9 +516,9 @@
   "tetris": {
     "title": "Tetris",
     "menu": {
-      "subtitle": "A veces la vida parece un juego de Tetris: las piezas caen rápido, fuera de orden, y no siempre como queremos.\n\nPero cada encaje es una oportunidad para organizar el caos, transformando la presión en estrategia.\n\nNo todas las piezas van a ser perfectas, y está bien.\n\nEl secreto no es esperar la pieza ideal, sino aprender a jugar bien con lo que tienes.\n\nRespira, enfócate, gira las posibilidades... y sigue jugando. 🎮✨",
-      "play": "▶ Jugar",
-      "settings": "⚙ Configuración",
+      "subtitle": "A veces la vida parece un juego de Tetris: las piezas caen rápido, fuera de orden, y no siempre como queremos.\n\nPero cada encaje es una oportunidad para organizar el caos, transformando la presión en estrategia.\n\nNo todas las piezas van a ser perfectas, y está bien.\n\nEl secreto no es esperar la pieza ideal, sino aprender a jugar bien con lo que tienes.\n\nRespira, enfócate, gira las posibilidades... y sigue jugando.",
+      "play": "Jugar",
+      "settings": "Configuración",
       "bestScore": "Récord local",
       "controlsTitle": "Controles",
       "goalTitle": "Objetivo",
@@ -626,5 +627,16 @@
       "keyTap": "Toque",
       "settings": "Ajustes"
     }
+  },
+  "pageTitles": {
+    "home": "Puzzled | Juegos de lógica online, sudoku y clásicos",
+    "sudoku": "Sudoku online gratis | Puzzled",
+    "snake": "Snake online gratis | Juego de la serpiente | Puzzled",
+    "slide": "Rompecabezas deslizante online | Slide Puzzle gratis | Puzzled",
+    "tetris": "Tetris online | Puzzle de acción gratis | Puzzled",
+    "articles": "Puzzled | Artículos | Historias de juegos y tutoriales",
+    "about": "Acerca de Puzzled | Juegos online, lógica y estrategia",
+    "contact": "Contacto | Puzzled",
+    "privacy": "Privacidad | Puzzled"
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/localized-link";
 import { useState, type ComponentType } from "react";
 import { useLanguage } from "@/components/language-provider";
 import { SlideThumb, SnakeThumb, SudokuThumb, TetrisThumb } from "@/components/home/game-thumbs";

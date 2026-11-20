@@ -1,20 +1,24 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, type ReactNode } from "react";
 import en from "@/locales/en.json";
 import es from "@/locales/es.json";
 import pt from "@/locales/pt.json";
+import { localizePath, splitLocale, type Language } from "@/lib/i18n";
 
-export type Language = "en" | "pt" | "es";
+export type { Language } from "@/lib/i18n";
 
 type Messages = typeof en;
 
 type LanguageContextValue = {
   language: Language;
+  /** Troca de idioma = ir para a mesma página na URL do outro idioma. */
   setLanguage: (language: Language) => void;
   t: (key: string) => string;
   messages: Messages;
+  /** Caminho atual sem o prefixo de idioma ("/en/sudoku" → "/sudoku"). */
+  path: string;
 };
 
 const STORAGE_KEY = "puzzled-language";
@@ -33,45 +37,33 @@ function getMessage(messages: Messages, key: string) {
   return typeof value === "string" ? value : key;
 }
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>("pt");
+/**
+ * O idioma vem da URL (o layout de cada idioma passa `language`), então o HTML já chega
+ * traduzido do servidor. Trocar de idioma navega para a URL equivalente no outro idioma.
+ */
+export function LanguageProvider({ language, children }: { language: Language; children: ReactNode }) {
+  const pathname = usePathname() ?? "/";
+  const path = splitLocale(pathname).path;
 
-  useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved === "en" || saved === "pt" || saved === "es") {
-      setLanguage(saved);
-    }
-  }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, language);
-    document.documentElement.lang = language;
-  }, [language]);
+  const setLanguage = useCallback(
+    (next: Language) => {
+      if (next === language) {
+        return;
+      }
+      try {
+        window.localStorage.setItem(STORAGE_KEY, next);
+      } catch {
+        // Sem storage: a troca funciona igual, só não fica lembrada.
+      }
+      // Cada idioma tem seu próprio layout raiz (<html lang>), então é uma navegação completa.
+      window.location.assign(`${localizePath(path, next)}${window.location.search}${window.location.hash}`);
+    },
+    [language, path],
+  );
 
   const messages = dictionaries[language];
-  const pathname = usePathname();
-
-  // O título vem do metadata do servidor, sempre em português. Para as páginas fixas,
-  // aplica o título do idioma escolhido e o reaplica se o Next trocar o <title> na navegação.
-  useEffect(() => {
-    const pageKey = pathname === "/" ? "home" : pathname.slice(1);
-    const titles = messages.pageTitles as Record<string, string>;
-    const desired = titles[pageKey];
-    if (!desired) {
-      return;
-    }
-    const apply = () => {
-      if (document.title !== desired) {
-        document.title = desired;
-      }
-    };
-    apply();
-    const observer = new MutationObserver(apply);
-    observer.observe(document.head, { childList: true, subtree: true, characterData: true });
-    return () => observer.disconnect();
-  }, [pathname, messages]);
   const t = useMemo(() => (key: string) => getMessage(messages, key), [messages]);
-  const value = useMemo(() => ({ language, setLanguage, t, messages }), [language, messages, t]);
+  const value = useMemo(() => ({ language, setLanguage, t, messages, path }), [language, setLanguage, t, messages, path]);
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }

@@ -14,8 +14,9 @@ export function TetrisMenu({ bestScore, onPlay, onSettings }: TetrisMenuProps) {
   const subtitleParagraphs = t("tetris.menu.subtitle").split("\n\n");
 
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-6 py-6 text-center md:min-h-[480px]">
-      <div className="max-w-xl space-y-3 text-base leading-7 text-muted">
+    <div className="flex w-full flex-col items-center justify-center gap-5 py-4 text-center min-[900px]:min-h-[480px] min-[900px]:gap-6 min-[900px]:py-6">
+      <p className="max-w-xl text-base font-semibold leading-6 text-ink min-[900px]:hidden">{t("tetris.menu.tagline")}</p>
+      <div className="max-w-xl space-y-3 text-base leading-7 text-muted max-[899px]:hidden">
         {subtitleParagraphs.map((paragraph) => (
           <p key={paragraph}>{paragraph}</p>
         ))}

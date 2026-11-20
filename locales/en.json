@@ -290,6 +290,15 @@
     "clearAllMarks": "Clear all marks",
     "filterPlaceholder": "xWing(candidate=7) && lines(2,5)",
     "filterHelpers": "Available helpers: `unique`, `hiddenPairs`, `xWing`, `swordfish`, `contains`, `containsAll`, `only`, `count`, `lines`, `columns`, `blocks`.",
+    "searchExamples": {
+      "label": "Try:",
+      "contains7": "Where 7 fits",
+      "pairs": "Cells with 2 candidates",
+      "unique": "Hidden singles",
+      "hiddenPairs": "Hidden pairs",
+      "xWing": "X-Wing",
+      "swordfish": "Swordfish"
+    },
     "controlsTitle": "Controls",
     "controlsBoardNavigation": "Navigate and select cells with the mouse or the arrow keys. Hold Shift/Ctrl or use multiselect to expand the selection.",
     "controlsNumberInput": "Fill cells with the number buttons or the keyboard digits 1-9. Use Delete or Erase to clear the selected cells.",
@@ -321,7 +330,10 @@
       "difficulty": "Difficulty",
       "cancel": "Cancel",
       "startGame": "Start game",
-      "startingGame": "Loading..."
+      "startingGame": "Loading...",
+      "modeHelpLabel": "What is this mode",
+      "zenHelp": "Zen: no mistake limit. Play at your own pace, with every tool available.",
+      "threeStrikesHelp": "3-Strikes: every wrong number counts as a mistake. The third mistake ends the game."
     },
     "printModal": {
       "title": "Print version",
@@ -374,13 +386,17 @@
       "keyMouse": "Mouse",
       "keySpace": "Space",
       "keySearch": "Search",
-      "searchTitle": "Technique search"
+      "searchTitle": "Technique search",
+      "customize": "Customize",
+      "customizeDone": "Done",
+      "customizeHint": "Choose what shows in the panel. Your choice is saved in this browser."
     }
   },
   "snake": {
     "title": "Snake",
     "menu": {
       "subtitle": "Challenge your reflexes and push past your limits!\nEvery move matters, every point is a win!\nHow far can you go without making a mistake?",
+      "tagline": "Test your reflexes. How far can you go?",
       "play": "Play",
       "settings": "Settings",
       "share": "Share score"
@@ -453,6 +469,7 @@
     "title": "Slide Puzzle",
     "menu": {
       "subtitle": "Test your mind and push beyond your limits!\nArrange the tiles in ascending order — think fast and prove you can master the sliding puzzle!",
+      "tagline": "Put the tiles in order in as few moves as possible.",
       "play": "Play",
       "settings": "Settings",
       "share": "Share result",
@@ -517,6 +534,7 @@
     "title": "Tetris",
     "menu": {
       "subtitle": "Sometimes life feels like a game of Tetris: pieces fall fast, out of order, and not always the way we want.\n\nBut every fit is a chance to organize the chaos, turning pressure into strategy.\n\nNot every piece will be perfect, and that is okay.\n\nThe secret is not waiting for the ideal piece, it is learning to play well with what you have.\n\nTake a breath, focus, rotate the possibilities, and keep playing.",
+      "tagline": "Fit the pieces, clear lines and beat your record.",
       "play": "Play",
       "settings": "Settings",
       "bestScore": "Local best",

@@ -218,6 +218,7 @@ export function SnakeGame() {
           screen === "menu" ? (
             <SnakeMenu
               subtitle={t("snake.menu.subtitle")}
+              tagline={t("snake.menu.tagline")}
               playLabel={t("snake.menu.play")}
               settingsLabel={t("snake.menu.settings")}
               shareLabel={t("snake.menu.share")}
@@ -377,6 +378,7 @@ export function SnakeGame() {
                 </>
               }
               text={t("snake.help.desktop")}
+              device="pointer"
             />
             <HowToRow
               keys={
@@ -386,6 +388,7 @@ export function SnakeGame() {
                 </>
               }
               text={t("snake.help.mobile")}
+              device="touch"
             />
           </GameFooter>
         }

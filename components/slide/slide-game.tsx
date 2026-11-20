@@ -87,6 +87,7 @@ export function SlideGame() {
           screen === "menu" ? (
             <SlideMenu
               subtitle={t("slide.menu.subtitle")}
+              tagline={t("slide.menu.tagline")}
               playLabel={t("slide.menu.play")}
               settingsLabel={t("slide.menu.settings")}
               shareLabel={t("slide.menu.share")}

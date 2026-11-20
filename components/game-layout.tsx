@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { LocalizedLink as Link } from "@/components/localized-link";
+import { ArrowRight, CircleHelp } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AdCard } from "@/components/ad-card";
@@ -27,7 +27,7 @@ const accentTag: Record<GameNamespace, string> = {
 };
 
 export function GamePage({ children }: { children: ReactNode }) {
-  return <div className="flex w-full flex-col gap-7 pb-16 pt-2">{children}</div>;
+  return <div className="flex w-full flex-col gap-4 pb-16 pt-1 min-[900px]:gap-7 min-[900px]:pt-2">{children}</div>;
 }
 
 /**
@@ -48,9 +48,9 @@ export function GameHeader({ ns, title, children }: { ns: GameNamespace; title: 
   const { t } = useLanguage();
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
       <div className="flex flex-col gap-1">
-        <nav aria-label={t(`${ns}.layout.breadcrumb`)} className="text-[13px] text-subtle">
+        <nav aria-label={t(`${ns}.layout.breadcrumb`)} className="text-[13px] text-subtle max-[899px]:hidden">
           <Link href="/#jogos" className="text-subtle underline-offset-2 hover:text-ink-soft hover:underline">
             {t(`${ns}.layout.games`)}
           </Link>
@@ -116,18 +116,27 @@ export function GameTag({ ns, children, muted = false }: { ns: GameNamespace; ch
 const SIDE_BY_SIDE_QUERY = "(min-width: 900px)";
 const MAX_FILLER_ADS = 10;
 
+/** Altura do AdCard (imagem 72px + padding + borda); usada para reservar o espaço do 1º cartão. */
+const AD_CARD_HEIGHT = 98;
+/** Tempo em que a contagem acompanha o layout se acomodando (fontes, tabuleiro carregado). */
+const AD_SETTLE_MS = 2500;
+
 /**
  * Corpo da página de jogo.
  * - Lado a lado (≥900px): à esquerda o tabuleiro e, embaixo dele, `below` (instruções etc.);
  *   à direita o painel. Se o painel ficar mais curto que a coluna da esquerda, completa com
  *   recomendações (afiliados) até chegar perto da mesma altura.
  * - Empilhado (celular): tabuleiro, painel, uma recomendação e depois `below`.
+ *
+ * A quantidade de recomendações só é recalculada enquanto a página se acomoda e quando a
+ * janela muda de tamanho — nunca por mudanças do jogo — para os cartões não aparecerem ou
+ * sumirem no meio de uma partida. O espaço do primeiro cartão é reservado desde o SSR.
  */
 export function GameBody({ board, panel, below }: { board: ReactNode; panel: ReactNode; below?: ReactNode }) {
+  const gridRef = useRef<HTMLDivElement | null>(null);
   const boardRef = useRef<HTMLDivElement | null>(null);
   const belowRef = useRef<HTMLDivElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
-  const adRef = useRef<HTMLDivElement | null>(null);
   const [adPool, setAdPool] = useState<AdItem[]>([]);
   const [adCount, setAdCount] = useState(1);
 
@@ -137,10 +146,10 @@ export function GameBody({ board, panel, below }: { board: ReactNode; panel: Rea
   }, []);
 
   useEffect(() => {
+    const grid = gridRef.current;
     const boardEl = boardRef.current;
-    const belowEl = belowRef.current;
     const panelEl = panelRef.current;
-    if (!boardEl || !panelEl || !adPool.length) {
+    if (!grid || !boardEl || !panelEl || !adPool.length) {
       return;
     }
     const media = window.matchMedia(SIDE_BY_SIDE_QUERY);
@@ -150,25 +159,42 @@ export function GameBody({ board, panel, below }: { board: ReactNode; panel: Rea
         setAdCount(1);
         return;
       }
-      const gap = 16;
-      const adHeight = adRef.current?.offsetHeight || 98;
-      const mainHeight = boardEl.offsetHeight + (belowEl ? 28 + belowEl.offsetHeight : 0);
+      const styles = window.getComputedStyle(grid);
+      const rowGap = Number.parseFloat(styles.rowGap) || 0;
+      const asideGap = 16;
+      const belowEl = belowRef.current;
+      const mainHeight = boardEl.offsetHeight + (belowEl ? rowGap + belowEl.offsetHeight : 0);
       const free = mainHeight - panelEl.offsetHeight;
       // Cada recomendação ocupa a própria altura mais o espaçamento que vem antes dela.
-      const fits = Math.max(1, Math.floor(free / (adHeight + gap)));
+      const fits = Math.max(1, Math.floor(free / (AD_CARD_HEIGHT + asideGap)));
       setAdCount(Math.min(fits, adPool.length));
     };
 
     update();
+
+    // Enquanto a página se acomoda, acompanha as mudanças de altura; depois para.
     const observer = new ResizeObserver(update);
     observer.observe(boardEl);
-    if (belowEl) {
-      observer.observe(belowEl);
-    }
     observer.observe(panelEl);
+    if (belowRef.current) {
+      observer.observe(belowRef.current);
+    }
+    const settleTimer = window.setTimeout(() => observer.disconnect(), AD_SETTLE_MS);
+
+    // Depois disso, só a janela (com debounce) ou a troca de breakpoint recalculam.
+    let resizeTimer: number | undefined;
+    const onResize = () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(update, 200);
+    };
+    window.addEventListener("resize", onResize);
     media.addEventListener("change", update);
+
     return () => {
       observer.disconnect();
+      window.clearTimeout(settleTimer);
+      window.clearTimeout(resizeTimer);
+      window.removeEventListener("resize", onResize);
       media.removeEventListener("change", update);
     };
   }, [adPool]);
@@ -177,7 +203,10 @@ export function GameBody({ board, panel, below }: { board: ReactNode; panel: Rea
     // Ordem no DOM (e no celular): tabuleiro, painel, below. Lado a lado, o painel ocupa as
     // duas linhas da coluna direita e a segunda linha (1fr) absorve a sobra, então `below`
     // fica colado embaixo do tabuleiro.
-    <div className="grid grid-cols-1 items-start gap-7 min-[900px]:grid-cols-[minmax(0,1fr)_300px] min-[900px]:grid-rows-[auto_1fr]">
+    <div
+      ref={gridRef}
+      className="grid grid-cols-1 items-start gap-4 min-[900px]:grid-cols-[minmax(0,1fr)_300px] min-[900px]:grid-rows-[auto_1fr] min-[900px]:gap-7"
+    >
       <div
         ref={boardRef}
         className="relative flex min-w-0 justify-center rounded-[20px] border border-line bg-surface p-3 sm:p-6 min-[900px]:col-start-1 min-[900px]:row-start-1"
@@ -189,11 +218,12 @@ export function GameBody({ board, panel, below }: { board: ReactNode; panel: Rea
         <div ref={panelRef} className="flex min-w-0 flex-col gap-4">
           {panel}
         </div>
-        {adPool.slice(0, adCount).map((ad, index) => (
-          <div key={ad.id} ref={index === 0 ? adRef : undefined}>
-            <AdCard ad={ad} />
-          </div>
-        ))}
+        {adPool.length ? (
+          adPool.slice(0, adCount).map((ad) => <AdCard key={ad.id} ad={ad} />)
+        ) : (
+          // Reserva o espaço do primeiro cartão até o sorteio, para nada pular de lugar.
+          <div aria-hidden="true" className="rounded-2xl border border-line bg-surface" style={{ height: AD_CARD_HEIGHT }} />
+        )}
       </aside>
 
       {below ? (
@@ -241,6 +271,7 @@ export function ActionButton({
   pressed,
   disabled = false,
   title,
+  className = "",
 }: {
   icon: ReactNode;
   label: string;
@@ -248,6 +279,7 @@ export function ActionButton({
   pressed?: boolean;
   disabled?: boolean;
   title?: string;
+  className?: string;
 }) {
   const active = pressed === true;
   return (
@@ -261,7 +293,7 @@ export function ActionButton({
         active
           ? "border-ink bg-ink text-white"
           : "border-line-strong bg-surface text-ink hover:border-ink/40 hover:bg-chip"
-      }`}
+      } ${className}`}
     >
       <span aria-hidden="true" className="flex h-5 items-center">
         {icon}
@@ -353,6 +385,38 @@ export function SecondaryButton({
   );
 }
 
+/**
+ * Ícone "?" com uma explicação curta: aparece ao passar o mouse ou ao tocar/clicar.
+ * O balão é posicionado em relação ao ancestral posicionado mais próximo (ex.: a linha de
+ * opções com `relative`), para ocupar a largura da linha e não sair da tela no celular.
+ */
+export function InfoTip({ label, text }: { label: string; text: string }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <span className="group flex shrink-0 pr-1.5">
+      <button
+        type="button"
+        aria-label={label}
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+        onBlur={() => setOpen(false)}
+        className="flex h-8 w-8 items-center justify-center rounded-full text-ink/60 transition hover:bg-white/70 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink"
+      >
+        <CircleHelp size={16} aria-hidden="true" />
+      </button>
+      <span
+        role="tooltip"
+        className={`pointer-events-none absolute inset-x-0 top-full z-10 mt-2 rounded-xl bg-ink px-3.5 py-2.5 text-left text-[13px] font-medium leading-5 text-white shadow-card ${
+          open ? "block" : "hidden group-hover:block"
+        }`}
+      >
+        {text}
+      </span>
+    </span>
+  );
+}
+
 export function KeyChip({ children }: { children: ReactNode }) {
   return (
     <span className="inline-flex min-h-8 items-center gap-1 rounded-lg bg-chip px-2.5 py-1 text-[13px] font-bold text-ink">
@@ -361,11 +425,27 @@ export function KeyChip({ children }: { children: ReactNode }) {
   );
 }
 
-/** Linha de "Como jogar": chips de teclas + texto explicativo. */
-export function HowToRow({ keys, text }: { keys?: ReactNode; text: string }) {
+/**
+ * Linha de "Como jogar": chips de teclas + texto explicativo.
+ * `device` mostra a linha só onde ela faz sentido: "pointer" (mouse/teclado) some em telas de
+ * toque e "touch" (gestos) some quando há mouse. `keysDevice` faz o mesmo só com os chips.
+ */
+export function HowToRow({
+  keys,
+  text,
+  device,
+  keysDevice,
+}: {
+  keys?: ReactNode;
+  text: string;
+  device?: "pointer" | "touch";
+  keysDevice?: "pointer" | "touch";
+}) {
+  const only = (target?: "pointer" | "touch") =>
+    target === "pointer" ? "[@media(pointer:coarse)]:hidden" : target === "touch" ? "[@media(pointer:fine)]:hidden" : "";
   return (
-    <div className="flex flex-col gap-2">
-      {keys ? <div className="flex flex-wrap items-center gap-1.5">{keys}</div> : null}
+    <div className={`flex flex-col gap-2 ${only(device)}`}>
+      {keys ? <div className={`flex flex-wrap items-center gap-1.5 ${only(keysDevice)}`}>{keys}</div> : null}
       <p className="text-[15px] leading-relaxed text-muted">{text}</p>
     </div>
   );

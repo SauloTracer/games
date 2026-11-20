@@ -397,6 +397,7 @@ export function TetrisGame() {
                 </>
               }
               text={t("tetris.help.desktop")}
+              device="pointer"
             />
             <HowToRow
               keys={
@@ -406,6 +407,7 @@ export function TetrisGame() {
                 </>
               }
               text={t("tetris.help.mobile")}
+              device="touch"
             />
             <div className="flex flex-col gap-2">
               <p className="text-sm font-bold text-ink">{t("tetris.game.strategyTitle")}</p>

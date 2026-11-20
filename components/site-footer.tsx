@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/localized-link";
 import { useLanguage } from "@/components/language-provider";
 import { PuzzleLogo } from "@/components/puzzle-logo";
 

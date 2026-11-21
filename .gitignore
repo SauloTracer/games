@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Build do Next.js
+.next/
+*.tsbuildinfo
+
+# Configuração local do Claude Code
+.claude/

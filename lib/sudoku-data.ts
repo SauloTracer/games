@@ -1,28 +1,21 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
 import type { Difficulty } from "@/lib/types";
+import easy from "@/lib/sudoku-puzzles/easy.json";
+import medium from "@/lib/sudoku-puzzles/medium.json";
+import hard from "@/lib/sudoku-puzzles/hard.json";
+import expert from "@/lib/sudoku-puzzles/expert.json";
 
 type SudokuEntry = [string, number];
 
-const datasetPath = path.join(process.cwd(), "src/assets/sudoku.json");
-const dataset = JSON.parse(readFileSync(datasetPath, "utf8")) as SudokuEntry[];
-
-function rangeForDifficulty(difficulty: Difficulty) {
-  switch (difficulty) {
-    case "easy":
-      return [0, 3];
-    case "medium":
-      return [3.1, 5];
-    case "hard":
-      return [5.1, 7];
-    case "expert":
-      return [7.1, Number.POSITIVE_INFINITY];
-  }
-}
+// Amostras por dificuldade geradas por scripts/build-sudoku-sets.mjs a partir de src/assets/sudoku.json.
+const puzzlesByDifficulty: Record<Difficulty, SudokuEntry[]> = {
+  easy: easy as SudokuEntry[],
+  medium: medium as SudokuEntry[],
+  hard: hard as SudokuEntry[],
+  expert: expert as SudokuEntry[],
+};
 
 export function getRandomPuzzle(difficulty: Difficulty) {
-  const [min, max] = rangeForDifficulty(difficulty);
-  const subset = dataset.filter((entry) => entry[1] >= min && entry[1] <= max);
+  const subset = puzzlesByDifficulty[difficulty];
   const sample = subset[Math.floor(Math.random() * subset.length)];
   return {
     puzzle: sample[0],

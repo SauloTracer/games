@@ -12,7 +12,6 @@ import { House, Pause, Play, Settings, Share2 } from "lucide-react";
 import {
   ActionButton,
   ActionGrid,
-  GameAd,
   GameBody,
   GameFooter,
   GameHeader,
@@ -219,6 +218,7 @@ export function SnakeGame() {
           screen === "menu" ? (
             <SnakeMenu
               subtitle={t("snake.menu.subtitle")}
+              tagline={t("snake.menu.tagline")}
               playLabel={t("snake.menu.play")}
               settingsLabel={t("snake.menu.settings")}
               shareLabel={t("snake.menu.share")}
@@ -365,33 +365,34 @@ export function SnakeGame() {
                 ))}
               </div>
             </PanelCard>
-
-            <GameAd />
           </>
         }
+        below={
+          <GameFooter ns="snake" articleSlug="historia-do-snake">
+            <HowToRow
+              keys={
+                <>
+                  <KeyChip>↑ ↓ ← →</KeyChip>
+                  <KeyChip>P</KeyChip>
+                  <KeyChip>{t("snake.layout.keySpace")}</KeyChip>
+                </>
+              }
+              text={t("snake.help.desktop")}
+              device="pointer"
+            />
+            <HowToRow
+              keys={
+                <>
+                  <KeyChip>{t("snake.layout.keySwipe")}</KeyChip>
+                  <KeyChip>{t("snake.layout.keyHold")}</KeyChip>
+                </>
+              }
+              text={t("snake.help.mobile")}
+              device="touch"
+            />
+          </GameFooter>
+        }
       />
-
-      <GameFooter ns="snake" articleSlug="historia-do-snake">
-        <HowToRow
-          keys={
-            <>
-              <KeyChip>↑ ↓ ← →</KeyChip>
-              <KeyChip>P</KeyChip>
-              <KeyChip>{t("snake.layout.keySpace")}</KeyChip>
-            </>
-          }
-          text={t("snake.help.desktop")}
-        />
-        <HowToRow
-          keys={
-            <>
-              <KeyChip>{t("snake.layout.keySwipe")}</KeyChip>
-              <KeyChip>{t("snake.layout.keyHold")}</KeyChip>
-            </>
-          }
-          text={t("snake.help.mobile")}
-        />
-      </GameFooter>
     </GamePage>
   );
 }

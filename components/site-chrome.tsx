@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { LocalizedLink as Link } from "@/components/localized-link";
 import { BookOpen, Ellipsis, Globe, House, LayoutGrid, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLanguage, type Language } from "@/components/language-provider";
@@ -150,9 +149,9 @@ function MoreSheet({ onClose }: { onClose: () => void }) {
 }
 
 export function SiteChrome({ children }: { children: ReactNode }) {
-  const pathname = usePathname() ?? "/";
+  // Caminho sem o prefixo de idioma, para comparar com os links ("/en/sudoku" → "/sudoku").
+  const { t, path: pathname } = useLanguage();
   const [moreOpen, setMoreOpen] = useState(false);
-  const { t } = useLanguage();
   const game = currentGame(pathname);
 
   useEffect(() => {
@@ -230,7 +229,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
             <LanguageSelect id="language" />
             {game !== "sudoku" ? (
               <Link
-                href="/sudoku"
+                href="/sudoku?desafio=1"
                 className="hidden h-11 items-center rounded-[10px] bg-ink px-[18px] text-[15px] font-bold text-white transition hover:bg-ink-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink md:inline-flex"
               >
                 {t("chrome.dailyChallenge")}

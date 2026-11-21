@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/localized-link";
 import { ChevronRight, Play } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 
@@ -52,7 +52,7 @@ export function HomeHero() {
         </p>
         <div className="hidden flex-wrap gap-3 sm:flex">
           <Link
-            href="/sudoku"
+            href="/sudoku?desafio=1"
             className="inline-flex h-[52px] items-center gap-2 rounded-xl bg-sudoku px-6 text-base font-bold text-ink transition hover:brightness-95"
           >
             <Play aria-hidden="true" className="h-[18px] w-[18px] fill-current" />
@@ -69,7 +69,7 @@ export function HomeHero() {
 
       {/* Celular: cartão compacto do desafio do dia */}
       <Link
-        href="/sudoku"
+        href="/sudoku?desafio=1"
         className="flex items-center gap-4 rounded-[20px] bg-ink p-[18px] text-white sm:max-w-[460px] lg:hidden"
       >
         <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[14px] bg-sudoku">
@@ -96,7 +96,7 @@ export function HomeHero() {
         </div>
         <BoardPreview label={t("home.dailyBoardLabel")} />
         <Link
-          href="/sudoku"
+          href="/sudoku?desafio=1"
           className="flex h-12 items-center justify-center rounded-xl bg-ink font-bold text-white transition hover:bg-ink-soft"
         >
           {t("home.dailyStart")}

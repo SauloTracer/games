@@ -17,18 +17,19 @@ import {
   SquareDashedMousePointer,
   Undo2,
   WandSparkles,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActionButton,
   ActionGrid,
   BodyPortal,
-  GameAd,
   GameBody,
   GameFooter,
   GameHeader,
   GamePage,
   HowToRow,
+  InfoTip,
   KeyChip,
   PanelCard,
   PanelTitle,
@@ -90,6 +91,46 @@ type DragSelectionState = {
 
 const shareableDifficulties = new Set<Difficulty>(["easy", "medium", "hard", "expert"]);
 const shareableModes = new Set<GameMode>(["zen", "three-strikes"]);
+
+/** Ferramentas do painel que o jogador pode esconder; a escolha fica no localStorage. */
+const sudokuToolIds = [
+  "autoCheck",
+  "checkCell",
+  "autoCandidate",
+  "promoteSingles",
+  "multiselect",
+  "markCells",
+  "solve",
+  "reset",
+  "print",
+  "share",
+  "search",
+] as const;
+type SudokuToolId = (typeof sudokuToolIds)[number];
+const sudokuToolLabelKeys: Record<SudokuToolId, string> = {
+  autoCheck: "sudoku.autoCheck",
+  checkCell: "sudoku.checkCell",
+  autoCandidate: "sudoku.autoCandidate",
+  promoteSingles: "sudoku.promoteSingles",
+  multiselect: "sudoku.multiselect",
+  markCells: "sudoku.markCells",
+  solve: "sudoku.solve",
+  reset: "sudoku.reset",
+  print: "sudoku.print",
+  share: "sudoku.share",
+  search: "sudoku.layout.searchTitle",
+};
+const TOOLS_STORAGE_KEY = "sudoku-hidden-tools";
+
+/** Atalhos clicáveis da busca de técnicas: rótulo traduzido → consulta do filtro. */
+const searchExamples = [
+  { key: "contains7", query: "contains(7)" },
+  { key: "pairs", query: "count(2)" },
+  { key: "unique", query: "unique()" },
+  { key: "hiddenPairs", query: "hiddenPairs()" },
+  { key: "xWing", query: "xWing()" },
+  { key: "swordfish", query: "swordfish()" },
+] as const;
 
 function coordKey(row: number, col: number) {
   return `${row}-${col}`;
@@ -154,6 +195,33 @@ export function SudokuGame() {
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
   const [showNewGameModal, setShowNewGameModal] = useState(false);
+  const [customizingTools, setCustomizingTools] = useState(false);
+  const [hiddenTools, setHiddenTools] = useState<SudokuToolId[]>([]);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(TOOLS_STORAGE_KEY) ?? "[]");
+      if (Array.isArray(saved)) {
+        setHiddenTools(saved.filter((id): id is SudokuToolId => (sudokuToolIds as readonly string[]).includes(id)));
+      }
+    } catch {
+      // Preferência corrompida ou storage bloqueado: mostra todas as ferramentas.
+    }
+  }, []);
+
+  const isToolVisible = useCallback((id: SudokuToolId) => !hiddenTools.includes(id), [hiddenTools]);
+
+  const toggleTool = useCallback((id: SudokuToolId) => {
+    setHiddenTools((current) => {
+      const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
+      try {
+        localStorage.setItem(TOOLS_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // Sem storage, a escolha vale só nesta visita.
+      }
+      return next;
+    });
+  }, []);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [pendingDifficulty, setPendingDifficulty] = useState<Difficulty>("easy");
   const [pendingMode, setPendingMode] = useState<GameMode>("zen");
@@ -287,6 +355,28 @@ export function SudokuGame() {
     }
 
     const raw = localStorage.getItem("sudoku-save");
+
+    // "Desafio do dia" (/sudoku?desafio=1): entra direto numa partida Média, sem o modal.
+    // Se já houver uma partida Média em andamento, retoma essa em vez de descartá-la.
+    if (searchParams.has("desafio")) {
+      window.history.replaceState(null, "", window.location.pathname);
+      let savedMedium: SavedGame | null = null;
+      try {
+        const saved = raw ? (JSON.parse(raw) as SavedGame) : null;
+        if (saved && saved.difficulty === "medium" && !isSolved(saved.board)) {
+          savedMedium = saved;
+        }
+      } catch {
+        savedMedium = null;
+      }
+      if (!savedMedium) {
+        setPendingDifficulty("medium");
+        setPendingMode("zen");
+        void startNewGame("medium", "zen");
+        return;
+      }
+    }
+
     if (!raw) {
       setLoading(false);
       setShowNewGameModal(true);
@@ -312,7 +402,7 @@ export function SudokuGame() {
     } finally {
       setLoading(false);
     }
-  }, [loadBoardFromPuzzle]);
+  }, [loadBoardFromPuzzle, startNewGame]);
 
   useEffect(() => {
     if (!board.length || !initialPuzzle) {
@@ -1152,23 +1242,61 @@ export function SudokuGame() {
         }
         panel={
           <>
-            <PanelCard>
-              <StatRow>
-                <Stat label={t("sudoku.newGameModal.difficulty")} value={difficultyLabel[difficulty]} />
+            <PanelCard className="max-[899px]:gap-3 max-[899px]:p-4">
+              <div className="max-[899px]:hidden">
+                <StatRow>
+                  <Stat label={t("sudoku.newGameModal.difficulty")} value={difficultyLabel[difficulty]} />
+                  {gameMode === "three-strikes" ? (
+                    <Stat label={t("sudoku.layout.errors")} value={`${Math.min(errors, 3)}/3`} align="end" />
+                  ) : (
+                    <Stat label={t("sudoku.newGameModal.mode")} value={t("sudoku.mode.zen")} align="end" />
+                  )}
+                </StatRow>
+              </div>
+
+              {/* Celular: resumo em uma linha para o teclado caber na primeira tela. */}
+              <div className="flex items-center justify-between text-[13px] font-semibold text-muted min-[900px]:hidden">
+                <span>
+                  {difficultyLabel[difficulty]} · {gameMode === "three-strikes" ? t("sudoku.mode.threeStrikes") : t("sudoku.mode.zen")}
+                </span>
                 {gameMode === "three-strikes" ? (
-                  <Stat label={t("sudoku.layout.errors")} value={`${Math.min(errors, 3)}/3`} align="end" />
-                ) : (
-                  <Stat label={t("sudoku.newGameModal.mode")} value={t("sudoku.mode.zen")} align="end" />
-                )}
-              </StatRow>
+                  <span className="text-ink">
+                    {t("sudoku.layout.errors")} {Math.min(errors, 3)}/3
+                  </span>
+                ) : null}
+              </div>
 
               {selectedCells.length > 1 ? (
-                <p className="-mt-2 text-[13px] font-semibold text-muted">{selectedCellsLabel}</p>
+                <p className="-mt-2 text-[13px] font-semibold text-muted max-[899px]:mt-0">{selectedCellsLabel}</p>
               ) : null}
 
-              <ActionGrid>
+              {/* Celular: teclado 5×2 (1–9 + Apagar), como na versão anterior do site. */}
+              <div className="grid grid-cols-5 gap-2 min-[900px]:hidden">
+                {Array.from({ length: 9 }, (_, index) => index + 1).map((digit) => (
+                  <button
+                    key={digit}
+                    type="button"
+                    onClick={() => setCellValue(digit)}
+                    disabled={boardCounts[digit - 1] >= 9 || loading}
+                    className="flex h-12 flex-col items-center justify-center rounded-xl bg-chip text-ink transition active:bg-sudoku-soft disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <span className="font-display text-xl font-extrabold leading-none">{digit}</span>
+                    <span className="mt-0.5 text-[10px] font-semibold leading-none text-subtle">{boardCounts[digit - 1]}/9</span>
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={clearCell}
+                  aria-label={t("sudoku.erase")}
+                  className="flex h-12 items-center justify-center rounded-xl border border-line-strong bg-surface text-ink transition active:bg-chip"
+                >
+                  <Delete size={20} aria-hidden="true" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 min-[900px]:grid-cols-4">
                 <ActionButton icon={<Undo2 size={20} />} label={t("sudoku.undo")} onClick={undo} />
-                <ActionButton icon={<Delete size={20} />} label={t("sudoku.erase")} onClick={clearCell} />
+                <ActionButton icon={<Delete size={20} />} label={t("sudoku.erase")} onClick={clearCell} className="max-[899px]:hidden" />
                 <ActionButton
                   icon={<PencilLine size={20} />}
                   label={t("sudoku.layout.notes")}
@@ -1176,9 +1304,9 @@ export function SudokuGame() {
                   pressed={candidateMode}
                 />
                 <ActionButton icon={<Lightbulb size={20} />} label={t("sudoku.layout.reveal")} onClick={revealCell} title={t("sudoku.revealCell")} />
-              </ActionGrid>
+              </div>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="hidden grid-cols-3 gap-2 min-[900px]:grid">
                 {Array.from({ length: 9 }, (_, index) => index + 1).map((digit) => (
                   <button
                     key={digit}
@@ -1210,46 +1338,96 @@ export function SudokuGame() {
             </PanelCard>
 
             <PanelCard>
-              <PanelTitle>{t("sudoku.layout.tools")}</PanelTitle>
-              <div className="-mt-2 flex items-center">
-                <label htmlFor="auto-check" className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl bg-chip px-3 text-[13px] font-semibold text-ink">
-                  {t("sudoku.autoCheck")}
-                  <input
-                    id="auto-check"
-                    type="checkbox"
-                    checked={autoCheck}
-                    disabled={gameMode === "three-strikes"}
-                    onChange={(event) => setAutoCheck(event.target.checked)}
-                    className="h-5 w-5 accent-ink"
-                  />
-                </label>
+              <div className="flex items-center justify-between gap-2">
+                <PanelTitle>{t("sudoku.layout.tools")}</PanelTitle>
+                <button
+                  type="button"
+                  onClick={() => setCustomizingTools((value) => !value)}
+                  aria-expanded={customizingTools}
+                  className="-my-2 inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-semibold text-muted transition hover:bg-chip hover:text-ink"
+                >
+                  <SlidersHorizontal size={15} aria-hidden="true" />
+                  {customizingTools ? t("sudoku.layout.customizeDone") : t("sudoku.layout.customize")}
+                </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                {!autoCheck ? (
-                  <ToolButton icon={<CheckCheck size={18} />} label={t("sudoku.checkCell")} onClick={checkCell} title={t("sudoku.checkCellTitle")} />
-                ) : null}
-                <ToolButton icon={<Grid3x3 size={18} />} label={t("sudoku.autoCandidate")} onClick={handleAutoCandidateClick} title={t("sudoku.autoCandidateTitle")} />
-                <ToolButton icon={<Sparkles size={18} />} label={t("sudoku.promoteSingles")} onClick={singles} />
-                <ToolButton
-                  icon={<SquareDashedMousePointer size={18} />}
-                  label={t("sudoku.multiselect")}
-                  onClick={() => setMultiselectMode((value) => !value)}
-                  pressed={multiselectMode}
-                />
-                <ToolButton
-                  icon={<Highlighter size={18} />}
-                  label={t("sudoku.markCells")}
-                  onClick={() => setShowMarkPanel((value) => !value)}
-                  pressed={showMarkPanel}
-                />
-                <ToolButton icon={<WandSparkles size={18} />} label={t("sudoku.solve")} onClick={solve} />
-                <ToolButton icon={<RotateCcw size={18} />} label={t("sudoku.reset")} onClick={reset} />
-                <ToolButton icon={<Printer size={18} />} label={t("sudoku.print")} onClick={() => setShowPrintModal(true)} />
-                <ToolButton icon={<Share2 size={18} />} label={t("sudoku.share")} onClick={() => void shareGame()} />
-              </div>
+              {customizingTools ? (
+                <div className="-mt-2 flex flex-col gap-2">
+                  <p className="text-[13px] leading-5 text-muted">{t("sudoku.layout.customizeHint")}</p>
+                  <div className="grid gap-1.5">
+                    {sudokuToolIds.map((id) => (
+                      <label
+                        key={id}
+                        className="flex min-h-10 items-center justify-between gap-2 rounded-xl bg-chip px-3 text-[13px] font-semibold text-ink"
+                      >
+                        {t(sudokuToolLabelKeys[id])}
+                        <input
+                          type="checkbox"
+                          checked={isToolVisible(id)}
+                          onChange={() => toggleTool(id)}
+                          className="h-5 w-5 accent-ink"
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {isToolVisible("autoCheck") ? (
+                    <div className="-mt-2 flex items-center">
+                      <label htmlFor="auto-check" className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl bg-chip px-3 text-[13px] font-semibold text-ink">
+                        {t("sudoku.autoCheck")}
+                        <input
+                          id="auto-check"
+                          type="checkbox"
+                          checked={autoCheck}
+                          disabled={gameMode === "three-strikes"}
+                          onChange={(event) => setAutoCheck(event.target.checked)}
+                          className="h-5 w-5 accent-ink"
+                        />
+                      </label>
+                    </div>
+                  ) : null}
 
-              {showMarkPanel ? (
+                  <div className="grid grid-cols-2 gap-2 empty:hidden">
+                    {!autoCheck && isToolVisible("checkCell") ? (
+                      <ToolButton icon={<CheckCheck size={18} />} label={t("sudoku.checkCell")} onClick={checkCell} title={t("sudoku.checkCellTitle")} />
+                    ) : null}
+                    {isToolVisible("autoCandidate") ? (
+                      <ToolButton icon={<Grid3x3 size={18} />} label={t("sudoku.autoCandidate")} onClick={handleAutoCandidateClick} title={t("sudoku.autoCandidateTitle")} />
+                    ) : null}
+                    {isToolVisible("promoteSingles") ? (
+                      <ToolButton icon={<Sparkles size={18} />} label={t("sudoku.promoteSingles")} onClick={singles} />
+                    ) : null}
+                    {isToolVisible("multiselect") ? (
+                      <ToolButton
+                        icon={<SquareDashedMousePointer size={18} />}
+                        label={t("sudoku.multiselect")}
+                        onClick={() => setMultiselectMode((value) => !value)}
+                        pressed={multiselectMode}
+                      />
+                    ) : null}
+                    {isToolVisible("markCells") ? (
+                      <ToolButton
+                        icon={<Highlighter size={18} />}
+                        label={t("sudoku.markCells")}
+                        onClick={() => setShowMarkPanel((value) => !value)}
+                        pressed={showMarkPanel}
+                      />
+                    ) : null}
+                    {isToolVisible("solve") ? <ToolButton icon={<WandSparkles size={18} />} label={t("sudoku.solve")} onClick={solve} /> : null}
+                    {isToolVisible("reset") ? <ToolButton icon={<RotateCcw size={18} />} label={t("sudoku.reset")} onClick={reset} /> : null}
+                    {isToolVisible("print") ? (
+                      <ToolButton icon={<Printer size={18} />} label={t("sudoku.print")} onClick={() => setShowPrintModal(true)} />
+                    ) : null}
+                    {isToolVisible("share") ? (
+                      <ToolButton icon={<Share2 size={18} />} label={t("sudoku.share")} onClick={() => void shareGame()} />
+                    ) : null}
+                  </div>
+                </>
+              )}
+
+              {showMarkPanel && isToolVisible("markCells") && !customizingTools ? (
                 <div className="rounded-xl border border-line bg-ground p-3">
                   <p className="text-sm font-semibold text-ink">{t("sudoku.chooseColor")}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -1274,8 +1452,15 @@ export function SudokuGame() {
                   </div>
                 </div>
               ) : null}
-
-              <div className="flex flex-col gap-2">
+            </PanelCard>
+          </>
+        }
+        below={
+          <>
+            {isToolVisible("search") ? (
+            <PanelCard>
+              <PanelTitle>{t("sudoku.layout.searchTitle")}</PanelTitle>
+              <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2">
                   <div className="relative w-full">
                     <Search size={16} aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-subtle" />
@@ -1296,51 +1481,70 @@ export function SudokuGame() {
                     <CircleHelp size={18} aria-hidden="true" />
                   </button>
                 </div>
-                <p className="text-xs leading-5 text-subtle">{t("sudoku.filterHelpers")}</p>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="mr-1 text-[13px] font-semibold text-subtle">{t("sudoku.searchExamples.label")}</span>
+                  {searchExamples.map((example) => {
+                    const active = searchQuery.trim() === example.query;
+                    return (
+                      <button
+                        key={example.key}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => setSearchQuery(active ? "" : example.query)}
+                        title={example.query}
+                        className={`min-h-9 rounded-lg px-3 text-[13px] font-semibold transition ${
+                          active ? "bg-sudoku text-ink" : "bg-chip text-ink hover:bg-sudoku-soft"
+                        }`}
+                      >
+                        {t(`sudoku.searchExamples.${example.key}`)}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </PanelCard>
-
-            <GameAd />
+            ) : null}
+            <GameFooter ns="sudoku" articleSlug="sudoku-candidatos-e-singles">
+              <p className="text-[15px] leading-relaxed text-muted">{t("sudoku.layout.rules")}</p>
+              <HowToRow
+                keys={
+                  <>
+                    <KeyChip>↑ ↓ ← →</KeyChip>
+                    <KeyChip>
+                      <Mouse size={14} aria-hidden="true" />
+                      {t("sudoku.layout.keyMouse")}
+                    </KeyChip>
+                    <KeyChip>Shift / Ctrl</KeyChip>
+                  </>
+                }
+                text={t("sudoku.controlsBoardNavigation")}
+              device="pointer"
+              />
+              <HowToRow
+                keys={
+                  <>
+                    <KeyChip>1–9</KeyChip>
+                    <KeyChip>Delete</KeyChip>
+                  </>
+                }
+                text={t("sudoku.controlsNumberInput")}
+              keysDevice="pointer"
+              />
+              <HowToRow keys={<KeyChip>{t("sudoku.layout.keySpace")}</KeyChip>} text={t("sudoku.controlsModeSwitch")} device="pointer" />
+              <HowToRow text={t("sudoku.controlsHoverHighlight")} device="pointer" />
+              <HowToRow
+                keys={
+                  <KeyChip>
+                    <Search size={14} aria-hidden="true" />
+                    {t("sudoku.layout.keySearch")}
+                  </KeyChip>
+                }
+                text={t("sudoku.controlsSearch")}
+              />
+            </GameFooter>
           </>
         }
       />
-
-      <GameFooter ns="sudoku" articleSlug="sudoku-candidatos-e-singles">
-        <p className="text-[15px] leading-relaxed text-muted">{t("sudoku.layout.rules")}</p>
-        <HowToRow
-          keys={
-            <>
-              <KeyChip>↑ ↓ ← →</KeyChip>
-              <KeyChip>
-                <Mouse size={14} aria-hidden="true" />
-                {t("sudoku.layout.keyMouse")}
-              </KeyChip>
-              <KeyChip>Shift / Ctrl</KeyChip>
-            </>
-          }
-          text={t("sudoku.controlsBoardNavigation")}
-        />
-        <HowToRow
-          keys={
-            <>
-              <KeyChip>1–9</KeyChip>
-              <KeyChip>Delete</KeyChip>
-            </>
-          }
-          text={t("sudoku.controlsNumberInput")}
-        />
-        <HowToRow keys={<KeyChip>{t("sudoku.layout.keySpace")}</KeyChip>} text={t("sudoku.controlsModeSwitch")} />
-        <HowToRow text={t("sudoku.controlsHoverHighlight")} />
-        <HowToRow
-          keys={
-            <KeyChip>
-              <Search size={14} aria-hidden="true" />
-              {t("sudoku.layout.keySearch")}
-            </KeyChip>
-          }
-          text={t("sudoku.controlsSearch")}
-        />
-      </GameFooter>
 
       {isGameOver ? (
         <BodyPortal>
@@ -1412,23 +1616,26 @@ export function SudokuGame() {
               <h2 className="text-center text-2xl font-display font-extrabold text-ink">{t("sudoku.newGameModal.title")}</h2>
               <div className="mt-6">
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-subtle">{t("sudoku.newGameModal.mode")}</p>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPendingMode("zen")}
-                    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${pendingMode === "zen" ? "bg-ink text-white" : "bg-chip text-ink"
-                      }`}
-                  >
-                    {t("sudoku.mode.zen")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPendingMode("three-strikes")}
-                    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${pendingMode === "three-strikes" ? "bg-ink text-white" : "bg-chip text-ink"
-                      }`}
-                  >
-                    {t("sudoku.mode.threeStrikes")}
-                  </button>
+                <div className="relative mt-3 grid grid-cols-2 gap-2">
+                  {(["zen", "three-strikes"] as const).map((item) => (
+                    <div
+                      key={item}
+                      className={`flex items-center rounded-2xl ${pendingMode === item ? "bg-sudoku" : "bg-chip"}`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setPendingMode(item)}
+                        aria-pressed={pendingMode === item}
+                        className="min-w-0 flex-1 py-3 pl-4 text-center text-sm font-semibold text-ink"
+                      >
+                        {item === "zen" ? t("sudoku.mode.zen") : t("sudoku.mode.threeStrikes")}
+                      </button>
+                      <InfoTip
+                        label={`${t("sudoku.newGameModal.modeHelpLabel")}: ${item === "zen" ? t("sudoku.mode.zen") : t("sudoku.mode.threeStrikes")}`}
+                        text={item === "zen" ? t("sudoku.newGameModal.zenHelp") : t("sudoku.newGameModal.threeStrikesHelp")}
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -1440,6 +1647,7 @@ export function SudokuGame() {
                       key={item}
                       type="button"
                       onClick={() => setPendingDifficulty(item)}
+                      aria-pressed={pendingDifficulty === item}
                       className={`rounded-2xl px-4 py-3 text-sm font-semibold ${pendingDifficulty === item ? "bg-sudoku text-ink" : "bg-chip text-ink"
                         }`}
                     >

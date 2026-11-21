@@ -5,7 +5,6 @@ import { House, Pause, Play, Settings, Share2 } from "lucide-react";
 import {
   ActionButton,
   ActionGrid,
-  GameAd,
   GameBody,
   GameFooter,
   GameHeader,
@@ -381,46 +380,47 @@ export function TetrisGame() {
             <PanelCard className="!gap-3">
               <TetrisRanking ranking={ranking} />
             </PanelCard>
-
-            <GameAd />
           </>
         }
+        below={
+          <GameFooter ns="tetris" articleSlug="historia-do-tetris">
+            <p className="text-[15px] leading-relaxed text-muted">{t("tetris.menu.goalBody")}</p>
+            <HowToRow
+              keys={
+                <>
+                  <KeyChip>← →</KeyChip>
+                  <KeyChip>↑</KeyChip>
+                  <KeyChip>↓</KeyChip>
+                  <KeyChip>{t("tetris.layout.keySpace")}</KeyChip>
+                  <KeyChip>C</KeyChip>
+                  <KeyChip>P</KeyChip>
+                </>
+              }
+              text={t("tetris.help.desktop")}
+              device="pointer"
+            />
+            <HowToRow
+              keys={
+                <>
+                  <KeyChip>{t("tetris.layout.keySwipe")}</KeyChip>
+                  <KeyChip>{t("tetris.layout.keyTap")}</KeyChip>
+                </>
+              }
+              text={t("tetris.help.mobile")}
+              device="touch"
+            />
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-bold text-ink">{t("tetris.game.strategyTitle")}</p>
+              <ul className="grid gap-1.5 text-[15px] leading-relaxed text-muted">
+                <li>{t("tetris.game.strategyHold")}</li>
+                <li>{t("tetris.game.strategyPreview")}</li>
+                <li>{t("tetris.game.strategyHardDrop")}</li>
+                <li>{t("tetris.game.strategyTetris")}</li>
+              </ul>
+            </div>
+          </GameFooter>
+        }
       />
-
-      <GameFooter ns="tetris" articleSlug="historia-do-tetris">
-        <p className="text-[15px] leading-relaxed text-muted">{t("tetris.menu.goalBody")}</p>
-        <HowToRow
-          keys={
-            <>
-              <KeyChip>← →</KeyChip>
-              <KeyChip>↑</KeyChip>
-              <KeyChip>↓</KeyChip>
-              <KeyChip>{t("tetris.layout.keySpace")}</KeyChip>
-              <KeyChip>C</KeyChip>
-              <KeyChip>P</KeyChip>
-            </>
-          }
-          text={t("tetris.help.desktop")}
-        />
-        <HowToRow
-          keys={
-            <>
-              <KeyChip>{t("tetris.layout.keySwipe")}</KeyChip>
-              <KeyChip>{t("tetris.layout.keyTap")}</KeyChip>
-            </>
-          }
-          text={t("tetris.help.mobile")}
-        />
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-bold text-ink">{t("tetris.game.strategyTitle")}</p>
-          <ul className="grid gap-1.5 text-[15px] leading-relaxed text-muted">
-            <li>{t("tetris.game.strategyHold")}</li>
-            <li>{t("tetris.game.strategyPreview")}</li>
-            <li>{t("tetris.game.strategyHardDrop")}</li>
-            <li>{t("tetris.game.strategyTetris")}</li>
-          </ul>
-        </div>
-      </GameFooter>
     </GamePage>
   );
 }

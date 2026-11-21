@@ -6,7 +6,6 @@ import {
   ActionButton,
   ActionGrid,
   BodyPortal,
-  GameAd,
   GameBody,
   GameFooter,
   GameHeader,
@@ -88,6 +87,7 @@ export function SlideGame() {
           screen === "menu" ? (
             <SlideMenu
               subtitle={t("slide.menu.subtitle")}
+              tagline={t("slide.menu.tagline")}
               playLabel={t("slide.menu.play")}
               settingsLabel={t("slide.menu.settings")}
               shareLabel={t("slide.menu.share")}
@@ -189,27 +189,26 @@ export function SlideGame() {
                 </p>
               ) : null}
             </PanelCard>
-
-            <GameAd />
           </>
         }
+        below={
+          <GameFooter ns="slide" articleSlug="historia-do-slide-puzzle">
+            <HowToRow
+              keys={
+                <>
+                  <KeyChip>
+                    <Mouse size={14} aria-hidden="true" />
+                    {t("slide.layout.keyClick")}
+                  </KeyChip>
+                  <KeyChip>{t("slide.layout.keyTap")}</KeyChip>
+                </>
+              }
+              text={t("slide.help.line1")}
+            />
+            <HowToRow text={t("slide.help.line2")} />
+          </GameFooter>
+        }
       />
-
-      <GameFooter ns="slide" articleSlug="historia-do-slide-puzzle">
-        <HowToRow
-          keys={
-            <>
-              <KeyChip>
-                <Mouse size={14} aria-hidden="true" />
-                {t("slide.layout.keyClick")}
-              </KeyChip>
-              <KeyChip>{t("slide.layout.keyTap")}</KeyChip>
-            </>
-          }
-          text={t("slide.help.line1")}
-        />
-        <HowToRow text={t("slide.help.line2")} />
-      </GameFooter>
 
       {screen === "victory" ? (
         <BodyPortal>
